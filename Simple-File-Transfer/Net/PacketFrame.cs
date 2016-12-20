@@ -30,15 +30,15 @@ namespace Simple_File_Transfer.Net
 
 	public class DataFrame
 	{
-		public ushort FileNameLenght { get; private set; }
-		public ulong FileSize { get; private set; }
+		public short FileNameLenght { get; private set; }
+		public long FileSize { get; private set; }
 
 		public char[] FileName { get; private set; }
 		public byte[] FileData { get; private set; }
 
 		private DataFrame() { }
 
-		public DataFrame(ushort nameLenght, ulong fileSize, char[] fileName, byte[] fileData)
+		public DataFrame(short nameLenght, long fileSize, char[] fileName, byte[] fileData)
 		{
 			this.FileNameLenght = nameLenght;
 			this.FileSize = fileSize;
@@ -114,7 +114,7 @@ namespace Simple_File_Transfer.Net
 	{
 		public byte[] Checksum { get; private set; }
 
-		public BasicSecurityDataFrame(ushort nameLenght, ulong fileSize, char[] fileName, byte[] fileData) : base(nameLenght, fileSize, fileName, fileData)
+		public BasicSecurityDataFrame(short nameLenght, long fileSize, char[] fileName, byte[] fileData) : base(nameLenght, fileSize, fileName, fileData)
 		{
 			GetChecksum(fileData);
 			return;
