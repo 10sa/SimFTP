@@ -12,7 +12,6 @@ namespace Simple_File_Transfer.Net
 		ExpertsSecurity
 	}
 
-	[Serializable]
 	public class PacketFrame
 	{
 		public PacketType PacketType { get; private set; }
@@ -29,8 +28,7 @@ namespace Simple_File_Transfer.Net
 		}
 	}
 
-	[Serializable]
-	public class FileDataFrame
+	public class DataFrame
 	{
 		public ushort FileNameLenght { get; private set; }
 		public ulong FileSize { get; private set; }
@@ -38,9 +36,9 @@ namespace Simple_File_Transfer.Net
 		public char[] FileName { get; private set; }
 		public byte[] FileData { get; private set; }
 
-		private FileDataFrame() { }
+		private DataFrame() { }
 
-		public FileDataFrame(ushort nameLenght, ulong fileSize, char[] fileName, byte[] fileData)
+		public DataFrame(ushort nameLenght, ulong fileSize, char[] fileName, byte[] fileData)
 		{
 			this.FileNameLenght = nameLenght;
 			this.FileSize = fileSize;
@@ -50,6 +48,7 @@ namespace Simple_File_Transfer.Net
 			return;
 		}
 
+		// Refactoring Target //
 		public byte[] GetBinaryData()
 		{
 			byte[] binaryFileNameLenght = BitConverter.GetBytes(FileNameLenght);
@@ -59,7 +58,7 @@ namespace Simple_File_Transfer.Net
 			long bufferSize = binaryFileNameLenght.LongLength + binaryFileSize.LongLength + binaryFileName.LongLength + FileData.LongLength;
 			
 			byte[] buffer = new byte[bufferSize];
-
+			
 			long dataLenght = binaryFileNameLenght.LongLength;
 			Array.Copy(binaryFileNameLenght, buffer, dataLenght);
 
@@ -75,7 +74,6 @@ namespace Simple_File_Transfer.Net
 		}
 	}
 
-	[Serializable]
 	public class BasicSecurityPacket : PacketFrame
 	{
 		public bool IsAnonynomus { get; private set; }
@@ -112,7 +110,36 @@ namespace Simple_File_Transfer.Net
 		}
 	}
 
-	[Serializable]
+	public class BasicSecurityDataFrame : DataFrame
+	{
+		public byte[] Checksum { get; private set; }
+
+		public BasicSecurityDataFrame(ushort nameLenght, ulong fileSize, char[] fileName, byte[] fileData) : base(nameLenght, fileSize, fileName, fileData)
+		{
+			GetChecksum(fileData);
+			return;
+		}
+
+		private void GetChecksum(byte[] fileData)
+		{
+			using (SHA256CryptoServiceProvider hash = new SHA256CryptoServiceProvider())
+			{
+				Checksum = hash.ComputeHash(fileData);
+			}
+		}
+
+		public new byte[] GetBinaryData()
+		{
+			byte[] parentData = base.GetBinaryData();
+			byte[] buffer = new byte[parentData.LongLength + Checksum.LongLength];
+
+			Array.Copy(parentData, buffer, parentData.LongLength);
+			Array.Copy(Checksum, 0, buffer, parentData.LongLength, Checksum.LongLength);
+
+			return buffer;
+		}
+	}
+
 	public sealed class ExpertSecurityPacket : BasicSecurityPacket
 	{
 		public ECDiffieHellmanCng DH { get; private set; }
