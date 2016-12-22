@@ -33,6 +33,9 @@ namespace Simple_File_Transfer.Net
 		public event ServerTransferCallback ConnectingCallback;
 		public event ServerTransferCallback TransferStartCallback;
 		public event ServerTransferCallback TransferEndCallback;
+
+		public event ServerTransferCallback WrongCertificate;
+		public event ServerTransferCallback LowSecurityLevelPacket;
 		#endregion
 
 		public ServerTransfer()
@@ -82,6 +85,7 @@ namespace Simple_File_Transfer.Net
 			TransferStartCallback(GetClientAddress(clientSocket), "File Transfer Starting...");
 
 
+			
 
 			TransferEndCallback(GetClientAddress(clientSocket), "File Transfer End.");
 
@@ -92,6 +96,7 @@ namespace Simple_File_Transfer.Net
 		{
 			return clientSocket.RemoteEndPoint.ToString();
 		}
+
  	}
 
 

@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using Simple_File_Transfer.Net;
+
 namespace Simple_File_Transfer
 {
 	public partial class Form1 : Form
@@ -16,5 +18,12 @@ namespace Simple_File_Transfer
 		{
 			InitializeComponent();
 		}
+
+		private void Form1_Load(object sender, EventArgs e)
+		{
+
+			return;
+		}
 	}
 }
+ 
