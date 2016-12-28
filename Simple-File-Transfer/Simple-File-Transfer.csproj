@@ -52,6 +52,7 @@
     <Compile Include="Forms\MainForm\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Net\DataFrame.cs" />
     <Compile Include="Net\PacketFrame.cs" />
     <Compile Include="Net\Transfer.cs" />
     <Compile Include="Program.cs" />
