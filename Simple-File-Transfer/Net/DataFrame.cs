@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using Simple_File_Transfer;
 
 namespace Simple_File_Transfer.Net
 {
@@ -29,25 +30,7 @@ namespace Simple_File_Transfer.Net
 
 		public byte[] GetBinaryData()
 		{
-			byte[][] argArray = { BitConverter.GetBytes(FileNameLenght), BitConverter.GetBytes(FileSize), Encoding.UTF8.GetBytes(FileName), FileData };
-			byte[] buffer = new byte[sizeof(short) + sizeof(long) + GetByteCount(FileName) + FileData.Length];
-
-			long dataLength = 0;
-			foreach (var arg in argArray)
-				dataLength = BulidArray(arg, buffer, dataLength);
-
-			return buffer;
-		}
-
-		protected long BulidArray(byte[] soruceBuffer, byte[] orignalBuffer, long length)
-		{
-			Array.Copy(soruceBuffer, 0, orignalBuffer, length, soruceBuffer.LongLength);
-			return length + soruceBuffer.LongLength;
-		}
-
-		protected int GetByteCount(string s)
-		{
-			return Encoding.UTF8.GetByteCount(s);
+			return Util.AttachByteArray(BitConverter.GetBytes(FileNameLenght), BitConverter.GetBytes(FileSize), Encoding.UTF8.GetBytes(FileName), FileData);
 		}
 	}
 
@@ -63,22 +46,12 @@ namespace Simple_File_Transfer.Net
 
 		private void SetChecksum(byte[] fileData)
 		{
-			using (SHA256CryptoServiceProvider hash = new SHA256CryptoServiceProvider())
-			{
-				Checksum = hash.ComputeHash(fileData);
-			}
+			Checksum = Util.GetHashValue(fileData);
 		}
 
 		public new byte[] GetBinaryData()
 		{
-			byte[][] argsArray = { base.GetBinaryData(), Checksum };
-			byte[] buffer = new byte[argsArray[0].LongLength + Checksum.LongLength];
-
-			long dataLenght = 0;
-			foreach(var arg in argsArray)
-				dataLenght = BulidArray(arg, buffer, dataLenght);
-
-			return buffer;
+			return Util.AttachByteArray(base.GetBinaryData(), Checksum);
 		}
 	}
 }

@@ -9,6 +9,7 @@ namespace Simple_File_Transfer.Net
 	public enum PacketType
 	{
 		BasicFrame,
+		Request,
 		BasicSecurity,
 		ExpertsSecurity
 	}
@@ -34,15 +35,6 @@ namespace Simple_File_Transfer.Net
 		public byte[] GetBinaryData()
 		{
 			return BitConverter.GetBytes((int)this.PacketType);
-		}
-
-		protected int GetByteCount(params string[] strings)
-		{
-			int count = 0;
-			foreach(var str in strings)
-				count += Encoding.UTF8.GetByteCount(str);
-
-			return count;
 		}
 	}
 
@@ -87,31 +79,17 @@ namespace Simple_File_Transfer.Net
 
 		public new byte[] GetBinaryData()
 		{
-			byte[] parentData = base.GetBinaryData();
-
+			return Util.AttachByteArray(base.GetBinaryData(), BitConverter.GetBytes(IsAnonynomus), GetBytesToInt(Username.Length), GetBytesToInt(Password.Length), UTF8GetBytes(Username), UTF8GetBytes(Password));
 		}
 
-		protected byte[] ByteArrayAttach(byte[] firstArray, byte[] SecondArray)
+		private byte[] GetBytesToInt(int data)
 		{
-			byte[] buffer = new byte[firstArray.LongLength + SecondArray.LongLength];
-
-			Array.Copy(firstArray, buffer, firstArray.LongLength);
-			Array.Copy(SecondArray, 0, buffer, firstArray.LongLength, SecondArray.LongLength);
-
-			return buffer;
+			return BitConverter.GetBytes(data);
 		}
 
 		private byte[] UTF8GetBytes(string str)
 		{
 			return Encoding.UTF8.GetBytes(str);
-		}
-
-		private int GetDataSize()
-		{
-			if(this.IsAnonynomus == true)
-				return sizeof(bool);
-			else
-				return (GetByteCount(Username, Password) + sizeof(bool));
 		}
 	}
 
