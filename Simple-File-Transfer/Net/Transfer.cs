@@ -18,8 +18,9 @@ namespace Simple_File_Transfer.Net
 
 	public class ServerTransfer : IDisposable
 	{
+		public const int ServerPort = 44335;
+
 		#region Private Const field
-		private const int ServerPort = 44332;
 		private const int MaximunBacklog = 16;
 		#endregion
 
@@ -30,13 +31,13 @@ namespace Simple_File_Transfer.Net
 		#endregion
 
 		#region Public Callback field
-		public event ServerTransferCallback ConnectingCallback;
-		public event ServerTransferCallback EndConnectingHandlingCallback;
-		public event ServerTransferCallback TransferStartCallback;
-		public event ServerTransferCallback TransferEndCallback;
+		public event ServerTransferCallback ConnectingCallback = delegate { };
+		public event ServerTransferCallback EndConnectingHandlingCallback = delegate { };
+		public event ServerTransferCallback TransferStartCallback = delegate { };
+		public event ServerTransferCallback TransferEndCallback = delegate { };
 
-		public event ServerTransferCallback WrongCertificate;
-		public event ServerTransferCallback LowSecurityLevelPacket;
+		public event ServerTransferCallback WrongCertificate = delegate { };
+		public event ServerTransferCallback LowSecurityLevelPacket = delegate { };
 		#endregion
 
 		public ServerTransfer()
@@ -71,12 +72,13 @@ namespace Simple_File_Transfer.Net
 		#region Server Thread Area
 		private void ConnectionHandleRoutine()
 		{
-			Socket clientSocket = serverSocket.Accept();
-			
-			Thread connectHandleRoutine = new Thread(new ParameterizedThreadStart(ConnectHandleRoutine));
-			connectHandleRoutine.Start(clientSocket);
+			while(true)
+			{
+				Socket clientSocket = serverSocket.Accept();
 
-			return;
+				Thread connectHandleRoutine = new Thread(new ParameterizedThreadStart(ConnectHandleRoutine));
+				connectHandleRoutine.Start(clientSocket);
+			}
 		}
 		#endregion
 
@@ -91,8 +93,6 @@ namespace Simple_File_Transfer.Net
 			TransferStartCallback(GetClientAddress(clientSocket), "File Transfer Starting...");
 
 			TransferEndCallback(GetClientAddress(clientSocket), "File Transfer End.");
-
-			return;
 		}
 
 		private void ClientConnectHandling(Socket clientSocket)
@@ -105,7 +105,7 @@ namespace Simple_File_Transfer.Net
 			PacketType clientPacketType = GetPacketType(clientSocket);
 			if(clientPacketType == PacketType.BasicFrame)
 			{
-				if(Util.GetConfigData("Accepted_Default_Packet") == bool.TrueString)
+				if(Util.GetConfigData("Accept_Default_Packet") == bool.TrueString)
 				{
 					short fileNameLenght = BitConverter.ToInt16(ReceivePacket(clientSocket, sizeof(short)), 0);
 					long fileSize = BitConverter.ToInt64(ReceivePacket(clientSocket, sizeof(long)), 0);
@@ -122,10 +122,14 @@ namespace Simple_File_Transfer.Net
 					}
 					else
 						fileData = ReceivePacket(clientSocket, (int)fileSize);
+
+					Util.WriteFile(fileData, fileName);
+					return;
 				}
 				else
 				{
-
+					// Send Error Type Packet.
+					Console.WriteLine("PACKET NOT ACCPETED");
 				}
 				
 			}
@@ -137,7 +141,8 @@ namespace Simple_File_Transfer.Net
 
 		private PacketType GetPacketType(Socket clientSocket)
 		{
-			return (PacketType)Enum.Parse(typeof(PacketType), ReceivePacket(clientSocket, sizeof(PacketType)).ToString());
+			byte[] data = ReceivePacket(clientSocket, sizeof(PacketType));
+			return (PacketType)Enum.Parse(typeof(PacketType), BitConverter.ToInt32(data, 0).ToString());
 		}
 		#endregion
 
@@ -188,9 +193,14 @@ namespace Simple_File_Transfer.Net
  			catch(SocketException) { throw; }
  		}
  
- 		public void SendingFile(byte[] file)
+ 		public void SendingFile(byte[] file, PacketType packetType)
  		{
  			clientSocket.SendBufferSize = (int)file.LongLength / 4;
+
+			if(packetType == PacketType.BasicFrame)
+			{
+
+			}
  			
  		}
  

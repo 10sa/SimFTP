@@ -22,5 +22,17 @@ namespace Simple_File_Transfer.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Accept_Default_Packet {
+            get {
+                return ((bool)(this["Accept_Default_Packet"]));
+            }
+            set {
+                this["Accept_Default_Packet"] = value;
+            }
+        }
     }
 }

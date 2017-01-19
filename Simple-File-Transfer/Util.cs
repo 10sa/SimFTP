@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.IO;
 using System.Security.Cryptography;
 using System.Collections;
 
@@ -18,7 +19,7 @@ namespace Simple_File_Transfer
 			byte[] buffer = new byte[GetArraySize(arrays)];
 
 			long bufferPointer = 0;
-			foreach(var array in arrays)
+			foreach (var array in arrays)
 			{
 				Array.Copy(array, 0, buffer, bufferPointer, array.LongLength);
 				bufferPointer += array.LongLength;
@@ -26,7 +27,7 @@ namespace Simple_File_Transfer
 
 			return buffer;
 		}
-		
+
 		private static long GetArraySize(params Array[] arrays)
 		{
 			long size = 0;
@@ -39,7 +40,7 @@ namespace Simple_File_Transfer
 
 		public static byte[] GetHashValue(byte[] orignal)
 		{
-			using(SHA256CryptoServiceProvider csp = new SHA256CryptoServiceProvider())
+			using (SHA256CryptoServiceProvider csp = new SHA256CryptoServiceProvider())
 			{
 				return csp.ComputeHash(orignal);
 			}
@@ -52,7 +53,6 @@ namespace Simple_File_Transfer
 
 		#region Configuration Code
 		// Config IO Buffer //
-
 		private static Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
 		private static KeyValueConfigurationCollection dataCollection = config.AppSettings.Settings;
 
@@ -106,5 +106,16 @@ namespace Simple_File_Transfer
 			return;
 		}
 		#endregion
+
+		public static void WriteFile(byte[] file, string fileName)
+		{
+			using (FileStream fileStream = new FileStream(fileName, FileMode.CreateNew))
+			{
+				fileStream.Write(file, 0, file.Length);
+				fileStream.FlushAsync();
+
+				return;
+			}
+		}
 	}
 }
