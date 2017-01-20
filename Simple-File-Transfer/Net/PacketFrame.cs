@@ -46,6 +46,8 @@ namespace Simple_File_Transfer.Net
 		public bool IsAnonynomus { get; private set; }
 		public string Username { get; private set; }
 		public string Password { get; private set; }
+
+		private Encoding UTF8 { get { return Encoding.UTF8; } }
 		
 		public BasicSecurityPacket(byte dataCount) : base(PacketType.BasicSecurity, dataCount)
 		{
@@ -81,17 +83,13 @@ namespace Simple_File_Transfer.Net
 
 		public new byte[] GetBinaryData()
 		{
-			return Util.AttachByteArray(base.GetBinaryData(), BitConverter.GetBytes(IsAnonynomus), GetBytesToInt(Username.Length), GetBytesToInt(Password.Length), UTF8GetBytes(Username), UTF8GetBytes(Password));
-		}
+			byte[] isAnonymous = BitConverter.GetBytes(IsAnonynomus);
+			byte[] usernameLenght = BitConverter.GetBytes(UTF8.GetByteCount(Username));
+			byte[] passwordLenght = BitConverter.GetBytes(UTF8.GetByteCount(Password));
+			byte[] username = UTF8.GetBytes(Username);
+			byte[] password = UTF8.GetBytes(Password);
 
-		private byte[] GetBytesToInt(int data)
-		{
-			return BitConverter.GetBytes(data);
-		}
-
-		private byte[] UTF8GetBytes(string str)
-		{
-			return Encoding.UTF8.GetBytes(str);
+			return Util.AttachByteArray(base.GetBinaryData(), usernameLenght, passwordLenght, username, password);
 		}
 	}
 

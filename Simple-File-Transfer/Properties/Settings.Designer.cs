@@ -23,15 +23,30 @@ namespace Simple_File_Transfer.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool Accept_Default_Packet {
             get {
                 return ((bool)(this["Accept_Default_Packet"]));
             }
-            set {
-                this["Accept_Default_Packet"] = value;
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Accept_Basic_Security_Packet {
+            get {
+                return ((bool)(this["Accept_Basic_Security_Packet"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Accept_Anonymous_Login {
+            get {
+                return ((bool)(this["Accept_Anonymous_Login"]));
             }
         }
     }

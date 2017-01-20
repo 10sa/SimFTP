@@ -8,7 +8,8 @@ namespace Simple_File_Transfer.Net
 {
 	public enum ErrorType
 	{
-		Not_Accepted_Default_Packet,
+		Not_Accepted_Packet,
+		Not_Accepted_Anonymous,
 		Wrong_Certificate,
 		Security_Alert
 	}

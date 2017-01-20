@@ -86,7 +86,14 @@ namespace Simple_File_Transfer
 
 		public static string GetAccountPassword(string username)
 		{
-			return ConfigurationManager.AppSettings[AccountDataTag + username];
+			try
+			{
+				return ConfigurationManager.AppSettings[AccountDataTag + username];
+			}
+			catch(ConfigurationErrorsException)
+			{
+				return null;
+			}
 		}
 
 		public static void RefreshAccountInfo(string username, string password)

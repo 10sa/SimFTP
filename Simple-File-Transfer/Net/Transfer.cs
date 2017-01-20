@@ -91,19 +91,39 @@ namespace Simple_File_Transfer.Net
 			switch (packetData.PacketType)
 			{
 				case PacketType.BasicFrame:
-						if (Util.GetConfigData("Accept_Default_Packet") == bool.TrueString)
+					if (Util.GetConfigData("Accept_Default_Packet") == bool.TrueString)
+					{
+						DataFrame data = ReceiveDataFramePacket(clientSocket);
+						Util.WriteFile(data.FileData, data.FileName);
+					}
+					else
+						SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+
+					break;
+				case PacketType.BasicSecurity:
+					if (Util.GetConfigData("Accept_Basic_Security_Packet") == bool.TrueString)
+					{
+						BasicSecurityPacket childPacket = GetBasicSecurityPacketData(clientSocket, packetData);
+
+						if (childPacket.IsAnonynomus == true)
 						{
-							DataFrame data = ReceiveDataFramePacket(clientSocket);
-							Util.WriteFile(data.FileData, data.FileName);
+							if (Util.GetConfigData("Accept_Anonymous_Login") == bool.TrueString)
+							{
+
+							}
+							else
+								SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
 						}
 						else
 						{
-							clientSocket.Send(new ErrorPacket(ErrorType.Not_Accepted_Default_Packet).GetBinaryData());
-							clientSocket.Close();
-						}
+							if(Util.GetAccountPassword(childPacket.Username) == Util.GetHashedString(childPacket.Password))
+							{
 
-						break;
-				case PacketType.BasicSecurity:
+							}
+						}
+					}
+					else
+						SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
 					break;
 				case PacketType.ExpertsSecurity:
 					break;
@@ -111,30 +131,49 @@ namespace Simple_File_Transfer.Net
 					break;
 			};
 		}
+
+		
 		#endregion
 
 		#region Packet Frame Data Receive Code
-		private PacketFrame GetPacketData(Socket clientSocket)
+		private static PacketFrame GetPacketData(Socket clientSocket)
 		{
 			PacketType packetType = GetPacketType(clientSocket);
 			byte dataCount = ReceivePacket(clientSocket, sizeof(byte))[0];
 
 			return new PacketFrame(dataCount);
 		}
+
+		private static BasicSecurityPacket GetBasicSecurityPacketData(Socket clientSocket, PacketFrame orignalPacket)
+		{
+			bool isAnonymous = BitConverter.ToBoolean(ReceivePacket(clientSocket, sizeof(bool)), 0);
+
+			if (isAnonymous == true)
+				return new BasicSecurityPacket(orignalPacket.DataCount);
+			else
+			{
+				short usernameLenght = BitConverter.ToInt16(ReceivePacket(clientSocket, sizeof(short)), 0);
+				short passwordLenght = BitConverter.ToInt16(ReceivePacket(clientSocket, sizeof(short)), 0);
+				string username = Encoding.UTF8.GetString(ReceivePacket(clientSocket, usernameLenght));
+				string password = Encoding.UTF8.GetString(ReceivePacket(clientSocket, passwordLenght));
+
+				return new BasicSecurityPacket(username, password, orignalPacket.DataCount);
+			}
+		}
 		#endregion
 
 		#region Data Frame Packet Receive Code
-		private DataFrame ReceiveDataFramePacket(Socket clientSocket)
+		private static DataFrame ReceiveDataFramePacket(Socket clientSocket)
 		{
 			short fileNameLenght = BitConverter.ToInt16(ReceivePacket(clientSocket, sizeof(short)), 0);
 			long fileSize = BitConverter.ToInt64(ReceivePacket(clientSocket, sizeof(long)), 0);
 			string fileName = Encoding.UTF8.GetString(ReceivePacket(clientSocket, fileNameLenght));
-			byte[] fileData = GetFileData(clientSocket, ref fileSize);
+			byte[] fileData = GetFileData(clientSocket, fileSize);
 
 			return new DataFrame(fileNameLenght, fileSize, fileName, fileData);
 		}
 
-		private byte[] GetFileData(Socket clientSocket, ref long fileSize)
+		private static byte[] GetFileData(Socket clientSocket, long fileSize)
 		{
 			byte[] fileData;
 
@@ -154,7 +193,7 @@ namespace Simple_File_Transfer.Net
 		#endregion
 
 		#region Server Util
-		private byte[] ReceivePacket(Socket socket, int size)
+		private static byte[] ReceivePacket(Socket socket, int size)
 		{
 			byte[] buffer = new byte[size];
 			socket.ReceiveTimeout = 300;
@@ -171,15 +210,21 @@ namespace Simple_File_Transfer.Net
 			}
 		}
 
-		private string GetClientAddress(Socket clientSocket)
+		private static string GetClientAddress(Socket clientSocket)
 		{
 			return clientSocket.RemoteEndPoint.ToString();
 		}
 
-		private PacketType GetPacketType(Socket clientSocket)
+		private static PacketType GetPacketType(Socket clientSocket)
 		{
 			byte[] data = ReceivePacket(clientSocket, sizeof(PacketType));
 			return (PacketType)Enum.Parse(typeof(PacketType), BitConverter.ToInt32(data, 0).ToString());
+		}
+
+		private static void SendErrorPacket(Socket clientSocket, ErrorType error)
+		{
+			clientSocket.Send(new ErrorPacket(error).GetBinaryData());
+			clientSocket.Close();
 		}
 		#endregion
 	}
