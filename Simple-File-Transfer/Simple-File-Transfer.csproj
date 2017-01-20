@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Net\DataFrame.cs" />
+    <Compile Include="Net\ErrorPacket.cs" />
     <Compile Include="Net\PacketFrame.cs" />
     <Compile Include="Net\Transfer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

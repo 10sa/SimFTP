@@ -9,6 +9,7 @@ namespace Simple_File_Transfer.Net
 	public enum PacketType
 	{
 		BasicFrame,
+		Error,
 		Request,
 		BasicSecurity,
 		ExpertsSecurity
@@ -17,15 +18,17 @@ namespace Simple_File_Transfer.Net
 	public class PacketFrame
 	{
 		public PacketType PacketType { get; private set; }
+		public byte DataCount { get; private set; }
 
-		public PacketFrame()
+		public PacketFrame(byte dataCount)
 		{
 			this.PacketType = PacketType.BasicFrame;
+			this.DataCount = dataCount;
 
 			return;
 		}
 
-		protected PacketFrame(PacketType packetType)
+		protected PacketFrame(PacketType packetType, byte dataCount)
 		{
 			this.PacketType = packetType;
 
@@ -34,25 +37,24 @@ namespace Simple_File_Transfer.Net
 
 		public byte[] GetBinaryData()
 		{
-			return BitConverter.GetBytes((int)this.PacketType);
+			return Util.AttachByteArray(BitConverter.GetBytes((sbyte)this.PacketType), BitConverter.GetBytes(DataCount));
 		}
 	}
 
-	
 	public class BasicSecurityPacket : PacketFrame
 	{
 		public bool IsAnonynomus { get; private set; }
 		public string Username { get; private set; }
 		public string Password { get; private set; }
 		
-		public BasicSecurityPacket() : base(PacketType.BasicSecurity)
+		public BasicSecurityPacket(byte dataCount) : base(PacketType.BasicSecurity, dataCount)
 		{
 			SetAnonymous();
 
 			return;
 		}
 
-		public BasicSecurityPacket(string username, string password) : base(PacketType.BasicSecurity)
+		public BasicSecurityPacket(string username, string password, byte dataCount) : base(PacketType.BasicSecurity, dataCount)
 		{
 			SetAccount(username, password);
 
@@ -97,9 +99,6 @@ namespace Simple_File_Transfer.Net
 	{
 		public ECDiffieHellmanCng DH { get; private set; }
 
-		public ExpertSecurityPacket(BasicSecurityPacket baseFrame)
-		{
-
-		}
+		public ExpertSecurityPacket(BasicSecurityPacket packet) : base(packet.Username, packet.Password, packet.DataCount) { }
 	}
 }

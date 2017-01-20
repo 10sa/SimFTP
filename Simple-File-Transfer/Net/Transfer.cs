@@ -31,13 +31,7 @@ namespace Simple_File_Transfer.Net
 		#endregion
 
 		#region Public Callback field
-		public event ServerTransferCallback ConnectingCallback = delegate { };
-		public event ServerTransferCallback EndConnectingHandlingCallback = delegate { };
-		public event ServerTransferCallback TransferStartCallback = delegate { };
-		public event ServerTransferCallback TransferEndCallback = delegate { };
-
-		public event ServerTransferCallback WrongCertificate = delegate { };
-		public event ServerTransferCallback LowSecurityLevelPacket = delegate { };
+		public event ServerTransferCallback ServerTransferCallbackEvent = delegate { };
 		#endregion
 
 		public ServerTransfer()
@@ -87,62 +81,75 @@ namespace Simple_File_Transfer.Net
 		{
 			Socket clientSocket = (Socket)threadArgs;
 			ClientConnectHandling(clientSocket);
-
-			// File Transfer Handling //
-
-			TransferStartCallback(GetClientAddress(clientSocket), "File Transfer Starting...");
-
-			TransferEndCallback(GetClientAddress(clientSocket), "File Transfer End.");
 		}
 
 		private void ClientConnectHandling(Socket clientSocket)
 		{
 			clientSocket.ReceiveTimeout = 300;
+			PacketFrame packetData = GetPacketData(clientSocket);
 
-			// Connect Handling //
-			ConnectingCallback(GetClientAddress(clientSocket), "Client Connected, Connection Handling...");
-
-			PacketType clientPacketType = GetPacketType(clientSocket);
-			if(clientPacketType == PacketType.BasicFrame)
+			switch (packetData.PacketType)
 			{
-				if(Util.GetConfigData("Accept_Default_Packet") == bool.TrueString)
-				{
-					short fileNameLenght = BitConverter.ToInt16(ReceivePacket(clientSocket, sizeof(short)), 0);
-					long fileSize = BitConverter.ToInt64(ReceivePacket(clientSocket, sizeof(long)), 0);
-					string fileName = Encoding.UTF8.GetString(ReceivePacket(clientSocket, fileNameLenght));
+				case PacketType.BasicFrame:
+						if (Util.GetConfigData("Accept_Default_Packet") == bool.TrueString)
+						{
+							DataFrame data = ReceiveDataFramePacket(clientSocket);
+							Util.WriteFile(data.FileData, data.FileName);
+						}
+						else
+						{
+							clientSocket.Send(new ErrorPacket(ErrorType.Not_Accepted_Default_Packet).GetBinaryData());
+							clientSocket.Close();
+						}
 
-					byte[] fileData;
-					if (fileSize > int.MaxValue)
-					{
-						fileData = ReceivePacket(clientSocket, int.MaxValue);
-						for (long i = (fileSize - int.MaxValue); fileSize > int.MaxValue; fileSize -= int.MaxValue)
-							fileData = Util.AttachByteArray(fileData, ReceivePacket(clientSocket, int.MaxValue));
+						break;
+				case PacketType.BasicSecurity:
+					break;
+				case PacketType.ExpertsSecurity:
+					break;
+				case PacketType.Error:
+					break;
+			};
+		}
+		#endregion
 
-						fileData = Util.AttachByteArray(fileData, ReceivePacket(clientSocket, (int)fileSize));
-					}
-					else
-						fileData = ReceivePacket(clientSocket, (int)fileSize);
+		#region Packet Frame Data Receive Code
+		private PacketFrame GetPacketData(Socket clientSocket)
+		{
+			PacketType packetType = GetPacketType(clientSocket);
+			byte dataCount = ReceivePacket(clientSocket, sizeof(byte))[0];
 
-					Util.WriteFile(fileData, fileName);
-					return;
-				}
-				else
-				{
-					// Send Error Type Packet.
-					Console.WriteLine("PACKET NOT ACCPETED");
-				}
-				
-			}
+			return new PacketFrame(dataCount);
+		}
+		#endregion
 
-			EndConnectingHandlingCallback(GetClientAddress(clientSocket), "End Connecting Handling.");
+		#region Data Frame Packet Receive Code
+		private DataFrame ReceiveDataFramePacket(Socket clientSocket)
+		{
+			short fileNameLenght = BitConverter.ToInt16(ReceivePacket(clientSocket, sizeof(short)), 0);
+			long fileSize = BitConverter.ToInt64(ReceivePacket(clientSocket, sizeof(long)), 0);
+			string fileName = Encoding.UTF8.GetString(ReceivePacket(clientSocket, fileNameLenght));
+			byte[] fileData = GetFileData(clientSocket, ref fileSize);
+
+			return new DataFrame(fileNameLenght, fileSize, fileName, fileData);
 		}
 
-		
-
-		private PacketType GetPacketType(Socket clientSocket)
+		private byte[] GetFileData(Socket clientSocket, ref long fileSize)
 		{
-			byte[] data = ReceivePacket(clientSocket, sizeof(PacketType));
-			return (PacketType)Enum.Parse(typeof(PacketType), BitConverter.ToInt32(data, 0).ToString());
+			byte[] fileData;
+
+			if (fileSize > int.MaxValue)
+			{
+				fileData = ReceivePacket(clientSocket, int.MaxValue);
+				for (long i = (fileSize - int.MaxValue); fileSize > int.MaxValue; fileSize -= int.MaxValue)
+					fileData = Util.AttachByteArray(fileData, ReceivePacket(clientSocket, int.MaxValue));
+
+				fileData = Util.AttachByteArray(fileData, ReceivePacket(clientSocket, (int)fileSize));
+			}
+			else
+				fileData = ReceivePacket(clientSocket, (int)fileSize);
+
+			return fileData;
 		}
 		#endregion
 
@@ -168,6 +175,12 @@ namespace Simple_File_Transfer.Net
 		{
 			return clientSocket.RemoteEndPoint.ToString();
 		}
+
+		private PacketType GetPacketType(Socket clientSocket)
+		{
+			byte[] data = ReceivePacket(clientSocket, sizeof(PacketType));
+			return (PacketType)Enum.Parse(typeof(PacketType), BitConverter.ToInt32(data, 0).ToString());
+		}
 		#endregion
 	}
 
@@ -182,16 +195,12 @@ namespace Simple_File_Transfer.Net
  
  		public ClientTransfer(string address)
  		{
- 			try
- 			{
- 				ConnectingCallback();
- 				clientSocket.Connect(address, ServerPort);
- 				ConnectedCallback();
- 
- 				clientSocket.NoDelay = false;
- 			}
- 			catch(SocketException) { throw; }
- 		}
+			ConnectingCallback();
+			clientSocket.Connect(address, ServerPort);
+			ConnectedCallback();
+
+			clientSocket.NoDelay = false;
+		}
  
  		public void SendingFile(byte[] file, PacketType packetType)
  		{
