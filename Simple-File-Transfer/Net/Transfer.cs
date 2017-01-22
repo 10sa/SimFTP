@@ -91,10 +91,15 @@ namespace Simple_File_Transfer.Net
 			switch (packetData.PacketType)
 			{
 				case PacketType.BasicFrame:
+					Console.WriteLine(Util.GetConfigData("Accept_Default_Packet"));
 					if (Util.GetConfigData("Accept_Default_Packet") == bool.TrueString)
 					{
-						DataFrame data = ReceiveDataFramePacket(clientSocket);
-						Util.WriteFile(data.FileData, data.FileName);
+						for(int i=0; i < packetData.DataCount; i++)
+						{
+							Console.WriteLine("File Received." + i.ToString());
+							DataFrame data = ReceiveDataFramePacket(clientSocket);
+							Util.WriteFile(data.FileData, data.FileName);
+						}
 					}
 					else
 						SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);

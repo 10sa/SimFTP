@@ -18,7 +18,7 @@ namespace Simple_File_Transfer.Net
 	{
 		public ErrorType error { get; private set; }
 
-		public ErrorPacket(ErrorType error) : base(PacketType.Error)
+		public ErrorPacket(ErrorType error) : base(PacketType.Error, 0)
 		{
 			this.error = error;
 		}
