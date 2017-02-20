@@ -36,14 +36,12 @@ namespace Simple_File_Transfer.Util
 			configTable[key] = value;
 
 			if (isSave)
-			{
-
-			}
+				SaveConfigData();
 		}
 
-		public static string GetAccountPassword(string username)
+		public static void RemoveConfig(string key)
 		{
-
+			configTable.Remove(key);
 		}
 
 		private static void SaveConfigData()
@@ -51,7 +49,7 @@ namespace Simple_File_Transfer.Util
 			binaryFormatter.Serialize(fileWriter.BaseStream, configTable);
 		}
 
-		private static bool IsCreatedConfig()
+		private static bool IsExistsConfig()
 		{
 			return File.Exists("Config.cfg");
 		}
