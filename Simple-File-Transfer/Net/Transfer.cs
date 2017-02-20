@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
 using System.Collections;
+using Simple_File_Transfer.Util;
 
 using System.Net;
 using System.Net.Sockets;
@@ -91,14 +92,13 @@ namespace Simple_File_Transfer.Net
 			switch (packetData.PacketType)
 			{
 				case PacketType.BasicFrame:
-					Console.WriteLine(Util.GetConfigData("Accept_Default_Packet"));
-					if (Util.GetConfigData("Accept_Default_Packet") == bool.TrueString)
+					if (ConfigUtil.GetConfigData("Accept_Default_Packet") == bool.TrueString)
 					{
 						for(int i=0; i < packetData.DataCount; i++)
 						{
 							Console.WriteLine("File Received." + i.ToString());
 							DataFrame data = ReceiveDataFramePacket(clientSocket);
-							Util.WriteFile(data.FileData, data.FileName);
+							Utils.WriteFile(data.FileData, data.FileName);
 						}
 					}
 					else
@@ -106,13 +106,13 @@ namespace Simple_File_Transfer.Net
 
 					break;
 				case PacketType.BasicSecurity:
-					if (Util.GetConfigData("Accept_Basic_Security_Packet") == bool.TrueString)
+					if (ConfigUtil.GetConfigData("Accept_Basic_Security_Packet") == bool.TrueString)
 					{
 						BasicSecurityPacket childPacket = GetBasicSecurityPacketData(clientSocket, packetData);
 
 						if (childPacket.IsAnonynomus == true)
 						{
-							if (Util.GetConfigData("Accept_Anonymous_Login") == bool.TrueString)
+							if (ConfigUtil.GetConfigData("Accept_Anonymous_Login") == bool.TrueString)
 							{
 
 							}
@@ -121,7 +121,7 @@ namespace Simple_File_Transfer.Net
 						}
 						else
 						{
-							if(Util.GetAccountPassword(childPacket.Username) == Util.GetHashedString(childPacket.Password))
+							if(ConfigUtil.GetAccountPassword(childPacket.Username) == Utils.GetHashedString(childPacket.Password))
 							{
 
 							}
