@@ -7,6 +7,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Collections;
 using Simple_File_Transfer.Util;
+using Simple_File_Transfer.Config;
 
 using System.Net;
 using System.Net.Sockets;
@@ -29,6 +30,10 @@ namespace Simple_File_Transfer.Net
 		private Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		private List<Thread> threadList = new List<Thread>();
 		private Thread serverThread;
+
+		private ConfigManager config = new ConfigManager("Config.cfg");
+		private AccountManager accountConfig = new AccountManager("AccountConfig.cfg");
+
 		#endregion
 
 		#region Public Callback field
@@ -92,11 +97,10 @@ namespace Simple_File_Transfer.Net
 			switch (packetData.PacketType)
 			{
 				case PacketType.BasicFrame:
-					if (ConfigUtil.GetConfigData("Accept_Default_Packet") == bool.TrueString)
+					if (config.GetConfigTable("Accept_Default_Packet") == bool.TrueString)
 					{
 						for(int i=0; i < packetData.DataCount; i++)
 						{
-							Console.WriteLine("File Received." + i.ToString());
 							DataFrame data = ReceiveDataFramePacket(clientSocket);
 							Utils.WriteFile(data.FileData, data.FileName);
 						}
@@ -106,13 +110,13 @@ namespace Simple_File_Transfer.Net
 
 					break;
 				case PacketType.BasicSecurity:
-					if (ConfigUtil.GetConfigData("Accept_Basic_Security_Packet") == bool.TrueString)
+					if (config.GetConfigTable("Accept_Basic_Security_Packet") == bool.TrueString)
 					{
 						BasicSecurityPacket childPacket = GetBasicSecurityPacketData(clientSocket, packetData);
 
 						if (childPacket.IsAnonynomus == true)
 						{
-							if (ConfigUtil.GetConfigData("Accept_Anonymous_Login") == bool.TrueString)
+							if (config.GetConfigTable("Accept_Anonymous_Login") == bool.TrueString)
 							{
 
 							}
@@ -121,7 +125,7 @@ namespace Simple_File_Transfer.Net
 						}
 						else
 						{
-							if(ConfigUtil.GetAccountPassword(childPacket.Username) == Utils.GetHashedString(childPacket.Password))
+							if(accountConfig.GetConfigTable(childPacket.Username) == Utils.GetHashedString(childPacket.Password))
 							{
 
 							}
@@ -186,9 +190,9 @@ namespace Simple_File_Transfer.Net
 			{
 				fileData = ReceivePacket(clientSocket, int.MaxValue);
 				for (long i = (fileSize - int.MaxValue); fileSize > int.MaxValue; fileSize -= int.MaxValue)
-					fileData = Util.AttachByteArray(fileData, ReceivePacket(clientSocket, int.MaxValue));
+					fileData = Utils.AttachByteArray(fileData, ReceivePacket(clientSocket, int.MaxValue));
 
-				fileData = Util.AttachByteArray(fileData, ReceivePacket(clientSocket, (int)fileSize));
+				fileData = Utils.AttachByteArray(fileData, ReceivePacket(clientSocket, (int)fileSize));
 			}
 			else
 				fileData = ReceivePacket(clientSocket, (int)fileSize);
