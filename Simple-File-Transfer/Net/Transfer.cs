@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
 using System.Collections;
-using Simple_File_Transfer.Util;
-using Simple_File_Transfer.Config;
 
+using Simple_File_Transfer.Config;
+using Simple_File_Transfer.Net.MetadataPackets;
+using Simple_File_Transfer.Net.DataPackets;
 using System.Net;
 using System.Net.Sockets;
 
@@ -31,8 +32,8 @@ namespace Simple_File_Transfer.Net
 		private List<Thread> threadList = new List<Thread>();
 		private Thread serverThread;
 
-		private ConfigManager config = new ConfigManager("Config.cfg");
-		private AccountManager accountConfig = new AccountManager("AccountConfig.cfg");
+		private TransferConfig config = new TransferConfig();
+		private AccountConfig accountConfig = new AccountConfig();
 
 		#endregion
 
@@ -92,73 +93,83 @@ namespace Simple_File_Transfer.Net
 		private void ClientConnectHandling(Socket clientSocket)
 		{
 			clientSocket.ReceiveTimeout = 300;
-			PacketFrame packetData = GetPacketData(clientSocket);
+			BasicMetadataPacket packetData = ReceiveBasicMetadataPacket(clientSocket);
 
 			switch (packetData.PacketType)
 			{
 				case PacketType.BasicFrame:
-					if (config.GetConfigTable("Accept_Default_Packet") == bool.TrueString)
-					{
-						for(int i=0; i < packetData.DataCount; i++)
-						{
-							DataFrame data = ReceiveDataFramePacket(clientSocket);
-							Utils.WriteFile(data.FileData, data.FileName);
-						}
-					}
-					else
-						SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
-
+					BasicMetatdataPacketHandling(clientSocket, packetData);
 					break;
 				case PacketType.BasicSecurity:
-					if (config.GetConfigTable("Accept_Basic_Security_Packet") == bool.TrueString)
-					{
-						BasicSecurityPacket childPacket = GetBasicSecurityPacketData(clientSocket, packetData);
-
-						if (childPacket.IsAnonynomus == true)
-						{
-							if (config.GetConfigTable("Accept_Anonymous_Login") == bool.TrueString)
-							{
-
-							}
-							else
-								SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
-						}
-						else
-						{
-							if(accountConfig.GetConfigTable(childPacket.Username) == Utils.GetHashedString(childPacket.Password))
-							{
-
-							}
-						}
-					}
-					else
-						SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+					BasicSecurityMetadataPacketHandling(clientSocket, packetData);
 					break;
-				case PacketType.ExpertsSecurity:
+				case PacketType.ExpertSecurity:
 					break;
 				case PacketType.Error:
 					break;
 			};
 		}
 
-		
-		#endregion
-
-		#region Packet Frame Data Receive Code
-		private static PacketFrame GetPacketData(Socket clientSocket)
+		private void BasicMetatdataPacketHandling(Socket clientSocket, BasicMetadataPacket packetData)
 		{
-			PacketType packetType = GetPacketType(clientSocket);
-			byte dataCount = ReceivePacket(clientSocket, sizeof(byte))[0];
-
-			return new PacketFrame(dataCount);
+			if (config.GetConfigTable("Accept_Default_Packet") == bool.TrueString)
+			{
+				for (int i = 0; i < packetData.DataCount; i++)
+				{
+					BasicDataPacket data = ReceiveBasicDataPacket(clientSocket);
+					Util.WriteFile(data.FileData, data.FileName);
+				}
+			}
+			else
+				SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
 		}
 
-		private static BasicSecurityPacket GetBasicSecurityPacketData(Socket clientSocket, PacketFrame orignalPacket)
+		private void BasicSecurityMetadataPacketHandling(Socket clientSocket, BasicMetadataPacket packetData)
+		{
+			if (config.GetConfigTable("Accept_Basic_Security_Packet") == bool.TrueString)
+			{
+				BasicSecurityMetadataPacket childPacket = ReceiveBasicSecurityMetadataPacket(clientSocket, packetData);
+
+				if (childPacket.IsAnonynomus == true)
+				{
+					if (config.GetConfigTable("Accept_Anonymous_Login") == bool.TrueString)
+					{
+						BasicSecurityDataPacket data = ReceiveBasicSecurityDataPacket(clientSocket);
+						Util.WriteFile(data.FileData, data.FileName);
+					}
+					else
+						SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
+				}
+				else if (accountConfig.GetConfigTable(childPacket.Username) == Util.GetHashedString(childPacket.Password))
+				{
+					BasicSecurityDataPacket data = ReceiveBasicSecurityDataPacket(clientSocket);
+					Util.WriteFile(data.FileData, data.FileName);
+				}
+				else
+					SendErrorPacket(clientSocket, ErrorType.Wrong_Certificate);
+			}
+			else
+				SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+		}
+
+
+		#endregion
+
+		#region Metadata Packets Receive
+		private static BasicMetadataPacket ReceiveBasicMetadataPacket(Socket clientSocket)
+		{
+			PacketType packetType = GetPacketType(clientSocket);
+			int dataCount = BitConverter.ToInt32(ReceivePacket(clientSocket, sizeof(int)), 0);
+
+			return new BasicMetadataPacket(dataCount);
+		}
+
+		private static BasicSecurityMetadataPacket ReceiveBasicSecurityMetadataPacket(Socket clientSocket, BasicMetadataPacket orignalPacket)
 		{
 			bool isAnonymous = BitConverter.ToBoolean(ReceivePacket(clientSocket, sizeof(bool)), 0);
 
 			if (isAnonymous == true)
-				return new BasicSecurityPacket(orignalPacket.DataCount);
+				return new BasicSecurityMetadataPacket(orignalPacket.DataCount);
 			else
 			{
 				short usernameLenght = BitConverter.ToInt16(ReceivePacket(clientSocket, sizeof(short)), 0);
@@ -166,20 +177,26 @@ namespace Simple_File_Transfer.Net
 				string username = Encoding.UTF8.GetString(ReceivePacket(clientSocket, usernameLenght));
 				string password = Encoding.UTF8.GetString(ReceivePacket(clientSocket, passwordLenght));
 
-				return new BasicSecurityPacket(username, password, orignalPacket.DataCount);
+				return new BasicSecurityMetadataPacket(username, password, orignalPacket.DataCount);
 			}
 		}
 		#endregion
 
-		#region Data Frame Packet Receive Code
-		private static DataFrame ReceiveDataFramePacket(Socket clientSocket)
+		#region Data Packets Receive
+		private static BasicDataPacket ReceiveBasicDataPacket(Socket clientSocket)
 		{
 			short fileNameLenght = BitConverter.ToInt16(ReceivePacket(clientSocket, sizeof(short)), 0);
 			long fileSize = BitConverter.ToInt64(ReceivePacket(clientSocket, sizeof(long)), 0);
 			string fileName = Encoding.UTF8.GetString(ReceivePacket(clientSocket, fileNameLenght));
 			byte[] fileData = GetFileData(clientSocket, fileSize);
 
-			return new DataFrame(fileNameLenght, fileSize, fileName, fileData);
+			return new BasicDataPacket(fileNameLenght, fileSize, fileName, fileData);
+		}
+
+		private static BasicSecurityDataPacket ReceiveBasicSecurityDataPacket(Socket clientSocket)
+		{
+			BasicDataPacket data = ReceiveBasicDataPacket(clientSocket);
+			return new BasicSecurityDataPacket(data.FileName, data.FileNameLenght, data.FileData, data.FileSize, ReceivePacket(clientSocket, Util.HashSize));
 		}
 
 		private static byte[] GetFileData(Socket clientSocket, long fileSize)
@@ -190,9 +207,9 @@ namespace Simple_File_Transfer.Net
 			{
 				fileData = ReceivePacket(clientSocket, int.MaxValue);
 				for (long i = (fileSize - int.MaxValue); fileSize > int.MaxValue; fileSize -= int.MaxValue)
-					fileData = Utils.AttachByteArray(fileData, ReceivePacket(clientSocket, int.MaxValue));
+					fileData = Util.AttachByteArray(fileData, ReceivePacket(clientSocket, int.MaxValue));
 
-				fileData = Utils.AttachByteArray(fileData, ReceivePacket(clientSocket, (int)fileSize));
+				fileData = Util.AttachByteArray(fileData, ReceivePacket(clientSocket, (int)fileSize));
 			}
 			else
 				fileData = ReceivePacket(clientSocket, (int)fileSize);
@@ -226,8 +243,8 @@ namespace Simple_File_Transfer.Net
 
 		private static PacketType GetPacketType(Socket clientSocket)
 		{
-			byte[] data = ReceivePacket(clientSocket, sizeof(PacketType));
-			return (PacketType)Enum.Parse(typeof(PacketType), BitConverter.ToInt32(data, 0).ToString());
+			byte[] data = ReceivePacket(clientSocket, sizeof(byte));
+			return (PacketType)Enum.Parse(typeof(PacketType), data[0].ToString());
 		}
 
 		private static void SendErrorPacket(Socket clientSocket, ErrorType error)

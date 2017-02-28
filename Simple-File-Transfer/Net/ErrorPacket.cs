@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Simple_File_Transfer.Net.MetadataPackets;
+
 namespace Simple_File_Transfer.Net
 {
 	public enum ErrorType
@@ -14,18 +16,19 @@ namespace Simple_File_Transfer.Net
 		Security_Alert
 	}
 
-	public class ErrorPacket : PacketFrame
+	public class ErrorPacket : BasicMetadataPacket
 	{
 		public ErrorType error { get; private set; }
 
-		public ErrorPacket(ErrorType error) : base(PacketType.Error, 0)
+		public ErrorPacket(ErrorType error) : base(0)
 		{
+			PacketType = PacketType.Error;
 			this.error = error;
 		}
 
 		public new byte[] GetBinaryData()
 		{
-			return Util.AttachByteArray(BitConverter.GetBytes((sbyte)error), base.GetBinaryData());
+			return Util.AttachByteArray(Util.ByteToByteArray((byte)error), base.GetBinaryData());
 		}
 	}
 }

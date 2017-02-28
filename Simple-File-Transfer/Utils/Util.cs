@@ -11,10 +11,13 @@ using System.Configuration.Assemblies;
 using System.Collections.Specialized;
 
 
-namespace Simple_File_Transfer.Util
+namespace Simple_File_Transfer
 {
-	public static class Utils
+	public static class Util
 	{
+		private static SHA256CryptoServiceProvider csp = new SHA256CryptoServiceProvider();
+		public static int HashSize = 32;
+
 		#region AttachByteArray Main/Sub Methods
 		public static byte[] AttachByteArray(params byte[][] arrays)
 		{
@@ -42,10 +45,7 @@ namespace Simple_File_Transfer.Util
 
 		public static byte[] GetHashValue(byte[] orignal)
 		{
-			using (SHA256CryptoServiceProvider csp = new SHA256CryptoServiceProvider())
-			{
-				return csp.ComputeHash(orignal);
-			}
+			return csp.ComputeHash(orignal);
 		}
 
 		public static string GetHashedString(string data)
@@ -55,13 +55,27 @@ namespace Simple_File_Transfer.Util
 
 		public static void WriteFile(byte[] file, string fileName)
 		{
-			using (FileStream fileStream = new FileStream(fileName, FileMode.CreateNew))
+			using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
 			{
 				fileStream.Write(file, 0, file.Length);
 				fileStream.FlushAsync();
 
 				return;
 			}
+		}
+
+		public static byte[] ByteToByteArray(byte data)
+		{
+			byte[] tempArray = new byte[1];
+			tempArray[1] = data;
+			return tempArray;
+		}
+
+		public static void ErrorHandling(string message, bool isExit=false)
+		{
+			Console.Error.WriteLine("[ERROR] " + message);
+			if (isExit)
+				Environment.Exit(-1);
 		}
 	}
 }

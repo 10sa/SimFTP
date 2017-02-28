@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 
+
 namespace Simple_File_Transfer.Config
 {
-	public class ConfigManager : IDisposable
+	public abstract class ConfigManager : IDisposable
 	{
 		private BinaryFormatter binaryFormatter = new BinaryFormatter();
 		private object threadLocker = new object();
 		private Stream fileStream;
 
 		protected Dictionary<string, string> configTable = new Dictionary<string, string>();
-		public event Action InitializeConfig = () => { };
+		protected abstract void InitializeConfig();
 
 		// Not Using This Constructor. //
 		private ConfigManager() { }
@@ -28,7 +29,12 @@ namespace Simple_File_Transfer.Config
 				LoadData();
 			}
 			else
+			{
+				Console.WriteLine("Config File Not Found, Initialize... [" + path + "]");
+				fileStream = File.Open(path, FileMode.CreateNew);
 				InitializeConfig();
+				SaveData();
+			}
 		}
 
 		public virtual void AddConfigTable(string key, string value)
@@ -53,7 +59,7 @@ namespace Simple_File_Transfer.Config
 			}
 			catch
 			{
-				Console.Error.WriteLine("[Error] Data Serialize Failure.");
+				Util.ErrorHandling("Data Serialize Failure.");
 				throw;
 			}
 		}
@@ -66,8 +72,9 @@ namespace Simple_File_Transfer.Config
 			}
 			catch
 			{
-				Console.Error.WriteLine("[Error] Data Deserialize Failure.");
+				Util.ErrorHandling("Data Deserialize Failure, Initialize Config...");
 				InitializeConfig();
+				SaveData();
 			}
 		}
 
@@ -83,7 +90,6 @@ namespace Simple_File_Transfer.Config
 					fileStream.Dispose();
 				}
 
-				InitializeConfig = null;
 				binaryFormatter = null;
 				configTable = null;
 
