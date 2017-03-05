@@ -19,10 +19,9 @@ namespace Simple_File_Transfer.Security
 
 		public AES256Manager()
 		{
-			int tickCount = Environment.TickCount;
 			Random keyValue = new Random();
 
-			Key = Util.GetHashValue(BitConverter.GetBytes(tickCount * keyValue.Next()));
+			Key = Util.GetHashValue(BitConverter.GetBytes(Environment.TickCount * keyValue.Next()));
 			Array.Copy(Key, IV, IV.Length);
 
 			AESManager.Padding = PaddingMode.ANSIX923;
