@@ -7,8 +7,8 @@
     <ProjectGuid>{98DD0B62-ACF6-4156-B0AC-C8799DCBFB6C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Simple_File_Transfer</RootNamespace>
-    <AssemblyName>Simple-File-Transfer</AssemblyName>
+    <RootNamespace>SimFTP</RootNamespace>
+    <AssemblyName>SimFTP</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -59,6 +59,10 @@
     <Compile Include="Net\MetadataPackets\BasicSecurityMetadataPacket.cs" />
     <Compile Include="Net\MetadataPackets\ExpertSecurityMetadataPacket.cs" />
     <Compile Include="Net\MetadataPackets\BasicMetadataPacket.cs" />
+    <Compile Include="Net\Server\PacketHandlers\MetadataPacketHandler.cs" />
+    <Compile Include="Net\Server\Server.cs" />
+    <Compile Include="Net\Server\PacketHandlers\ServerPacketHandler.cs" />
+    <Compile Include="Net\Server\ServerUtil.cs" />
     <Compile Include="Net\Transfer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Config\AccountConfig.cs" />

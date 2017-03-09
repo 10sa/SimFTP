@@ -50,6 +50,7 @@ namespace SimFTP.Config
 			return configTable[key];
 		}
 
+		#region IO Part
 		public void SaveData()
 		{
 			try
@@ -77,6 +78,7 @@ namespace SimFTP.Config
 				SaveData();
 			}
 		}
+		#endregion
 
 		#region IDisposable Support
 		private bool disposedValue = false;
