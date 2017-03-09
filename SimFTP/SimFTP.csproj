@@ -59,6 +59,7 @@
     <Compile Include="Net\MetadataPackets\BasicSecurityMetadataPacket.cs" />
     <Compile Include="Net\MetadataPackets\ExpertSecurityMetadataPacket.cs" />
     <Compile Include="Net\MetadataPackets\BasicMetadataPacket.cs" />
+    <Compile Include="Net\Server\PacketHandlers\DataPacketHandler.cs" />
     <Compile Include="Net\Server\PacketHandlers\MetadataPacketHandler.cs" />
     <Compile Include="Net\Server\Server.cs" />
     <Compile Include="Net\Server\PacketHandlers\ServerPacketHandler.cs" />

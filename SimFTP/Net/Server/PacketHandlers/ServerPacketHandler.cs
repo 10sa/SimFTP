@@ -17,57 +17,81 @@ using System.Net.Sockets;
 
 namespace SimFTP.Net.Server.PacketHandlers
 {
-	class ServerPacketHandler
+	internal class ServerPacketHandler
 	{
 		private readonly AccountConfig accountConfig;
 		private readonly TransferConfig config;
 
-		public ServerPacketHandler(Socket clientSocket,ref TransferConfig config, ref AccountConfig accountConfig)
+		private MetadataPacketHandler metadataHandler;
+		private DataPacketHandler dataHandler;
+		private Socket clientSocket;
+
+		public ServerPacketHandler(Socket clientSocket, ref TransferConfig config, ref AccountConfig accountConfig)
 		{
 			this.config = config;
 			this.accountConfig = accountConfig;
-		}
 
-		
+			metadataHandler = new MetadataPacketHandler(clientSocket);
+			dataHandler = new DataPacketHandler(clientSocket);
+			this.clientSocket = clientSocket;
 
-		#region Data Packets Receive
-		private static BasicDataPacket ReceiveBasicDataPacket (Socket clientSocket)
-		{
-			short fileNameLenght = BitConverter.ToInt16(ReceivePacket(clientSocket, sizeof(short)), 0);
-			long fileSize = BitConverter.ToInt64(ReceivePacket(clientSocket, sizeof(long)), 0);
-			string fileName = Encoding.UTF8.GetString(ReceivePacket(clientSocket, fileNameLenght));
-			byte[] fileData = GetFileData(clientSocket, fileSize);
+			BasicMetadataPacket packetData = metadataHandler.ReceiveBasicMetadataPacket();
 
-			return new BasicDataPacket(fileNameLenght, fileSize, fileName, fileData);
-		}
-
-		private static BasicSecurityDataPacket ReceiveBasicSecurityDataPacket (Socket clientSocket)
-		{
-			BasicDataPacket data = ReceiveBasicDataPacket(clientSocket);
-			return new BasicSecurityDataPacket(data.FileName, data.FileNameLenght, data.FileData, data.FileSize, ReceivePacket(clientSocket, Util.HashByteSize));
-		}
-
-		private static byte[] GetFileData (Socket clientSocket, long fileSize)
-		{
-			byte[] fileData;
-
-			if(fileSize > int.MaxValue)
+			switch(packetData.PacketType)
 			{
-				fileData = ReceivePacket(clientSocket, int.MaxValue);
-				for(long i = (fileSize - int.MaxValue); fileSize > int.MaxValue; fileSize -= int.MaxValue)
-					fileData = Util.AttachByteArray(fileData, ReceivePacket(clientSocket, int.MaxValue));
+				case PacketType.BasicFrame:
+					BasicMetatdataPacketHandling(packetData);
+					break;
+				case PacketType.BasicSecurity:
+					BasicSecurityMetadataPacketHandling(packetData);
+					break;
+				case PacketType.ExpertSecurity:
+					break;
+				case PacketType.Error:
+					break;
+			};
+		}
 
-				fileData = Util.AttachByteArray(fileData, ReceivePacket(clientSocket, (int)fileSize));
+		private void BasicMetatdataPacketHandling (BasicMetadataPacket packetData)
+		{
+			if(config.GetConfigTable("Accept_Default_Packet") == bool.TrueString)
+			{
+				for(int i = 0; i < packetData.DataCount; i++)
+				{
+					BasicDataPacket data = dataHandler.ReceiveBasicDataPacket();
+					Util.WriteFile(data.FileData, data.FileName);
+				}
 			}
 			else
-				fileData = ReceivePacket(clientSocket, (int)fileSize);
-
-			return fileData;
+				ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
 		}
-		#endregion
 
-		#region Server Util
+		private void BasicSecurityMetadataPacketHandling (BasicMetadataPacket packetData)
+		{
+			if(config.GetConfigTable("Accept_Basic_Security_Packet") == bool.TrueString)
+			{
+				BasicSecurityMetadataPacket childPacket = metadataHandler.ReceiveBasicSecurityMetadataPacket(packetData);
 
-		#endregion
+				if(childPacket.IsAnonynomus == true)
+				{
+					if(config.GetConfigTable("Accept_Anonymous_Login") == bool.TrueString)
+					{
+						BasicSecurityDataPacket data = dataHandler.ReceiveBasicSecurityDataPacket();
+						Util.WriteFile(data.FileData, data.FileName);
+					}
+					else
+						ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
+				}
+				else if(accountConfig.GetConfigTable(childPacket.Username) == Util.GetHashedString(childPacket.Password))
+				{
+					BasicSecurityDataPacket data = dataHandler.ReceiveBasicSecurityDataPacket();
+					Util.WriteFile(data.FileData, data.FileName);
+				}
+				else
+					ServerUtil.SendErrorPacket(clientSocket, ErrorType.Wrong_Certificate);
+			}
+			else
+				ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+		}
 	}
 }

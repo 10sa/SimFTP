@@ -10,6 +10,7 @@ using SimFTP.Config;
 using SimFTP.Net;
 using SimFTP.Net.DataPackets;
 using SimFTP.Net.MetadataPackets;
+using SimFTP.Net.Server.PacketHandlers;
 
 using System.Net;
 using System.Threading;
@@ -94,21 +95,7 @@ namespace SimFTP.Net.Server
 		private void ClientConnectHandling (Socket clientSocket)
 		{
 			clientSocket.ReceiveTimeout = 300;
-			BasicMetadataPacket packetData = ReceiveBasicMetadataPacket(clientSocket);
-
-			switch(packetData.PacketType)
-			{
-				case PacketType.BasicFrame:
-					BasicMetatdataPacketHandling(clientSocket, packetData);
-					break;
-				case PacketType.BasicSecurity:
-					BasicSecurityMetadataPacketHandling(clientSocket, packetData);
-					break;
-				case PacketType.ExpertSecurity:
-					break;
-				case PacketType.Error:
-					break;
-			};
+			ServerPacketHandler handler = new ServerPacketHandler(clientSocket, ref config, ref accountConfig);
 		}
 		#endregion
 	}

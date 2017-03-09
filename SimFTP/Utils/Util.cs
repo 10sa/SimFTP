@@ -68,7 +68,7 @@ namespace SimFTP
 		public static byte[] ByteToByteArray(byte data)
 		{
 			byte[] tempArray = new byte[1];
-			tempArray[1] = data;
+			tempArray[0] = data;
 			return tempArray;
 		}
 

@@ -19,12 +19,12 @@ namespace SimFTP.Net.Server
 {
 	class ServerUtil
 	{
-		private static string GetClientAddress (Socket clientSocket)
+		public static string GetClientAddress (Socket clientSocket)
 		{
 			return clientSocket.RemoteEndPoint.ToString();
 		}
 
-		private static byte[] ReceivePacket (Socket socket, int size)
+		public static byte[] ReceivePacket (Socket socket, int size)
 		{
 			byte[] buffer = new byte[size];
 			socket.ReceiveTimeout = 300;
@@ -41,13 +41,13 @@ namespace SimFTP.Net.Server
 			}
 		}
 
-		private static PacketType GetPacketType (Socket clientSocket)
+		public static PacketType GetPacketType (Socket clientSocket)
 		{
 			byte[] data = ReceivePacket(clientSocket, sizeof(byte));
 			return (PacketType)Enum.Parse(typeof(PacketType), data[0].ToString());
 		}
 
-		private static void SendErrorPacket (Socket clientSocket, ErrorType error)
+		public static void SendErrorPacket (Socket clientSocket, ErrorType error)
 		{
 			clientSocket.Send(new ErrorPacket(error).GetBinaryData());
 			clientSocket.Close();
