@@ -21,7 +21,7 @@ namespace SimFTP.Net.Server
 {
 	public delegate void ServerTransferCallback (string address, string statusMessage);
 
-	public class ServerTransfer : IDisposable
+	public class Server : IDisposable
 	{
 		public const int ServerPort = 44335;
 

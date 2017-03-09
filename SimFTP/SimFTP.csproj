@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\TransferConfig.cs" />
+    <Compile Include="Net\Client\Client.cs" />
     <Compile Include="Net\DataPackets\BasicSecurityDataPacket.cs" />
     <Compile Include="Net\DataPackets\BasicDataPacket.cs" />
     <Compile Include="Net\ErrorPacket.cs" />
@@ -64,7 +65,6 @@
     <Compile Include="Net\Server\Server.cs" />
     <Compile Include="Net\Server\PacketHandlers\ServerPacketHandler.cs" />
     <Compile Include="Net\Server\ServerUtil.cs" />
-    <Compile Include="Net\Transfer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Config\AccountConfig.cs" />
     <Compile Include="Security\AES256Manager.cs" />
