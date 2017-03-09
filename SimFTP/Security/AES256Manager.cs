@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 
 using System.IO;
 using System.Security.Cryptography;
-using Simple_File_Transfer;
+using SimFTP;
 
-namespace Simple_File_Transfer.Security
+namespace SimFTP.Security
 {
 	public sealed class AES256Manager
 	{
-		private byte[] Key;
-		private byte[] IV = new byte[Util.HashSize / 2];
+		// Getter, Setter. (For Key)
+		public byte[] Key { get { return AESManager.Key; } private set { AESManager.Key = value; } }
+		private byte[] IV = new byte[Util.HashByteSize / 2];
 
 		private RijndaelManaged AESManager = new RijndaelManaged();
 
@@ -21,12 +22,27 @@ namespace Simple_File_Transfer.Security
 		{
 			Random keyValue = new Random();
 
-			Key = Util.GetHashValue(BitConverter.GetBytes(Environment.TickCount * keyValue.Next()));
-			Array.Copy(Key, IV, IV.Length);
+			SetCryptoConfig(Util.GetHashValue(BitConverter.GetBytes(Environment.TickCount * keyValue.Next())));
+			SetAESConfigs();
+		}
 
-			AESManager.Padding = PaddingMode.ANSIX923;
+		public AES256Manager(byte[] key)
+		{
+			SetCryptoConfig(key);
+			SetAESConfigs();
+		}
+
+		private void SetCryptoConfig (byte[] key)
+		{
+			Key = key;
+			Array.Copy(Key, IV, IV.Length);
+		}
+
+		private void SetAESConfigs ()
+		{
+			AESManager.Padding = PaddingMode.PKCS7;
 			AESManager.Mode = CipherMode.CBC;
-			AESManager.KeySize = Util.HashSize * 8;
+			AESManager.KeySize = Util.HashByteSize * 8;
 		}
 
 		public byte[] Encrypt(byte[] data)

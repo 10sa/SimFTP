@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
-using Simple_File_Transfer;
+using SimFTP;
 
 
-namespace Simple_File_Transfer.Net.DataPackets
+namespace SimFTP.Net.DataPackets
 {
 	public class BasicDataPacket 
 	{

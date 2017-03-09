@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace Simple_File_Transfer.Net.MetadataPackets
+namespace SimFTP.Net.MetadataPackets
 {
 	public class BasicSecurityMetadataPacket : BasicMetadataPacket
 	{

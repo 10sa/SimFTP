@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace Simple_File_Transfer.Net.DataPackets
+namespace SimFTP.Net.DataPackets
 {
 	public class BasicSecurityDataPacket : BasicDataPacket
 	{

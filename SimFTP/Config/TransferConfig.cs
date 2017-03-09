@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Simple_File_Transfer.Config
+namespace SimFTP.Config
 {
 	public class TransferConfig : ConfigManager
 	{

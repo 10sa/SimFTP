@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 
 
-namespace Simple_File_Transfer.Config
+namespace SimFTP.Config
 {
 	public abstract class ConfigManager : IDisposable
 	{

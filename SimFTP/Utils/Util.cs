@@ -11,12 +11,13 @@ using System.Configuration.Assemblies;
 using System.Collections.Specialized;
 
 
-namespace Simple_File_Transfer
+namespace SimFTP
 {
+	// If project done, change default access class.
 	public static class Util
 	{
 		private static SHA256CryptoServiceProvider csp = new SHA256CryptoServiceProvider();
-		public static int HashSize = 32;
+		public static readonly int HashByteSize = csp.HashSize / 8; // Bit to byte.
 
 		#region AttachByteArray Main/Sub Methods
 		public static byte[] AttachByteArray(params byte[][] arrays)

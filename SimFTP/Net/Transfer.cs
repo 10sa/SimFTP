@@ -7,14 +7,14 @@ using System.Threading;
 using System.Diagnostics;
 using System.Collections;
 
-using Simple_File_Transfer.Config;
-using Simple_File_Transfer.Net.MetadataPackets;
-using Simple_File_Transfer.Net.DataPackets;
+using SimFTP.Config;
+using SimFTP.Net.MetadataPackets;
+using SimFTP.Net.DataPackets;
 using System.Net;
 using System.Net.Sockets;
 
 
-namespace Simple_File_Transfer.Net
+namespace SimFTP.Net
 {
 	public delegate void ServerTransferCallback(string address, string statusMessage);
 	public delegate void ClientTransferCallback();
@@ -196,7 +196,7 @@ namespace Simple_File_Transfer.Net
 		private static BasicSecurityDataPacket ReceiveBasicSecurityDataPacket(Socket clientSocket)
 		{
 			BasicDataPacket data = ReceiveBasicDataPacket(clientSocket);
-			return new BasicSecurityDataPacket(data.FileName, data.FileNameLenght, data.FileData, data.FileSize, ReceivePacket(clientSocket, Util.HashSize));
+			return new BasicSecurityDataPacket(data.FileName, data.FileNameLenght, data.FileData, data.FileSize, ReceivePacket(clientSocket, Util.HashByteSize));
 		}
 
 		private static byte[] GetFileData(Socket clientSocket, long fileSize)

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Simple_File_Transfer.Net.MetadataPackets;
+using SimFTP.Net.MetadataPackets;
 
-namespace Simple_File_Transfer.Net
+namespace SimFTP.Net
 {
 	public enum ErrorType
 	{

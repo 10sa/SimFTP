@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 
 
-namespace Simple_File_Transfer.Net.MetadataPackets
+namespace SimFTP.Net.MetadataPackets
 {
 	public enum PacketType
 	{
