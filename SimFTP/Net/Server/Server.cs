@@ -43,7 +43,7 @@ namespace SimFTP.Net.Server
 		public event ServerTransferCallback ServerTransferCallbackEvent = delegate { };
 		#endregion
 
-		public ServerTransfer ()
+		public Server()
 		{
 			serverSocket.Bind(new IPEndPoint(IPAddress.Any, ServerPort));
 			serverSocket.Listen(MaximunBacklog);

@@ -18,18 +18,18 @@ namespace SimFTP.Security
 
 		private RijndaelManaged AESManager = new RijndaelManaged();
 
-		public AES256Manager()
+		/* public AES256Manager()
 		{
 			Random keyValue = new Random();
 
 			SetCryptoConfig(Util.GetHashValue(BitConverter.GetBytes(Environment.TickCount * keyValue.Next())));
 			SetAESConfigs();
-		}
+		} */
 
 		public AES256Manager(byte[] key)
 		{
-			SetCryptoConfig(key);
 			SetAESConfigs();
+			SetCryptoConfig(key);
 		}
 
 		private void SetCryptoConfig (byte[] key)
