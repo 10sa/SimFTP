@@ -21,6 +21,11 @@ namespace SimFTP.Net.DataPackets
 			Checksum = checksum;
 		}
 
+		protected BasicSecurityDataPacket(BasicDataPacket data) : base(data)
+		{
+			SetChecksum(data.FileData);
+		}
+
 		private void SetChecksum(byte[] fileData)
 		{
 			Checksum = Util.GetHashValue(fileData);

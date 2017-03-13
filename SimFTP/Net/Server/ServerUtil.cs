@@ -17,7 +17,7 @@ using System.Net.Sockets;
 
 namespace SimFTP.Net.Server
 {
-	class ServerUtil
+	public class ServerUtil
 	{
 		public static string GetClientAddress (Socket clientSocket)
 		{
@@ -51,6 +51,26 @@ namespace SimFTP.Net.Server
 		{
 			clientSocket.Send(new ErrorPacket(error).GetBinaryData());
 			clientSocket.Close();
+		}
+
+		public static void SendInfoPacket(Socket clientSocket, InfoType type, byte[] data=null)
+		{
+			clientSocket.Send(new InfoPacket(type, data).GetBinaryData());
+		}
+
+		public static InfoPacket ReceiveInfoPacket(Socket clientSocket)
+		{
+			PacketType packetType = GetPacketType(clientSocket);
+			int dataCount = BitConverter.ToInt32(ReceivePacket(clientSocket, sizeof(int)), 0);
+
+			InfoType infoType = (InfoType)Enum.Parse(typeof(InfoType), ServerUtil.ReceivePacket(clientSocket, sizeof(byte))[0].ToString());
+			int responseLenght = BitConverter.ToInt32(ReceivePacket(clientSocket, sizeof(int)), 0);
+			byte[] responseData = null;
+
+			if(responseLenght >= 0)
+				responseData = ReceivePacket(clientSocket, responseLenght);
+
+			return new InfoPacket(infoType, responseData);
 		}
 	}
 }

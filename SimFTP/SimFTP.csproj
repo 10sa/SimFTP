@@ -56,7 +56,9 @@
     <Compile Include="Net\Client\Client.cs" />
     <Compile Include="Net\DataPackets\BasicSecurityDataPacket.cs" />
     <Compile Include="Net\DataPackets\BasicDataPacket.cs" />
+    <Compile Include="Net\DataPackets\ExpertSecurityDataPacket.cs" />
     <Compile Include="Net\ErrorPacket.cs" />
+    <Compile Include="Net\InfoPacket.cs" />
     <Compile Include="Net\MetadataPackets\BasicSecurityMetadataPacket.cs" />
     <Compile Include="Net\MetadataPackets\ExpertSecurityMetadataPacket.cs" />
     <Compile Include="Net\MetadataPackets\BasicMetadataPacket.cs" />

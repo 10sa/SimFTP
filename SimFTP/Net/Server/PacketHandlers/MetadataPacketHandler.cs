@@ -11,6 +11,7 @@ using SimFTP.Net;
 using SimFTP.Net.DataPackets;
 using SimFTP.Net.MetadataPackets;
 using SimFTP.Net.Server;
+using SimFTP.Security;
 
 using System.Net;
 using System.Threading;
@@ -51,6 +52,11 @@ namespace SimFTP.Net.Server.PacketHandlers
 
 				return new BasicSecurityMetadataPacket(username, password, orignalPacket.DataCount);
 			}
+		}
+
+		public ExpertSecurityMetadataPacket ReceiveExpertSecurityMetadataPacket(BasicMetadataPacket orignalPacket)
+		{
+			return new ExpertSecurityMetadataPacket(ReceiveBasicSecurityMetadataPacket(orignalPacket), ServerUtil.ReceivePacket(clientSocket, DH521Manager.PublicKeySize));
 		}
 		#endregion
 	}

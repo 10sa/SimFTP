@@ -8,6 +8,7 @@ using SimFTP;
 using SimFTP.Config;
 
 using SimFTP.Net;
+using SimFTP.Security;
 using SimFTP.Net.DataPackets;
 using SimFTP.Net.MetadataPackets;
 
@@ -40,6 +41,17 @@ namespace SimFTP.Net.Server.PacketHandlers
 		{
 			BasicDataPacket data = ReceiveBasicDataPacket();
 			return new BasicSecurityDataPacket(data.FileName, data.FileNameLenght, data.FileData, data.FileSize, ServerUtil.ReceivePacket(clientSocket, Util.HashByteSize));
+		}
+
+		public ExpertSecurityDataPacket ReceiveExpertSecurityDataPacket(byte[] shareKey)
+		{
+			using(AES256Manager aes = new AES256Manager(shareKey))
+			{
+				ExpertSecurityDataPacket data = new ExpertSecurityDataPacket(ReceiveBasicSecurityDataPacket());
+				data.SetFileData(aes.Decrypt(data.FileData));
+
+				return data;
+			}
 		}
 
 		private byte[] GetFileData (Socket clientSocket, long fileSize)

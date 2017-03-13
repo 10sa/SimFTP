@@ -10,6 +10,7 @@ using SimFTP.Config;
 using SimFTP.Net;
 using SimFTP.Net.DataPackets;
 using SimFTP.Net.MetadataPackets;
+using SimFTP.Security;
 
 using System.Net;
 using System.Threading;
@@ -56,6 +57,8 @@ namespace SimFTP.Net.Server.PacketHandlers
 		{
 			if(config.GetConfigTable("Accept_Default_Packet") == bool.TrueString)
 			{
+				ServerUtil.SendInfoPacket(clientSocket, InfoType.Accept);
+
 				for(int i = 0; i < packetData.DataCount; i++)
 				{
 					BasicDataPacket data = dataHandler.ReceiveBasicDataPacket();
@@ -76,22 +79,73 @@ namespace SimFTP.Net.Server.PacketHandlers
 				{
 					if(config.GetConfigTable("Accept_Anonymous_Login") == bool.TrueString)
 					{
-						BasicSecurityDataPacket data = dataHandler.ReceiveBasicSecurityDataPacket();
-						Util.WriteFile(data.FileData, data.FileName);
+						ServerUtil.SendInfoPacket(clientSocket, InfoType.Accept);
+						BasicSecurityDataPacektHandling(packetData);
 					}
 					else
 						ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
 				}
 				else if(accountConfig.GetConfigTable(childPacket.Username) == Util.GetHashedString(childPacket.Password))
 				{
-					BasicSecurityDataPacket data = dataHandler.ReceiveBasicSecurityDataPacket();
-					Util.WriteFile(data.FileData, data.FileName);
+					ServerUtil.SendInfoPacket(clientSocket, InfoType.Accept);
+					BasicSecurityDataPacektHandling(packetData);
 				}
 				else
 					ServerUtil.SendErrorPacket(clientSocket, ErrorType.Wrong_Certificate);
 			}
 			else
 				ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+		}
+
+		private void BasicSecurityDataPacektHandling(BasicMetadataPacket packetData)
+		{
+			for(int i = 0; i < packetData.DataCount; i++)
+			{
+				BasicSecurityDataPacket data = dataHandler.ReceiveBasicSecurityDataPacket();
+				Util.WriteFile(data.FileData, data.FileName);
+			}
+		}
+
+		private void ExpertSecurityMetadataPacketHandling(BasicMetadataPacket packetData)
+		{
+			if(config.GetConfigTable("Accpet_Expert_Security_Packet") == bool.TrueString)
+			{
+				ExpertSecurityMetadataPacket childPacket = metadataHandler.ReceiveExpertSecurityMetadataPacket(packetData);
+
+				if (childPacket.IsAnonynomus == true)
+				{
+					if(config.GetConfigTable("Accpet_Anonymous_Login") == bool.TrueString)
+						ExpertSecurityDataPacketHandling(packetData);
+					else
+						ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
+				}
+			}
+			else
+				ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+		}
+
+		private void ExpertSecurityDataPacketHandling(BasicMetadataPacket packetData)
+		{
+			using(DH521Manager dh = new DH521Manager())
+			{
+				ServerUtil.SendInfoPacket(clientSocket, InfoType.Accept, dh.PublicKey);
+
+				// Receive Client Share Key
+				BasicMetadataPacket shareKeyPacket = metadataHandler.ReceiveBasicMetadataPacket();
+				int ResponseLenght = BitConverter.ToInt32(ServerUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
+
+				if(ResponseLenght <= 0)
+					ServerUtil.SendErrorPacket(clientSocket, ErrorType.Security_Alert);
+				else
+				{
+					byte[] clientPublicKey = ServerUtil.ReceivePacket(clientSocket, ResponseLenght);
+					for(int i = 0; i < packetData.DataCount; i++)
+					{
+						ExpertSecurityDataPacket data = dataHandler.ReceiveExpertSecurityDataPacket(dh.GetShareKey(clientPublicKey));
+						Util.WriteFile(data.FileData, data.FileName);
+					}
+				}
+			}
 		}
 	}
 }

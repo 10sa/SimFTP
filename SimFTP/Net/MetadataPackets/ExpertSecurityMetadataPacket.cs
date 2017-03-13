@@ -9,11 +9,17 @@ namespace SimFTP.Net.MetadataPackets
 {
 	public sealed class ExpertSecurityMetadataPacket : BasicSecurityMetadataPacket
 	{
-		public ECDiffieHellmanCng DH { get; private set; }
+		public byte[] PublicKey { get; private set; }
 
-		public ExpertSecurityMetadataPacket(BasicSecurityMetadataPacket packet) : base(packet.Username, packet.Password, packet.DataCount)
+		public ExpertSecurityMetadataPacket(BasicSecurityMetadataPacket packet, byte[] publicKey) : base(packet.Username, packet.Password, packet.DataCount)
 		{
 			PacketType = PacketType.ExpertSecurity;
+			PublicKey = publicKey;
+		}
+
+		public new byte[] GetBinaryData()
+		{
+			return Util.AttachByteArray(base.GetBinaryData(), PublicKey);
 		}
 	}
 }
