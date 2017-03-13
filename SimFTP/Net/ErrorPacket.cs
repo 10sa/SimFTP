@@ -18,12 +18,12 @@ namespace SimFTP.Net
 
 	public class ErrorPacket : InfoPacket
 	{
-		public ErrorType error { get; private set; }
+		public ErrorType ErrorType { get; private set; }
 
 		public ErrorPacket(ErrorType error) : base(0)
 		{
 			Info = InfoType.Error;
-			this.error = error;
+			ErrorType = error;
 		}
 
 		public new byte[] GetBinaryData()

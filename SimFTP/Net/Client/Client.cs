@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security;
 
 
 using SimFTP.Config;
@@ -14,51 +15,64 @@ using System.Net.Sockets;
 
 namespace SimFTP.Net.Client
 {
-	class Client
+	public delegate void ClientTransferCallback();
+
+	public class ClientTransfer : IDisposable
 	{
-		public delegate void ClientTransferCallback();
+		private readonly string ServerAddress;
+		private const int ServerPort = 44332;
+		private Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+		private PacketType SendType;
 
-		public class ClientTransfer : IDisposable
+		public ClientTransfer(string address, PacketType sendingType)
 		{
-			private readonly string ServerAddress;
-			private const int ServerPort = 44332;
-			private Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			private PacketType SendType;
+			clientSocket.NoDelay = false;
+			ServerAddress = address;
 
-			public ClientTransfer(string address, PacketType sendingType)
+			SendType = sendingType;
+		}
+
+		public void SendingFile(BasicDataPacket[] files)
+		{
+			clientSocket.Connect(ServerAddress, ServerPort);
+
+			switch(SendType)
 			{
-				clientSocket.NoDelay = false;
-				ServerAddress = address;
-
-				SendType = sendingType;
+				case PacketType.BasicFrame:
+					SendHandlingBasicPackets(files);
+					break;
 			}
+		}
 
-			public void SendingFile(params byte[][] files)
+		private void SendHandlingBasicPackets(params BasicDataPacket[] files)
+		{
+			clientSocket.Send(new BasicMetadataPacket(files.Length).GetBinaryData());
+
+			InfoPacket infoPacket = ShareNetUtil.ReceiveInfoPacket(clientSocket);
+
+			if(infoPacket.Info == InfoType.Accept)
 			{
-				clientSocket.Connect(ServerAddress, ServerPort);
+				foreach(var file in files)
+					clientSocket.Send(file.GetBinaryData());
 
-				switch (SendType)
-				{
-					case PacketType.BasicFrame:
-						break;
-				}
+				clientSocket.Shutdown(SocketShutdown.Send);
 			}
-
-			private void SendHandlingBasicPackets(params byte[][] files)
+			else if(infoPacket.Info == InfoType.Error)
 			{
-				clientSocket.Send(new BasicMetadataPacket(files.Length).GetBinaryData());
+				ErrorPacket error = ShareNetUtil.ReceiveErrorPacket(clientSocket, infoPacket);
+				clientSocket.Close();
 
-
+				throw new SecurityException(string.Format("Not Accepted Basic Packet. CODE : {0}", error.ErrorType.ToString()));
 			}
+		}
 
-			public void Dispose()
-			{
-				if(clientSocket.Connected)
-					clientSocket.Disconnect(false);
+		public void Dispose()
+		{
+			if(clientSocket.Connected)
+				clientSocket.Disconnect(false);
 
-				clientSocket.Dispose();
-				return;
-			}
+			clientSocket.Dispose();
+			return;
 		}
 	}
 }
