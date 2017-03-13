@@ -12,14 +12,15 @@ namespace SimFTP.Net
 	{
 		Response,
 		Accept,
-		ShareKey
+		ShareKey,
+		Error
 	}
 
 	public class InfoPacket : BasicMetadataPacket
 	{
 		public byte[] ResponseData { get; private set; }
 
-		public InfoType Info { get; private set; }
+		public InfoType Info { get; protected set; }
 
 		public InfoPacket(InfoType infoType) : base(0)
 		{
@@ -37,9 +38,9 @@ namespace SimFTP.Net
 		public new byte[] GetBinaryData()
 		{
 			if(ResponseData != null)
-				return Util.AttachByteArray(base.GetBinaryData(), BitConverter.GetBytes((int)Info), BitConverter.GetBytes(ResponseData.Length), ResponseData);
+				return Util.AttachByteArray(base.GetBinaryData(), BitConverter.GetBytes((byte)Info), BitConverter.GetBytes(ResponseData.Length), ResponseData);
 			else
-				return Util.AttachByteArray(base.GetBinaryData(), BitConverter.GetBytes((int)Info), BitConverter.GetBytes(0));
+				return Util.AttachByteArray(base.GetBinaryData(), BitConverter.GetBytes((byte)Info), BitConverter.GetBytes(0));
 		}
 	}
 }

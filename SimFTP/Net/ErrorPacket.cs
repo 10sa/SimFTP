@@ -16,19 +16,19 @@ namespace SimFTP.Net
 		Security_Alert
 	}
 
-	public class ErrorPacket : BasicMetadataPacket
+	public class ErrorPacket : InfoPacket
 	{
 		public ErrorType error { get; private set; }
 
 		public ErrorPacket(ErrorType error) : base(0)
 		{
-			PacketType = PacketType.Error;
+			Info = InfoType.Error;
 			this.error = error;
 		}
 
 		public new byte[] GetBinaryData()
 		{
-			return Util.AttachByteArray(Util.ByteToByteArray((byte)error), base.GetBinaryData());
+			return Util.AttachByteArray(base.GetBinaryData(), Util.ByteToByteArray((byte)error));
 		}
 	}
 }

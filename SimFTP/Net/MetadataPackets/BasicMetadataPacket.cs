@@ -24,10 +24,16 @@ namespace SimFTP.Net.MetadataPackets
 
 		public BasicMetadataPacket(int dataCount)
 		{
-			this.PacketType = PacketType.BasicFrame;
-			this.DataCount = dataCount;
+			PacketType = PacketType.BasicFrame;
+			DataCount = dataCount;
 
 			return;
+		}
+
+		public BasicMetadataPacket(int dataCount, PacketType overrideType)
+		{
+			DataCount = dataCount;
+			PacketType = overrideType;
 		}
 
 		public byte[] GetBinaryData()

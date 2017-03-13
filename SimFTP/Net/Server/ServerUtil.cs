@@ -50,7 +50,7 @@ namespace SimFTP.Net.Server
 		public static void SendErrorPacket (Socket clientSocket, ErrorType error)
 		{
 			clientSocket.Send(new ErrorPacket(error).GetBinaryData());
-			clientSocket.Close();
+			clientSocket.Shutdown(SocketShutdown.Send);
 		}
 
 		public static void SendInfoPacket(Socket clientSocket, InfoType type, byte[] data=null)
@@ -63,7 +63,7 @@ namespace SimFTP.Net.Server
 			PacketType packetType = GetPacketType(clientSocket);
 			int dataCount = BitConverter.ToInt32(ReceivePacket(clientSocket, sizeof(int)), 0);
 
-			InfoType infoType = (InfoType)Enum.Parse(typeof(InfoType), ServerUtil.ReceivePacket(clientSocket, sizeof(byte))[0].ToString());
+			InfoType infoType = (InfoType)Enum.Parse(typeof(InfoType), ReceivePacket(clientSocket, sizeof(byte))[0].ToString());
 			int responseLenght = BitConverter.ToInt32(ReceivePacket(clientSocket, sizeof(int)), 0);
 			byte[] responseData = null;
 
@@ -71,6 +71,14 @@ namespace SimFTP.Net.Server
 				responseData = ReceivePacket(clientSocket, responseLenght);
 
 			return new InfoPacket(infoType, responseData);
+		}
+
+		public static ErrorPacket ReceiveErrorPacket(Socket clientSocket, InfoPacket basePacket)
+		{
+			if(basePacket.Info != InfoType.Error)
+				throw new ArgumentException("Wrong Base Packet.");
+
+			return new ErrorPacket((ErrorType)Enum.Parse(typeof(ErrorType), ReceivePacket(clientSocket, sizeof(byte))[0].ToString()));
 		}
 	}
 }

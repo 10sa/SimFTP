@@ -51,13 +51,21 @@ namespace SimFTP.Net.MetadataPackets
 
 		public new byte[] GetBinaryData()
 		{
-			byte[] isAnonymous = BitConverter.GetBytes(IsAnonynomus);
-			byte[] usernameLenght = BitConverter.GetBytes(UTF8.GetByteCount(Username));
-			byte[] passwordLenght = BitConverter.GetBytes(UTF8.GetByteCount(Password));
-			byte[] username = UTF8.GetBytes(Username);
-			byte[] password = UTF8.GetBytes(Password);
+			if (IsAnonynomus)
+			{
+				byte[] isAnonymous = BitConverter.GetBytes(IsAnonynomus);
 
-			return Util.AttachByteArray(base.GetBinaryData(), usernameLenght, passwordLenght, username, password);
+				return Util.AttachByteArray(base.GetBinaryData(), isAnonymous);
+			}
+			else
+			{
+				byte[] usernameLenght = BitConverter.GetBytes(UTF8.GetByteCount(Username));
+				byte[] passwordLenght = BitConverter.GetBytes(UTF8.GetByteCount(Password));
+				byte[] username = UTF8.GetBytes(Username);
+				byte[] password = UTF8.GetBytes(Password);
+
+				return Util.AttachByteArray(base.GetBinaryData(), BitConverter.GetBytes(false), usernameLenght, passwordLenght, username, password);
+			}
 		}
 	}
 }

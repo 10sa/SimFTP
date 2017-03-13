@@ -34,7 +34,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 			PacketType packetType = ServerUtil.GetPacketType(clientSocket);
 			int dataCount = BitConverter.ToInt32(ServerUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
 
-			return new BasicMetadataPacket(dataCount);
+			return new BasicMetadataPacket(dataCount, packetType);
 		}
 
 		public BasicSecurityMetadataPacket ReceiveBasicSecurityMetadataPacket(BasicMetadataPacket orignalPacket)
