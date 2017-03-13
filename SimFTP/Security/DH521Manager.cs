@@ -14,6 +14,7 @@ namespace SimFTP.Security
 		public byte[] PublicKey { get { return dh.PublicKey.ToByteArray(); } }
 		public int KeySize { get { return PublicKey.Length; } }
 
+		// Try, Remove Magic Number.
 		public const int PublicKeySize = 140;
 
 		public DH521Manager()

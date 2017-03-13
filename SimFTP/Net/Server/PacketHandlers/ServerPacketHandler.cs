@@ -57,7 +57,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 		{
 			if(config.GetConfigTable("Accept_Default_Packet") == bool.TrueString)
 			{
-				ServerUtil.SendInfoPacket(clientSocket, InfoType.Accept);
+				ServerNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 
 				for(int i = 0; i < packetData.DataCount; i++)
 				{
@@ -66,7 +66,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				}
 			}
 			else
-				ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
 		}
 
 		private void BasicSecurityMetadataPacketHandling (BasicMetadataPacket packetData)
@@ -79,22 +79,22 @@ namespace SimFTP.Net.Server.PacketHandlers
 				{
 					if(config.GetConfigTable("Accept_Anonymous_Login") == bool.TrueString)
 					{
-						ServerUtil.SendInfoPacket(clientSocket, InfoType.Accept);
+						ServerNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 						BasicSecurityDataPacektHandling(packetData);
 					}
 					else
-						ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
+						ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
 				}
 				else if(accountConfig.GetConfigTable(childPacket.Username) == Util.GetHashedString(childPacket.Password))
 				{
-					ServerUtil.SendInfoPacket(clientSocket, InfoType.Accept);
+					ServerNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 					BasicSecurityDataPacektHandling(packetData);
 				}
 				else
-					ServerUtil.SendErrorPacket(clientSocket, ErrorType.Wrong_Certificate);
+					ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Wrong_Certificate);
 			}
 			else
-				ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
 		}
 
 		private void BasicSecurityDataPacektHandling(BasicMetadataPacket packetData)
@@ -117,28 +117,28 @@ namespace SimFTP.Net.Server.PacketHandlers
 					if(config.GetConfigTable("Accpet_Anonymous_Login") == bool.TrueString)
 						ExpertSecurityDataPacketHandling(packetData);
 					else
-						ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
+						ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
 				}
 			}
 			else
-				ServerUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
 		}
 
 		private void ExpertSecurityDataPacketHandling(BasicMetadataPacket packetData)
 		{
 			using(DH521Manager dh = new DH521Manager())
 			{
-				ServerUtil.SendInfoPacket(clientSocket, InfoType.Accept, dh.PublicKey);
+				ServerNetUtil.SendInfoPacket(clientSocket, InfoType.Accept, dh.PublicKey);
 
 				// Receive Client Share Key
 				BasicMetadataPacket shareKeyPacket = metadataHandler.ReceiveBasicMetadataPacket();
-				int ResponseLenght = BitConverter.ToInt32(ServerUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
+				int ResponseLenght = BitConverter.ToInt32(ShareNetUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
 
 				if(ResponseLenght <= 0)
-					ServerUtil.SendErrorPacket(clientSocket, ErrorType.Security_Alert);
+					ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Security_Alert);
 				else
 				{
-					byte[] clientPublicKey = ServerUtil.ReceivePacket(clientSocket, ResponseLenght);
+					byte[] clientPublicKey = ShareNetUtil.ReceivePacket(clientSocket, ResponseLenght);
 					for(int i = 0; i < packetData.DataCount; i++)
 					{
 						ExpertSecurityDataPacket data = dataHandler.ReceiveExpertSecurityDataPacket(dh.GetShareKey(clientPublicKey));

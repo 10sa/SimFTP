@@ -20,29 +20,34 @@ namespace SimFTP.Net.Client
 
 		public class ClientTransfer : IDisposable
 		{
+			private readonly string ServerAddress;
 			private const int ServerPort = 44332;
 			private Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			private PacketType SendType;
 
-			public event ClientTransferCallback ConnectingCallback;
-			public event ClientTransferCallback ConnectedCallback;
-
-			public ClientTransfer(string address)
+			public ClientTransfer(string address, PacketType sendingType)
 			{
-				ConnectingCallback();
-				clientSocket.Connect(address, ServerPort);
-				ConnectedCallback();
-
 				clientSocket.NoDelay = false;
+				ServerAddress = address;
+
+				SendType = sendingType;
 			}
 
-			public void SendingFile(byte[] file, PacketType packetType)
+			public void SendingFile(params byte[][] files)
 			{
-				clientSocket.SendBufferSize = (int)file.LongLength / 4;
+				clientSocket.Connect(ServerAddress, ServerPort);
 
-				if(packetType == PacketType.BasicFrame)
+				switch (SendType)
 				{
-
+					case PacketType.BasicFrame:
+						break;
 				}
+			}
+
+			private void SendHandlingBasicPackets(params byte[][] files)
+			{
+				clientSocket.Send(new BasicMetadataPacket(files.Length).GetBinaryData());
+
 
 			}
 

@@ -31,24 +31,24 @@ namespace SimFTP.Net.Server.PacketHandlers
 		#region Metadata Packets Receive
 		public BasicMetadataPacket ReceiveBasicMetadataPacket()
 		{
-			PacketType packetType = ServerUtil.GetPacketType(clientSocket);
-			int dataCount = BitConverter.ToInt32(ServerUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
+			PacketType packetType = ShareNetUtil.GetPacketType(clientSocket);
+			int dataCount = BitConverter.ToInt32(ShareNetUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
 
 			return new BasicMetadataPacket(dataCount, packetType);
 		}
 
 		public BasicSecurityMetadataPacket ReceiveBasicSecurityMetadataPacket(BasicMetadataPacket orignalPacket)
 		{
-			bool isAnonymous = BitConverter.ToBoolean(ServerUtil.ReceivePacket(clientSocket, sizeof(bool)), 0);
+			bool isAnonymous = BitConverter.ToBoolean(ShareNetUtil.ReceivePacket(clientSocket, sizeof(bool)), 0);
 
 			if(isAnonymous == true)
 				return new BasicSecurityMetadataPacket(orignalPacket.DataCount);
 			else
 			{
-				short usernameLenght = BitConverter.ToInt16(ServerUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
-				short passwordLenght = BitConverter.ToInt16(ServerUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
-				string username = Encoding.UTF8.GetString(ServerUtil.ReceivePacket(clientSocket, usernameLenght));
-				string password = Encoding.UTF8.GetString(ServerUtil.ReceivePacket(clientSocket, passwordLenght));
+				short usernameLenght = BitConverter.ToInt16(ShareNetUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
+				short passwordLenght = BitConverter.ToInt16(ShareNetUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
+				string username = Encoding.UTF8.GetString(ShareNetUtil.ReceivePacket(clientSocket, usernameLenght));
+				string password = Encoding.UTF8.GetString(ShareNetUtil.ReceivePacket(clientSocket, passwordLenght));
 
 				return new BasicSecurityMetadataPacket(username, password, orignalPacket.DataCount);
 			}
@@ -56,7 +56,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 
 		public ExpertSecurityMetadataPacket ReceiveExpertSecurityMetadataPacket(BasicMetadataPacket orignalPacket)
 		{
-			return new ExpertSecurityMetadataPacket(ReceiveBasicSecurityMetadataPacket(orignalPacket), ServerUtil.ReceivePacket(clientSocket, DH521Manager.PublicKeySize));
+			return new ExpertSecurityMetadataPacket(ReceiveBasicSecurityMetadataPacket(orignalPacket), ShareNetUtil.ReceivePacket(clientSocket, DH521Manager.PublicKeySize));
 		}
 		#endregion
 	}
