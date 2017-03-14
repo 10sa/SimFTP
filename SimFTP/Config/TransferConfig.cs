@@ -12,10 +12,10 @@ namespace SimFTP.Config
 
 		protected override void InitializeConfig()
 		{
-			AddConfigTable("Accept_Default_Packet", bool.FalseString);
+			AddConfigTable("Accept_Default_Packet", bool.TrueString);
 
-			AddConfigTable("Accept_Basic_Security_Packet", bool.FalseString);
-			AddConfigTable("Accept_Anonymous_Login", bool.FalseString);
+			AddConfigTable("Accept_Basic_Security_Packet", bool.TrueString);
+			AddConfigTable("Accept_Anonymous_Login", bool.TrueString);
 
 			AddConfigTable("Accpet_Expert_Security_Packet", bool.TrueString);
 			

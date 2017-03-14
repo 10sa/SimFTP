@@ -57,13 +57,16 @@ namespace SimFTP.Net.Server.PacketHandlers
 		{
 			if(config.GetConfigTable("Accept_Default_Packet") == bool.TrueString)
 			{
-				ServerNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
+				ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 
 				for(int i = 0; i < packetData.DataCount; i++)
 				{
 					BasicDataPacket data = dataHandler.ReceiveBasicDataPacket();
 					Util.WriteFile(data.FileData, data.FileName);
 				}
+
+				InfoPacket info = ShareNetUtil.ReceiveInfoPacket(clientSocket);
+				clientSocket.Close();
 			}
 			else
 				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
@@ -79,7 +82,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				{
 					if(config.GetConfigTable("Accept_Anonymous_Login") == bool.TrueString)
 					{
-						ServerNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
+						ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 						BasicSecurityDataPacektHandling(packetData);
 					}
 					else
@@ -87,7 +90,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				}
 				else if(accountConfig.GetConfigTable(childPacket.Username) == Util.GetHashedString(childPacket.Password))
 				{
-					ServerNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
+					ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 					BasicSecurityDataPacektHandling(packetData);
 				}
 				else
@@ -128,7 +131,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 		{
 			using(DH521Manager dh = new DH521Manager())
 			{
-				ServerNetUtil.SendInfoPacket(clientSocket, InfoType.Accept, dh.PublicKey);
+				ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept, dh.PublicKey);
 
 				// Receive Client Share Key
 				BasicMetadataPacket shareKeyPacket = metadataHandler.ReceiveBasicMetadataPacket();

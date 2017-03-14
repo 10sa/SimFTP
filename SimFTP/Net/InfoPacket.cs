@@ -13,6 +13,7 @@ namespace SimFTP.Net
 		Response,
 		Accept,
 		ShareKey,
+		Close,
 		Error
 	}
 

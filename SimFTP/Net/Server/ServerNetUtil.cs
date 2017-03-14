@@ -29,12 +29,5 @@ namespace SimFTP.Net.Server
 			clientSocket.Send(new ErrorPacket(error).GetBinaryData());
 			clientSocket.Close(30);
 		}
-
-		public static void SendInfoPacket(Socket clientSocket, InfoType type, byte[] data=null)
-		{
-			clientSocket.Send(new InfoPacket(type, data).GetBinaryData());
-		}
-
-		
 	}
 }

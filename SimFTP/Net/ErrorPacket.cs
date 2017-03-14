@@ -28,7 +28,7 @@ namespace SimFTP.Net
 
 		public new byte[] GetBinaryData()
 		{
-			return Util.AttachByteArray(base.GetBinaryData(), Util.ByteToByteArray((byte)error));
+			return Util.AttachByteArray(base.GetBinaryData(), Util.ByteToByteArray((byte)ErrorType));
 		}
 	}
 }

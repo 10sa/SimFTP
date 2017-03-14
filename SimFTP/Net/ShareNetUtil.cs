@@ -34,11 +34,8 @@ namespace SimFTP.Net
 			return new InfoPacket(infoType, responseData);
 		}
 
-		public static ErrorPacket ReceiveErrorPacket(Socket clientSocket, InfoPacket basePacket)
+		public static ErrorPacket ReceiveErrorPacket(Socket clientSocket)
 		{
-			if(basePacket.Info != InfoType.Error)
-				throw new ArgumentException("Wrong Base Packet.");
-
 			return new ErrorPacket((ErrorType)Enum.Parse(typeof(ErrorType), ShareNetUtil.ReceivePacket(clientSocket, sizeof(byte))[0].ToString()));
 		}
 
@@ -57,6 +54,11 @@ namespace SimFTP.Net
 				socket.Close();
 				throw;
 			}
+		}
+
+		public static void SendInfoPacket(Socket clientSocket, InfoType type, byte[] data = null)
+		{
+			clientSocket.Send(new InfoPacket(type, data).GetBinaryData());
 		}
 
 		public static PacketType GetPacketType(Socket clientSocket)
