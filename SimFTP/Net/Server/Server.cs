@@ -57,6 +57,11 @@ namespace SimFTP.Net.Server
 			serverThread.Start();
 		}
 
+		public void AddPermission(string username, string password)
+		{
+			accountConfig.AddConfigTable(username, Util.GetHashedString(password));
+		}
+
 		public void Dispose ()
 		{
 			serverSocket.Dispose();

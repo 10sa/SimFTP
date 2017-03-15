@@ -19,7 +19,11 @@ namespace SimFTP.Config
 
 		public override string GetConfigTable(string key)
 		{
-			return base.GetConfigTable(key).Substring(AccountTag.Length + 1);
+			try
+			{
+				return base.GetConfigTable(key).Substring(AccountTag.Length + 1);
+			}
+			catch (Exception) { return null; }
 		}
 
 		// Do Nothing! //

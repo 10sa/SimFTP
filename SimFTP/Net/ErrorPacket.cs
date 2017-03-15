@@ -20,9 +20,8 @@ namespace SimFTP.Net
 	{
 		public ErrorType ErrorType { get; private set; }
 
-		public ErrorPacket(ErrorType error) : base(0)
+		public ErrorPacket(ErrorType error) : base(InfoType.Error)
 		{
-			Info = InfoType.Error;
 			ErrorType = error;
 		}
 

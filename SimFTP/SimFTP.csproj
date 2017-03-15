@@ -59,7 +59,7 @@
     <Compile Include="Net\DataPackets\ExpertSecurityDataPacket.cs" />
     <Compile Include="Net\ErrorPacket.cs" />
     <Compile Include="Net\InfoPacket.cs" />
-    <Compile Include="Net\MetadataPackets\BasicSecurityMetadataPacket.cs" />
+    <Compile Include="Net\Server\BasicSecurityMetadataPacket.cs" />
     <Compile Include="Net\MetadataPackets\ExpertSecurityMetadataPacket.cs" />
     <Compile Include="Net\MetadataPackets\BasicMetadataPacket.cs" />
     <Compile Include="Net\Server\PacketHandlers\DataPacketHandler.cs" />

@@ -28,15 +28,15 @@ namespace SimFTP.Net
 			int responseLenght = BitConverter.ToInt32(ShareNetUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
 			byte[] responseData = null;
 
-			if(responseLenght >= 0)
+			if(responseLenght > 0)
 				responseData = ShareNetUtil.ReceivePacket(clientSocket, responseLenght);
 
 			return new InfoPacket(infoType, responseData);
 		}
 
-		public static ErrorPacket ReceiveErrorPacket(Socket clientSocket)
+		public static ErrorPacket ReceiveErrorPacket(Socket clientSocket, InfoPacket basePacket)
 		{
-			return new ErrorPacket((ErrorType)Enum.Parse(typeof(ErrorType), ShareNetUtil.ReceivePacket(clientSocket, sizeof(byte))[0].ToString()));
+			return new ErrorPacket((ErrorType)Enum.Parse(typeof(ErrorType), ReceivePacket(clientSocket, sizeof(byte))[0].ToString()));
 		}
 
 		public static byte[] ReceivePacket (Socket socket, int size)

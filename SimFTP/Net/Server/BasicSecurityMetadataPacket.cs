@@ -59,8 +59,8 @@ namespace SimFTP.Net.MetadataPackets
 			}
 			else
 			{
-				byte[] usernameLenght = BitConverter.GetBytes(UTF8.GetByteCount(Username));
-				byte[] passwordLenght = BitConverter.GetBytes(UTF8.GetByteCount(Password));
+				byte[] usernameLenght = BitConverter.GetBytes((short)UTF8.GetByteCount(Username));
+				byte[] passwordLenght = BitConverter.GetBytes((short)UTF8.GetByteCount(Password));
 				byte[] username = UTF8.GetBytes(Username);
 				byte[] password = UTF8.GetBytes(Password);
 

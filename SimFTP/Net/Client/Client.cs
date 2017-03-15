@@ -171,7 +171,7 @@ namespace SimFTP.Net.Client
 				return receivedInfo;
 			else if(receivedInfo.Info == InfoType.Error)
 			{
-				ErrorPacket error = ShareNetUtil.ReceiveErrorPacket(clientSocket);
+				ErrorPacket error = ShareNetUtil.ReceiveErrorPacket(clientSocket, receivedInfo);
 				clientSocket.Close();
 
 				throw new SecurityException(string.Format("Received Error Packet. ERROR CODE : {0}", error.ErrorType.ToString()));

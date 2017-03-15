@@ -29,7 +29,7 @@ namespace SimFTP.Net
 			this.Info = infoType;
 		}
 
-		public InfoPacket(InfoType infoType, byte[] responseData=null) : base(0)
+		public InfoPacket(InfoType infoType, byte[] responseData = null) : base(0)
 		{
 			this.PacketType = PacketType.Info;
 			this.Info = infoType;
@@ -39,9 +39,9 @@ namespace SimFTP.Net
 		public new byte[] GetBinaryData()
 		{
 			if(ResponseData != null)
-				return Util.AttachByteArray(base.GetBinaryData(), BitConverter.GetBytes((byte)Info), BitConverter.GetBytes(ResponseData.Length), ResponseData);
+				return Util.AttachByteArray(base.GetBinaryData(), Util.ByteToByteArray((byte)Info), BitConverter.GetBytes(ResponseData.Length), ResponseData);
 			else
-				return Util.AttachByteArray(base.GetBinaryData(), BitConverter.GetBytes((byte)Info), BitConverter.GetBytes(0));
+				return Util.AttachByteArray(base.GetBinaryData(), Util.ByteToByteArray((byte)Info), BitConverter.GetBytes((int)0));
 		}
 	}
 }
