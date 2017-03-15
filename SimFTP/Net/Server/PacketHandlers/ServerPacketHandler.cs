@@ -74,8 +74,6 @@ namespace SimFTP.Net.Server.PacketHandlers
 
 		private void BasicSecurityMetadataPacketHandling (BasicMetadataPacket packetData)
 		{
-			clientSocket.Send(new ErrorPacket(ErrorType.Security_Alert).GetBinaryData());
-		/*
 			if(config.GetConfigTable("Accept_Basic_Security_Packet") == bool.TrueString)
 			{
 				BasicSecurityMetadataPacket childPacket = metadataHandler.ReceiveBasicSecurityMetadataPacket(packetData);
@@ -100,7 +98,6 @@ namespace SimFTP.Net.Server.PacketHandlers
 			}
 			else
 				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
-			*/
 		}
 
 		private void BasicSecurityDataPacektHandling(BasicMetadataPacket packetData)

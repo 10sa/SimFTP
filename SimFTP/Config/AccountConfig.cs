@@ -10,18 +10,17 @@ namespace SimFTP.Config
 	public class AccountConfig : ConfigManager
 	{
 		public AccountConfig() : base("AccountConfig.cfg") { }
-		private const string AccountTag = "Account - ";
 
 		public override void AddConfigTable(string key, string value)
 		{
-			base.AddConfigTable(AccountTag + key, Util.GetHashedString(value));
+			base.AddConfigTable(key, Util.GetHashedString(value));
 		}
 
 		public override string GetConfigTable(string key)
 		{
 			try
 			{
-				return base.GetConfigTable(key).Substring(AccountTag.Length + 1);
+				return base.GetConfigTable(key);
 			}
 			catch (Exception) { return null; }
 		}

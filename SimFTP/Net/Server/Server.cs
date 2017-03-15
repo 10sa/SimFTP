@@ -59,7 +59,8 @@ namespace SimFTP.Net.Server
 
 		public void AddPermission(string username, string password)
 		{
-			accountConfig.AddConfigTable(username, Util.GetHashedString(password));
+			accountConfig.AddConfigTable(username, password);
+			accountConfig.SaveData();
 		}
 
 		public void Dispose ()
