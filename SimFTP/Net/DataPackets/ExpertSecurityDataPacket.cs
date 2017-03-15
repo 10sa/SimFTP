@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimFTP.Net.DataPackets
 {
-	class ExpertSecurityDataPacket : BasicSecurityDataPacket
+	public class ExpertSecurityDataPacket : BasicSecurityDataPacket
 	{
 		public ExpertSecurityDataPacket(BasicDataPacket data) : base(data) { }
 		

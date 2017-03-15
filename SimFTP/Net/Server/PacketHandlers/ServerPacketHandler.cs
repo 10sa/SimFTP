@@ -134,7 +134,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept, dh.PublicKey);
 
 				// Receive Client Share Key
-				BasicMetadataPacket shareKeyPacket = metadataHandler.ReceiveBasicMetadataPacket();
+				InfoPacket clientPulbicKey = ShareNetUtil.ReceiveInfoPacket(clientSocket);
 				int ResponseLenght = BitConverter.ToInt32(ShareNetUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
 
 				if(ResponseLenght <= 0)

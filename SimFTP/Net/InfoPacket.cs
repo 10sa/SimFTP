@@ -25,13 +25,13 @@ namespace SimFTP.Net
 
 		public InfoPacket(InfoType infoType) : base(0)
 		{
-			this.PacketType = PacketType.Responese;
+			this.PacketType = PacketType.Info;
 			this.Info = infoType;
 		}
 
 		public InfoPacket(InfoType infoType, byte[] responseData=null) : base(0)
 		{
-			this.PacketType = PacketType.Responese;
+			this.PacketType = PacketType.Info;
 			this.Info = infoType;
 			ResponseData = responseData;
 		}
