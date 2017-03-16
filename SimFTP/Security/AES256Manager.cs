@@ -88,7 +88,6 @@ namespace SimFTP.Security
 				// TODO: 관리되지 않는 리소스(관리되지 않는 개체)를 해제하고 아래의 종료자를 재정의합니다.
 				// TODO: 큰 필드를 null로 설정합니다.
 
-				Key = null;
 				IV = null;
 				disposedValue = true;
 			}

@@ -12,7 +12,9 @@ namespace SimFTP.Net.DataPackets
 		
 		public void SetFileData(byte[] fileData)
 		{
+			// Override //
 			this.FileData = fileData;
+			this.FileSize = FileData.LongLength;
 		}
 	}
 }

@@ -11,7 +11,7 @@ namespace SimFTP.Net.MetadataPackets
 	{
 		public byte[] PublicKey { get; private set; }
 
-		public ExpertSecurityMetadataPacket(BasicSecurityMetadataPacket packet, byte[] publicKey) : base(packet.Username, packet.Password, packet.DataCount)
+		public ExpertSecurityMetadataPacket(string username, string password, int dataCount, byte[] publicKey) : base(username, password, dataCount)
 		{
 			PacketType = PacketType.ExpertSecurity;
 			PublicKey = publicKey;

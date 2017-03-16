@@ -56,7 +56,13 @@ namespace SimFTP.Net.Server.PacketHandlers
 
 		public ExpertSecurityMetadataPacket ReceiveExpertSecurityMetadataPacket(BasicMetadataPacket orignalPacket)
 		{
-			return new ExpertSecurityMetadataPacket(ReceiveBasicSecurityMetadataPacket(orignalPacket), ShareNetUtil.ReceivePacket(clientSocket, DH521Manager.PublicKeySize));
+			BasicSecurityMetadataPacket packet = ReceiveBasicSecurityMetadataPacket(orignalPacket);
+			byte[] publicKey = ShareNetUtil.ReceivePacket(clientSocket, DH521Manager.PublicKeySize);
+
+			if(packet.IsAnonynomus)
+				return new ExpertSecurityMetadataPacket(packet.DataCount, publicKey);
+			else
+				return new ExpertSecurityMetadataPacket(packet.Username, packet.Password, packet.DataCount, publicKey);
 		}
 		#endregion
 	}

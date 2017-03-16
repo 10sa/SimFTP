@@ -118,7 +118,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 
 				if (childPacket.IsAnonynomus == true)
 				{
-					if(config.GetConfigTable("Accpet_Anonymous_Login") == bool.TrueString)
+					if(config.GetConfigTable("Accept_Anonymous_Login") == bool.TrueString)
 						ExpertSecurityDataPacketHandling(packetData);
 					else
 						ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
@@ -135,17 +135,15 @@ namespace SimFTP.Net.Server.PacketHandlers
 				ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept, dh.PublicKey);
 
 				// Receive Client Share Key
-				InfoPacket clientPulbicKey = ShareNetUtil.ReceiveInfoPacket(clientSocket);
-				int ResponseLenght = BitConverter.ToInt32(ShareNetUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
+				InfoPacket clientShareInfo = ShareNetUtil.ReceiveInfoPacket(clientSocket);
 
-				if(ResponseLenght <= 0)
+				if(clientShareInfo.ResponseData == null)
 					ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Security_Alert);
 				else
 				{
-					byte[] clientPublicKey = ShareNetUtil.ReceivePacket(clientSocket, ResponseLenght);
 					for(int i = 0; i < packetData.DataCount; i++)
 					{
-						ExpertSecurityDataPacket data = dataHandler.ReceiveExpertSecurityDataPacket(dh.GetShareKey(clientPublicKey));
+						ExpertSecurityDataPacket data = dataHandler.ReceiveExpertSecurityDataPacket(dh.GetShareKey(clientShareInfo.ResponseData));
 						Util.WriteFile(data.FileData, data.FileName);
 					}
 				}

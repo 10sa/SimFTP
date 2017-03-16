@@ -94,6 +94,7 @@ namespace SimFTP.Net.Client
 
 		public void SendFile(params FileStream[] fileStreams)
 		{
+			
 			switch(SendType)
 			{
 				case PacketType.BasicFrame:
@@ -192,7 +193,35 @@ namespace SimFTP.Net.Client
 		private void FileSendHandler(params BasicDataPacket[] files)
 		{
 			foreach(var file in files)
-				clientSocket.Send(file.GetBinaryData());
+			{
+				if (file.File == null)
+					clientSocket.Send(file.GetBinaryData());
+				else
+				{
+					clientSocket.Send(file.GetOnlyBasicDataPacket());
+
+					byte[] fileBuffer = new byte[int.MaxValue / 4];
+					long leftFileSize = file.FileSize;
+
+					while(leftFileSize > 0)
+					{
+						if(leftFileSize > fileBuffer.Length)
+						{
+							file.File.Read(fileBuffer, 0, fileBuffer.Length);
+							clientSocket.Send(fileBuffer);
+							leftFileSize -= fileBuffer.Length;						
+						}
+						else
+						{
+							file.File.Read(fileBuffer, 0, (int)leftFileSize);
+							clientSocket.Send(fileBuffer, (int)leftFileSize, SocketFlags.None);
+							leftFileSize = 0;
+						}
+					}
+
+					clientSocket.Send(file.GetBinaryData());
+				}
+			}
 		}
 
 		private InfoPacket InfoExchangeHandler()
