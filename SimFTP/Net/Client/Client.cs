@@ -12,6 +12,7 @@ using SimFTP.Net.DataPackets;
 using SimFTP.Security;
 
 using System.Net;
+using System.IO;
 using System.Net.Sockets;
 
 
@@ -29,7 +30,10 @@ namespace SimFTP.Net.Client
 			clientSocket.NoDelay = false;
 			ServerAddress = address;
 
-			SendType = sendingType;
+			if(sendingType == PacketType.BasicFrame || sendingType == PacketType.BasicSecurity || sendingType == PacketType.ExpertSecurity)
+				SendType = sendingType;
+			else
+				throw new ArgumentException(string.Format("Try wrong packet type. {0}", sendingType));
 		}
 
 		public void SendFile(params BasicDataPacket[] files)
@@ -70,6 +74,34 @@ namespace SimFTP.Net.Client
 			if(SendType == PacketType.ExpertSecurity)
 			{
 				clientSocket.Connect(ServerAddress, ServerPort);
+				SendHandlingExpertSecurityPacket(files);
+			}
+			else
+				ThrowFormattedException(PacketType.ExpertSecurity);
+		}
+
+		public void SendFile(string username, string password, params ExpertSecurityDataPacket[] files)
+		{
+			if(SendType == PacketType.ExpertSecurity)
+			{
+				clientSocket.Connect(ServerAddress, ServerPort);
+				SendHandlingExpertSecurityPacket(username, password, files);
+			}
+			else
+				ThrowFormattedException(PacketType.ExpertSecurity);
+		}
+
+
+		public void SendFile(params FileStream[] fileStreams)
+		{
+			switch(SendType)
+			{
+				case PacketType.BasicFrame:
+					break;
+				case PacketType.BasicSecurity:
+					break;
+				case PacketType.ExpertSecurity:
+					break;
 			}
 		}
 

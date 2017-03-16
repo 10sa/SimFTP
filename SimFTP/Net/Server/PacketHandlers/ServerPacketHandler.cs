@@ -47,6 +47,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 					BasicSecurityMetadataPacketHandling(packetData);
 					break;
 				case PacketType.ExpertSecurity:
+					ExpertSecurityMetadataPacketHandling(packetData);
 					break;
 				case PacketType.Error:
 					break;

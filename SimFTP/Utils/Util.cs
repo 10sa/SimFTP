@@ -65,6 +65,18 @@ namespace SimFTP
 			}
 		}
 
+		public static byte[] ReadFile(string fileName)
+		{
+			using(MemoryStream memoryStream = new MemoryStream())
+			{
+				using(FileStream fileStream = new FileStream(fileName, FileMode.Open))
+				{
+					fileStream.CopyTo(memoryStream);
+					return memoryStream.ToArray();
+				}
+			}
+		}
+
 		public static byte[] ByteToByteArray(byte data)
 		{
 			byte[] tempArray = new byte[1];
