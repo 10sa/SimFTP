@@ -28,6 +28,7 @@ namespace SimFTP.Net.Client
 		public Client(string address, PacketType sendingType)
 		{
 			clientSocket.NoDelay = false;
+			clientSocket.SendBufferSize = int.MaxValue / 8;
 			ServerAddress = address;
 
 			if(sendingType == PacketType.BasicFrame || sendingType == PacketType.BasicSecurity || sendingType == PacketType.ExpertSecurity)
@@ -200,25 +201,30 @@ namespace SimFTP.Net.Client
 				{
 					clientSocket.Send(file.GetOnlyBasicDataPacket());
 
-					byte[] fileBuffer = new byte[int.MaxValue / 4];
+					byte[] fileBuffer = new byte[int.MaxValue / 8];
 					long leftFileSize = file.FileSize;
 
-					while(leftFileSize > 0)
+					using(BinaryReader reader = new BinaryReader(file.File))
 					{
-						if(leftFileSize > fileBuffer.Length)
+						while(leftFileSize > 0)
 						{
-							file.File.Read(fileBuffer, 0, fileBuffer.Length);
-							clientSocket.Send(fileBuffer);
-							leftFileSize -= fileBuffer.Length;						
-						}
-						else
-						{
-							file.File.Read(fileBuffer, 0, (int)leftFileSize);
-							clientSocket.Send(fileBuffer, (int)leftFileSize, SocketFlags.None);
-							leftFileSize = 0;
+							if(leftFileSize > fileBuffer.Length)
+							{
+								reader.Read(fileBuffer, 0, fileBuffer.Length);
+								// clientSocket.BeginSend(fileBuffer, 0, fileBuffer.Length, SocketFlags.None, (a) => { }, new object());
+								clientSocket.Send(fileBuffer, 0, fileBuffer.Length, SocketFlags.None);
+								leftFileSize -= fileBuffer.Length;
+							}
+							else
+							{
+								reader.Read(fileBuffer, 0, (int)leftFileSize);
+								// clientSocket.BeginSend(fileBuffer, 0, fileBuffer.Length, SocketFlags.None, (a) => { }, new object());
+								clientSocket.Send(fileBuffer, (int)leftFileSize, SocketFlags.None);
+								leftFileSize = 0;
+							}
 						}
 					}
-
+					
 					clientSocket.Send(file.GetBinaryData());
 				}
 			}

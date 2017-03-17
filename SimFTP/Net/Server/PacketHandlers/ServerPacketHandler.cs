@@ -63,10 +63,11 @@ namespace SimFTP.Net.Server.PacketHandlers
 				for(int i = 0; i < packetData.DataCount; i++)
 				{
 					BasicDataPacket data = dataHandler.ReceiveBasicDataPacket();
-					Util.WriteFile(data.FileData, data.FileName);
+
+					if (!data.IsOversize)
+						Util.WriteFile(data.FileData, data.FileName);
 				}
 
-				InfoPacket info = ShareNetUtil.ReceiveInfoPacket(clientSocket);
 				clientSocket.Close();
 			}
 			else

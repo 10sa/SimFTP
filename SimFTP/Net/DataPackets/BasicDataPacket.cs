@@ -24,6 +24,8 @@ namespace SimFTP.Net.DataPackets
 
 		private bool _CalledOnlyBasicDataPacket = false;
 
+		public bool IsOversize { get { if (FileSize > int.MaxValue / 4) { return true; } else { return false; } } }
+
 		private BasicDataPacket () { }
 
 		public BasicDataPacket(short nameLenght, long fileSize, string fileName, byte[] fileData)
@@ -35,6 +37,7 @@ namespace SimFTP.Net.DataPackets
 		{
 			FileNameLenght = nameLenght;
 			FileName = fileName;
+			FileSize = file.Length;
 			File = file;
 		}
 

@@ -84,8 +84,10 @@ namespace SimFTP.Net.Server
 			while(true)
 			{
 				Socket clientSocket = serverSocket.Accept();
+				clientSocket.NoDelay = false;
 
 				Thread connectHandleRoutine = new Thread(new ParameterizedThreadStart(ConnectHandleRoutine));
+				connectHandleRoutine.Name = string.Format("Client_IO_Handler", clientSocket.Handle);
 				connectHandleRoutine.Start(clientSocket);
 			}
 		}

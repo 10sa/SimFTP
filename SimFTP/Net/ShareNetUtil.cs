@@ -42,7 +42,7 @@ namespace SimFTP.Net
 		public static byte[] ReceivePacket (Socket socket, int size)
 		{
 			byte[] buffer = new byte[size];
-			socket.ReceiveTimeout = 300;
+			socket.ReceiveTimeout = -1;
 
 			try
 			{

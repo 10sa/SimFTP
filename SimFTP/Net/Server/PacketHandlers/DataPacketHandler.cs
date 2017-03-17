@@ -15,6 +15,7 @@ using SimFTP.Net.MetadataPackets;
 using System.Net;
 using System.Threading;
 using System.Net.Sockets;
+using System.IO;
 
 namespace SimFTP.Net.Server.PacketHandlers
 {
@@ -32,7 +33,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 			short fileNameLenght = BitConverter.ToInt16(ShareNetUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
 			long fileSize = BitConverter.ToInt64(ShareNetUtil.ReceivePacket(clientSocket, sizeof(long)), 0);
 			string fileName = Encoding.UTF8.GetString(ShareNetUtil.ReceivePacket(clientSocket, fileNameLenght));
-			byte[] fileData = GetFileData(clientSocket, fileSize);
+			byte[] fileData = GetFileData(clientSocket, fileSize, fileName);
 
 			return new BasicDataPacket(fileNameLenght, fileSize, fileName, fileData);
 		}
@@ -54,22 +55,33 @@ namespace SimFTP.Net.Server.PacketHandlers
 			}
 		}
 
-		private byte[] GetFileData (Socket clientSocket, long fileSize)
+		private byte[] GetFileData (Socket clientSocket, long fileSize, string fileName)
 		{
 			byte[] fileData;
+			const int FileBufferSize = int.MaxValue / 8;
+			long readedFileSize = fileSize;
 
-			if(fileSize > int.MaxValue)
+			if(fileSize > FileBufferSize)
 			{
-				fileData = ShareNetUtil.ReceivePacket(clientSocket, int.MaxValue);
-				for(long i = (fileSize - int.MaxValue); fileSize > int.MaxValue; fileSize -= int.MaxValue)
-					fileData = Util.AttachByteArray(fileData, ShareNetUtil.ReceivePacket(clientSocket, int.MaxValue));
+				using(BinaryWriter writer = new BinaryWriter(File.Create(fileName, FileBufferSize)))
+				{
+					for(; readedFileSize > FileBufferSize; readedFileSize -= FileBufferSize)
+					{
+						if (readedFileSize >= FileBufferSize)
+						{
+							fileData = ShareNetUtil.ReceivePacket(clientSocket, FileBufferSize);
+							writer.Write(fileData, 0, fileData.Length);
+						}
+					}
 
-				fileData = Util.AttachByteArray(fileData, ShareNetUtil.ReceivePacket(clientSocket, (int)fileSize));
+					fileData = ShareNetUtil.ReceivePacket(clientSocket, (int)readedFileSize);
+					writer.Write(fileData, 0, (int)readedFileSize);
+				}
+
+				return null;
 			}
 			else
-				fileData = ShareNetUtil.ReceivePacket(clientSocket, (int)fileSize);
-
-			return fileData;
+				return ShareNetUtil.ReceivePacket(clientSocket, (int)fileSize);
 		}
 	}
 }
