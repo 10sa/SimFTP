@@ -57,25 +57,27 @@ namespace SimFTP.Net.Server.PacketHandlers
 
 		private byte[] GetFileData (Socket clientSocket, long fileSize, string fileName)
 		{
-			byte[] fileData;
 			const int FileBufferSize = int.MaxValue / 8;
-			long readedFileSize = fileSize;
+			long leftFileSize = fileSize;
 
 			if(fileSize > FileBufferSize)
 			{
 				using(BinaryWriter writer = new BinaryWriter(File.Create(fileName, FileBufferSize)))
 				{
-					for(; readedFileSize > FileBufferSize; readedFileSize -= FileBufferSize)
+					byte[] buffer = new byte[FileBufferSize];
+					while(leftFileSize > buffer.Length)
 					{
-						if (readedFileSize >= FileBufferSize)
-						{
-							fileData = ShareNetUtil.ReceivePacket(clientSocket, FileBufferSize);
-							writer.Write(fileData, 0, fileData.Length);
-						}
+						int readedSize = ShareNetUtil.BufferedReceivePacket(clientSocket, buffer, buffer.Length);
+						writer.Write(buffer, 0, readedSize);
+						leftFileSize -= readedSize;
 					}
 
-					fileData = ShareNetUtil.ReceivePacket(clientSocket, (int)readedFileSize);
-					writer.Write(fileData, 0, (int)readedFileSize);
+					while(leftFileSize > 0)
+					{
+						int readedSize = ShareNetUtil.BufferedReceivePacket(clientSocket, buffer, (int)leftFileSize);
+						writer.Write(buffer, 0, readedSize);
+						leftFileSize -= readedSize;
+					}
 				}
 
 				return null;

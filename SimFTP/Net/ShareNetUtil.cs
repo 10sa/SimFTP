@@ -56,6 +56,19 @@ namespace SimFTP.Net
 			}
 		}
 
+		public static int BufferedReceivePacket(Socket socket, byte[] buffer, int size)
+		{
+			try
+			{
+				return socket.Receive(buffer, size, SocketFlags.None);
+			}
+			catch(Exception)
+			{
+				socket.Close();
+				throw;
+			}
+		}
+
 		public static void SendInfoPacket(Socket clientSocket, InfoType type, byte[] data = null)
 		{
 			clientSocket.Send(new InfoPacket(type, data).GetBinaryData());
