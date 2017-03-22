@@ -54,6 +54,14 @@ namespace SimFTP
 			return Encoding.UTF8.GetString(GetHashValue(Encoding.UTF8.GetBytes(data)));
 		}
 
+		public static byte[] GetHashFromStream(Stream stream)
+		{
+			byte[] returns = csp.ComputeHash(stream);
+			stream.Position = 0;
+
+			return returns;
+		}
+
 		public static void WriteFile(byte[] file, string fileName)
 		{
 			using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
@@ -62,18 +70,6 @@ namespace SimFTP
 				fileStream.FlushAsync();
 
 				return;
-			}
-		}
-
-		public static byte[] ReadFile(string fileName)
-		{
-			using(MemoryStream memoryStream = new MemoryStream())
-			{
-				using(FileStream fileStream = new FileStream(fileName, FileMode.Open))
-				{
-					fileStream.CopyTo(memoryStream);
-					return memoryStream.ToArray();
-				}
 			}
 		}
 

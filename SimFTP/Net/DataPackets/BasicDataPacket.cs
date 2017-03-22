@@ -57,15 +57,16 @@ namespace SimFTP.Net.DataPackets
 
 		protected BasicDataPacket(BasicDataPacket data)
 		{
-			SetFileData(data.FileNameLenght, data.FileSize, data.FileName, data.FileData);
+			SetFileData(data.FileNameLenght, data.FileSize, data.FileName, data.FileData, data.File);
 		}
 
-		private void SetFileData(short nameLenght, long fileSize, string fileName, byte[] fileData)
+		private void SetFileData(short nameLenght, long fileSize, string fileName, byte[] fileData, FileStream stream = null)
 		{
 			this.FileNameLenght = nameLenght;
 			this.FileSize = fileSize;
 			this.FileName = fileName;
 			this.FileData = fileData;
+			this.File = stream;
 		}		
 	}
 }

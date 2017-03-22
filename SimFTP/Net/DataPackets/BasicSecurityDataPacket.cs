@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 
 namespace SimFTP.Net.DataPackets
@@ -21,14 +22,27 @@ namespace SimFTP.Net.DataPackets
 			Checksum = checksum;
 		}
 
+		public BasicSecurityDataPacket(string fileName, short nameLenght, FileStream stream) : base(nameLenght, fileName, stream) 
+		{
+			SetChecksum(stream);
+		}
+
 		protected BasicSecurityDataPacket(BasicDataPacket data) : base(data)
 		{
-			SetChecksum(data.FileData);
+			if(data.File != null)
+				SetChecksum(data.File);
+			else if(data.FileData != null)
+				SetChecksum(data.FileData);
 		}
 
 		private void SetChecksum(byte[] fileData)
 		{
 			Checksum = Util.GetHashValue(fileData);
+		}
+
+		private void SetChecksum(FileStream stream)
+		{
+			Checksum = Util.GetHashFromStream(stream);
 		}
 
 		public new byte[] GetBinaryData()

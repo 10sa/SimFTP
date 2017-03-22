@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 using SimFTP;
 using SimFTP.Config;
@@ -49,7 +50,29 @@ namespace SimFTP.Net.Server.PacketHandlers
 			using(AES256Manager aes = new AES256Manager(shareKey))
 			{
 				ExpertSecurityDataPacket data = new ExpertSecurityDataPacket(ReceiveBasicSecurityDataPacket());
-				data.SetFileData(aes.Decrypt(data.FileData));
+
+				if(!data.IsOversize && data.FileData != null)
+					data.SetFileData(aes.Decrypt(data.FileData));
+				else
+				{
+					using(BinaryReader reader = new BinaryReader(File.Open(data.FileName, FileMode.Open)))
+					{
+						CryptoStream writerStream = aes.GetDencryptStream(File.Open(data.FileName + ".DENCRYPT", FileMode.Create));
+
+						byte[] buffer = new byte[int.MaxValue / 8];
+						int readedBytes;
+
+						while((readedBytes = reader.Read(buffer, 0, buffer.Length)) > 0)
+							writerStream.Write(buffer, 0, readedBytes);
+
+						writerStream.Dispose();
+
+						
+					}
+				}
+
+				File.Delete(data.FileName);
+				File.Move(data.FileName + ".DENCRYPT", data.FileName);
 
 				return data;
 			}
@@ -78,8 +101,11 @@ namespace SimFTP.Net.Server.PacketHandlers
 						writer.Write(buffer, 0, readedSize);
 						leftFileSize -= readedSize;
 					}
+
+					buffer = null;
 				}
 
+				GC.Collect();
 				return null;
 			}
 			else

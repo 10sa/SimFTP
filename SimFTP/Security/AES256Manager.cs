@@ -18,14 +18,6 @@ namespace SimFTP.Security
 
 		private RijndaelManaged AESManager = new RijndaelManaged();
 
-		/* public AES256Manager()
-		{
-			Random keyValue = new Random();
-
-			SetCryptoConfig(Util.GetHashValue(BitConverter.GetBytes(Environment.TickCount * keyValue.Next())));
-			SetAESConfigs();
-		} */
-
 		public AES256Manager(byte[] key)
 		{
 			SetAESConfigs();
@@ -71,6 +63,16 @@ namespace SimFTP.Security
 					return buffer;
 				}
 			}
+		}
+
+		public CryptoStream GetEncryptStream(Stream baseStream)
+		{
+			return new CryptoStream(baseStream, AESManager.CreateEncryptor(Key, IV), CryptoStreamMode.Write);
+		}
+
+		public CryptoStream GetDencryptStream(Stream baseStream)
+		{
+			return new CryptoStream(baseStream, AESManager.CreateDecryptor(Key, IV), CryptoStreamMode.Write);
 		}
 
 		#region IDisposable Support

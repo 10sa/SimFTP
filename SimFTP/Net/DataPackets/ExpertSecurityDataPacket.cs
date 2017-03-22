@@ -16,5 +16,13 @@ namespace SimFTP.Net.DataPackets
 			this.FileData = fileData;
 			this.FileSize = FileData.LongLength;
 		}
+
+		public void SetFileSize(long fileSize)
+		{
+			if(fileSize < 0)
+				throw new ArgumentException();
+
+			this.FileSize = fileSize;
+		}
 	}
 }

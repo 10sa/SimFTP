@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security;
+using System.Security.Cryptography;
 
 
 using SimFTP.Config;
@@ -92,21 +93,6 @@ namespace SimFTP.Net.Client
 				ThrowFormattedException(PacketType.ExpertSecurity);
 		}
 
-
-		public void SendFile(params FileStream[] fileStreams)
-		{
-			
-			switch(SendType)
-			{
-				case PacketType.BasicFrame:
-					break;
-				case PacketType.BasicSecurity:
-					break;
-				case PacketType.ExpertSecurity:
-					break;
-			}
-		}
-
 		private void ThrowFormattedException(PacketType tryType)
 		{
 			throw new InvalidOperationException(string.Format("Wrong Packet Type. Tyring sending {0} type packet But, class sending type is {1}.", tryType, SendType));
@@ -180,12 +166,72 @@ namespace SimFTP.Net.Client
 
 				using(AES256Manager aesManager = new AES256Manager(shareKey))
 				{
+					const string EncryptTemp = ".encrypted";
+					List<BasicDataPacket> lists = new List<BasicDataPacket>();
 					foreach(var file in files)
 					{
-						file.SetFileData(aesManager.Encrypt(file.FileData));
-						clientSocket.Send(file.GetBinaryData());
-					}
+						if(file.File == null)
+						{
+							file.SetFileData(aesManager.Encrypt(file.FileData));
+							clientSocket.Send(file.GetBinaryData());
+						}
+						else
+						{
+							using(CryptoStream encryptStream = aesManager.GetEncryptStream(File.Open(file.FileName + EncryptTemp, FileMode.Create)))
+							{
+								using(BinaryReader reader = new BinaryReader(file.File))
+								{
+									byte[] fileBuffer = new byte[int.MaxValue / 8];
+									int readedBytes;
+									long leftFile = file.File.Length;
 
+									while(leftFile > fileBuffer.Length)
+									{
+										readedBytes = reader.Read(fileBuffer, 0, fileBuffer.Length);
+										encryptStream.Write(fileBuffer, 0, readedBytes);
+
+										leftFile -= readedBytes;
+									}
+
+									while(leftFile > 0)
+									{
+										readedBytes = reader.Read(fileBuffer, 0, (int)leftFile);
+										encryptStream.Write(fileBuffer, 0, readedBytes);
+										leftFile -= readedBytes;
+									}
+								}
+							}
+
+							using(BinaryReader reader = new BinaryReader(File.Open(file.FileName + EncryptTemp, FileMode.Open)))
+							{
+								file.SetFileSize(reader.BaseStream.Length);
+
+								clientSocket.Send(file.GetOnlyBasicDataPacket());
+
+								byte[] fileBuffer = new byte[int.MaxValue / 8];
+								int readedBytes;
+								long leftFile = reader.BaseStream.Length;
+
+								while(leftFile > fileBuffer.Length)
+								{
+									readedBytes = reader.Read(fileBuffer, 0, fileBuffer.Length);
+									clientSocket.Send(fileBuffer, readedBytes, SocketFlags.None);
+									leftFile -= readedBytes;
+								}
+
+								while(leftFile > 0)
+								{
+									readedBytes = reader.Read(fileBuffer, 0, (int)leftFile);
+									clientSocket.Send(fileBuffer, readedBytes, SocketFlags.None);
+									leftFile -= readedBytes;
+								}
+
+								clientSocket.Send(file.GetBinaryData());
+							}
+
+							File.Delete(file.FileName + EncryptTemp);
+						}
+					}
 					clientSocket.Shutdown(SocketShutdown.Send);
 				}
 			}
@@ -200,31 +246,32 @@ namespace SimFTP.Net.Client
 				else
 				{
 					clientSocket.Send(file.GetOnlyBasicDataPacket());
-
-					byte[] fileBuffer = new byte[int.MaxValue / 8];
 					long leftFileSize = file.FileSize;
 
 					using(BinaryReader reader = new BinaryReader(file.File))
 					{
+						byte[] fileBuffer = new byte[int.MaxValue / 8];
 						while(leftFileSize > 0)
 						{
 							if(leftFileSize > fileBuffer.Length)
 							{
-								reader.Read(fileBuffer, 0, fileBuffer.Length);
-								// clientSocket.BeginSend(fileBuffer, 0, fileBuffer.Length, SocketFlags.None, (a) => { }, new object());
-								clientSocket.Send(fileBuffer, 0, fileBuffer.Length, SocketFlags.None);
-								leftFileSize -= fileBuffer.Length;
+								int readByte = reader.Read(fileBuffer, 0, fileBuffer.Length);
+								clientSocket.Send(fileBuffer, 0, readByte, SocketFlags.None);
+								leftFileSize -= readByte;
 							}
 							else
 							{
-								reader.Read(fileBuffer, 0, (int)leftFileSize);
-								// clientSocket.BeginSend(fileBuffer, 0, fileBuffer.Length, SocketFlags.None, (a) => { }, new object());
-								clientSocket.Send(fileBuffer, (int)leftFileSize, SocketFlags.None);
-								leftFileSize = 0;
+								int readByte = reader.Read(fileBuffer, 0, (int)leftFileSize);
+								clientSocket.Send(fileBuffer, readByte, SocketFlags.None);
+								leftFileSize = readByte;
 							}
 						}
+
+						fileBuffer = null;
 					}
-					
+
+
+					GC.Collect();
 					clientSocket.Send(file.GetBinaryData());
 				}
 			}
