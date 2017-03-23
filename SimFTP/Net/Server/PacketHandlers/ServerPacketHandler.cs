@@ -68,7 +68,8 @@ namespace SimFTP.Net.Server.PacketHandlers
 						Util.WriteFile(data.FileData, data.FileName);
 				}
 
-				clientSocket.Close();
+				clientSocket.Send(new InfoPacket(InfoType.Close).GetBinaryData());
+				clientSocket.Close(150);
 			}
 			else
 				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
@@ -86,6 +87,9 @@ namespace SimFTP.Net.Server.PacketHandlers
 					{
 						ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 						BasicSecurityDataPacektHandling(packetData);
+
+						clientSocket.Send(new InfoPacket(InfoType.Close).GetBinaryData());
+						clientSocket.Close(150);
 					}
 					else
 						ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
@@ -94,6 +98,9 @@ namespace SimFTP.Net.Server.PacketHandlers
 				{
 					ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 					BasicSecurityDataPacektHandling(packetData);
+
+					clientSocket.Send(new InfoPacket(InfoType.Close).GetBinaryData());
+					clientSocket.Close(150);
 				}
 				else
 					ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Wrong_Certificate);
@@ -122,9 +129,22 @@ namespace SimFTP.Net.Server.PacketHandlers
 				if (childPacket.IsAnonynomus == true)
 				{
 					if(config.GetConfigTable("Accept_Anonymous_Login") == bool.TrueString)
+					{
 						ExpertSecurityDataPacketHandling(packetData);
+
+						clientSocket.Send(new InfoPacket(InfoType.Close).GetBinaryData());
+						clientSocket.Close(150);
+					}
 					else
 						ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
+				}
+				else if(accountConfig.GetConfigTable(childPacket.Username) == Util.GetHashedString(childPacket.Password))
+				{
+					ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
+					ExpertSecurityDataPacketHandling(packetData);
+
+					clientSocket.Send(new InfoPacket(InfoType.Close).GetBinaryData());
+					clientSocket.Close(150);
 				}
 			}
 			else

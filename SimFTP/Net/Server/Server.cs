@@ -66,6 +66,9 @@ namespace SimFTP.Net.Server
 		public void Dispose ()
 		{
 			serverSocket.Dispose();
+			accountConfig.Dispose();
+			config.Dispose();
+
 			serverThread.Interrupt();
 
 			foreach(var thread in threadList)
