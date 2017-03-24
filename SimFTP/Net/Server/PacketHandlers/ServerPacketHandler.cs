@@ -61,12 +61,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 
 				for(int i = 0; i < packetData.DataCount; i++)
-				{
-					BasicDataPacket data = dataHandler.ReceiveBasicDataPacket();
-
-					if (!data.IsOversize)
-						Util.WriteFile(data.FileData, data.FileName);
-				}
+				{ BasicDataPacket data = dataHandler.ReceiveBasicDataPacket(); }
 
 				clientSocket.Send(new InfoPacket(InfoType.Close).GetBinaryData());
 				clientSocket.Close(150);
