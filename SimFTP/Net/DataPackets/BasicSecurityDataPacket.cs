@@ -12,32 +12,20 @@ namespace SimFTP.Net.DataPackets
 	{
 		public byte[] Checksum { get; private set; }
 
-		public BasicSecurityDataPacket(string fileName, short nameLenght, byte[] fileData, long fileSize) : base(nameLenght, fileSize, fileName, fileData)
-		{
-			SetChecksum(fileData);
-		}
-
-		public BasicSecurityDataPacket(string fileName, short nameLenght, byte[] fileData, long fileSize, byte[] checksum) : base(nameLenght, fileSize, fileName, fileData)
-		{
-			Checksum = checksum;
-		}
-
-		public BasicSecurityDataPacket(string fileName, short nameLenght, FileStream stream) : base(nameLenght, fileName, stream) 
+		public BasicSecurityDataPacket(string fileName, FileStream stream) : base(fileName, stream) 
 		{
 			SetChecksum(stream);
+		}
+
+		public BasicSecurityDataPacket(string fileName, byte[] checksum) : base(fileName, null)
+		{
+			Checksum = checksum;
 		}
 
 		protected BasicSecurityDataPacket(BasicDataPacket data) : base(data)
 		{
 			if(data.File != null)
 				SetChecksum(data.File);
-			else if(data.FileData != null)
-				SetChecksum(data.FileData);
-		}
-
-		private void SetChecksum(byte[] fileData)
-		{
-			Checksum = Util.GetHashValue(fileData);
 		}
 
 		private void SetChecksum(FileStream stream)

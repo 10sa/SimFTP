@@ -34,14 +34,15 @@ namespace SimFTP.Net.Server.PacketHandlers
 			short fileNameLenght = BitConverter.ToInt16(ShareNetUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
 			long fileSize = BitConverter.ToInt64(ShareNetUtil.ReceivePacket(clientSocket, sizeof(long)), 0);
 			string fileName = Encoding.UTF8.GetString(ShareNetUtil.ReceivePacket(clientSocket, fileNameLenght));
+			GetFileData(clientSocket, fileSize, fileName);
 
-			return new BasicDataPacket(fileNameLenght, fileSize, fileName, null);
+			return new BasicDataPacket(fileName, null);
 		}
 
 		public BasicSecurityDataPacket ReceiveBasicSecurityDataPacket ()
 		{
 			BasicDataPacket data = ReceiveBasicDataPacket();
-			return new BasicSecurityDataPacket(data.FileName, data.FileNameLenght, data.FileData, data.FileSize, ShareNetUtil.ReceivePacket(clientSocket, Util.HashByteSize));
+			return new BasicSecurityDataPacket(data.FileName,  ShareNetUtil.ReceivePacket(clientSocket, Util.HashByteSize));
 		}
 
 		public ExpertSecurityDataPacket ReceiveExpertSecurityDataPacket(byte[] shareKey)
@@ -50,24 +51,17 @@ namespace SimFTP.Net.Server.PacketHandlers
 			{
 				ExpertSecurityDataPacket data = new ExpertSecurityDataPacket(ReceiveBasicSecurityDataPacket());
 
-				if(!data.IsOversize && data.FileData != null)
-					data.SetFileData(aes.Decrypt(data.FileData));
-				else
+				using(BinaryReader reader = new BinaryReader(File.Open(data.FileName, FileMode.Open)))
 				{
-					using(BinaryReader reader = new BinaryReader(File.Open(data.FileName, FileMode.Open)))
-					{
-						CryptoStream writerStream = aes.GetDencryptStream(File.Open(data.FileName + ".DENCRYPT", FileMode.Create));
+					CryptoStream writerStream = aes.GetDencryptStream(File.Open(data.FileName + ".DENCRYPT", FileMode.Create));
 
-						byte[] buffer = new byte[int.MaxValue / 8];
-						int readedBytes;
+					byte[] buffer = new byte[int.MaxValue / 8];
+					int readedBytes;
 
-						while((readedBytes = reader.Read(buffer, 0, buffer.Length)) > 0)
-							writerStream.Write(buffer, 0, readedBytes);
+					while((readedBytes = reader.Read(buffer, 0, buffer.Length)) > 0)
+						writerStream.Write(buffer, 0, readedBytes);
 
-						writerStream.Dispose();
-
-						
-					}
+					writerStream.Dispose();
 				}
 
 				File.Delete(data.FileName);

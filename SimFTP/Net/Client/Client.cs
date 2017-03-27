@@ -109,7 +109,7 @@ namespace SimFTP.Net.Client
 			//
 			FileSendHandler(files);
 
-			clientSocket.Shutdown(SocketShutdown.Send);
+			
 		}
 
 		// Anonymous Send //
@@ -123,7 +123,6 @@ namespace SimFTP.Net.Client
 			//
 
 			FileSendHandler(files);
-			clientSocket.Shutdown(SocketShutdown.Send);
 		}
 
 		// User Auth Send //
@@ -137,7 +136,6 @@ namespace SimFTP.Net.Client
 			//
 
 			FileSendHandler(files);
-			clientSocket.Shutdown(SocketShutdown.Send);
 		}
 
 		// Anonymous Encrypted Send //
@@ -170,68 +168,61 @@ namespace SimFTP.Net.Client
 					List<BasicDataPacket> lists = new List<BasicDataPacket>();
 					foreach(var file in files)
 					{
-						if(file.File == null)
+						using(CryptoStream encryptStream = aesManager.GetEncryptStream(File.Open(file.FileName + EncryptTemp, FileMode.Create)))
 						{
-							file.SetFileData(aesManager.Encrypt(file.FileData));
-							clientSocket.Send(file.GetBinaryData());
-						}
-						else
-						{
-							using(CryptoStream encryptStream = aesManager.GetEncryptStream(File.Open(file.FileName + EncryptTemp, FileMode.Create)))
+							using(BinaryReader reader = new BinaryReader(file.File))
 							{
-								using(BinaryReader reader = new BinaryReader(file.File))
-								{
-									byte[] fileBuffer = new byte[int.MaxValue / 8];
-									int readedBytes;
-									long leftFile = file.File.Length;
-
-									while(leftFile > fileBuffer.Length)
-									{
-										readedBytes = reader.Read(fileBuffer, 0, fileBuffer.Length);
-										encryptStream.Write(fileBuffer, 0, readedBytes);
-
-										leftFile -= readedBytes;
-									}
-
-									while(leftFile > 0)
-									{
-										readedBytes = reader.Read(fileBuffer, 0, (int)leftFile);
-										encryptStream.Write(fileBuffer, 0, readedBytes);
-										leftFile -= readedBytes;
-									}
-								}
-							}
-
-							using(BinaryReader reader = new BinaryReader(File.Open(file.FileName + EncryptTemp, FileMode.Open)))
-							{
-								file.SetFileSize(reader.BaseStream.Length);
-
-								clientSocket.Send(file.GetOnlyBasicDataPacket());
-
 								byte[] fileBuffer = new byte[int.MaxValue / 8];
 								int readedBytes;
-								long leftFile = reader.BaseStream.Length;
+								long leftFile = file.File.Length;
 
 								while(leftFile > fileBuffer.Length)
 								{
 									readedBytes = reader.Read(fileBuffer, 0, fileBuffer.Length);
-									clientSocket.Send(fileBuffer, readedBytes, SocketFlags.None);
+									encryptStream.Write(fileBuffer, 0, readedBytes);
+
 									leftFile -= readedBytes;
 								}
 
 								while(leftFile > 0)
 								{
 									readedBytes = reader.Read(fileBuffer, 0, (int)leftFile);
-									clientSocket.Send(fileBuffer, readedBytes, SocketFlags.None);
+									encryptStream.Write(fileBuffer, 0, readedBytes);
 									leftFile -= readedBytes;
 								}
+							}
+						}
 
-								clientSocket.Send(file.GetBinaryData());
+						using(BinaryReader reader = new BinaryReader(File.Open(file.FileName + EncryptTemp, FileMode.Open)))
+						{
+							file.SetFileSize(reader.BaseStream.Length);
+
+							clientSocket.Send(file.GetOnlyBasicDataPacket());
+
+							byte[] fileBuffer = new byte[int.MaxValue / 8];
+							int readedBytes;
+							long leftFile = reader.BaseStream.Length;
+
+							while(leftFile > fileBuffer.Length)
+							{
+								readedBytes = reader.Read(fileBuffer, 0, fileBuffer.Length);
+								clientSocket.Send(fileBuffer, readedBytes, SocketFlags.None);
+								leftFile -= readedBytes;
 							}
 
-							File.Delete(file.FileName + EncryptTemp);
+							while(leftFile > 0)
+							{
+								readedBytes = reader.Read(fileBuffer, 0, (int)leftFile);
+								clientSocket.Send(fileBuffer, readedBytes, SocketFlags.None);
+								leftFile -= readedBytes;
+							}
+
+							clientSocket.Send(file.GetBinaryData());
 						}
+
+						File.Delete(file.FileName + EncryptTemp);
 					}
+
 					clientSocket.Shutdown(SocketShutdown.Send);
 				}
 			}
@@ -273,6 +264,7 @@ namespace SimFTP.Net.Client
 
 					GC.Collect();
 					clientSocket.Send(file.GetBinaryData());
+					clientSocket.Shutdown(SocketShutdown.Send);
 				}
 			}
 		}

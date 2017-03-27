@@ -10,12 +10,6 @@ namespace SimFTP.Net.DataPackets
 	{
 		public ExpertSecurityDataPacket(BasicDataPacket data) : base(data) { }
 		
-		public void SetFileData(byte[] fileData)
-		{
-			// Override //
-			this.FileData = fileData;
-			this.FileSize = FileData.LongLength;
-		}
 
 		public void SetFileSize(long fileSize)
 		{

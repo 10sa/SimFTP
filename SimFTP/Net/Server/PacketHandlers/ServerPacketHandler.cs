@@ -109,12 +109,8 @@ namespace SimFTP.Net.Server.PacketHandlers
 			for(int i = 0; i < packetData.DataCount; i++)
 			{
 				BasicSecurityDataPacket data = dataHandler.ReceiveBasicSecurityDataPacket();
-
-				if (!data.IsOversize)
-					Util.WriteFile(data.FileData, data.FileName);
 			}
 		}
-
 		private void ExpertSecurityMetadataPacketHandling(BasicMetadataPacket packetData)
 		{
 			if(config.GetConfigTable("Accpet_Expert_Security_Packet") == bool.TrueString)
@@ -162,9 +158,6 @@ namespace SimFTP.Net.Server.PacketHandlers
 					for(int i = 0; i < packetData.DataCount; i++)
 					{
 						ExpertSecurityDataPacket data = dataHandler.ReceiveExpertSecurityDataPacket(dh.GetShareKey(clientShareInfo.ResponseData));
-
-						if(data.FileData != null)
-							Util.WriteFile(data.FileData, data.FileName);
 					}
 				}
 			}

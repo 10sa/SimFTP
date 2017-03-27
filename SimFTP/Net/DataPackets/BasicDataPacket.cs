@@ -18,7 +18,6 @@ namespace SimFTP.Net.DataPackets
 		public long FileSize { get; protected set; }
 
 		public string FileName { get; protected set; }
-		public byte[] FileData { get; protected set; }
 
 		public FileStream File { get; protected set; }
 
@@ -28,23 +27,20 @@ namespace SimFTP.Net.DataPackets
 
 		private BasicDataPacket () { }
 
-		public BasicDataPacket(short nameLenght, long fileSize, string fileName, byte[] fileData)
+		public BasicDataPacket(string fileName, FileStream file)
 		{
-			SetFileData(nameLenght, fileSize, fileName, fileData);
-		}
-
-		public BasicDataPacket(short nameLenght, string fileName, FileStream file)
-		{
-			FileNameLenght = nameLenght;
+			FileNameLenght = (short)fileName.Length;
 			FileName = fileName;
-			FileSize = file.Length;
 			File = file;
+
+			if(file != null)
+				FileSize = file.Length;
 		}
 
 		public byte[] GetBinaryData()
 		{
-			if (FileData == null && !_CalledOnlyBasicDataPacket)
-				return Util.AttachByteArray(BitConverter.GetBytes(FileNameLenght), BitConverter.GetBytes(FileSize), Encoding.UTF8.GetBytes(FileName), FileData);
+			if (!_CalledOnlyBasicDataPacket)
+				return Util.AttachByteArray(BitConverter.GetBytes(FileNameLenght), BitConverter.GetBytes(FileSize), Encoding.UTF8.GetBytes(FileName));
 			else
 				return new byte[] { };
 		}	
@@ -57,15 +53,14 @@ namespace SimFTP.Net.DataPackets
 
 		protected BasicDataPacket(BasicDataPacket data)
 		{
-			SetFileData(data.FileNameLenght, data.FileSize, data.FileName, data.FileData, data.File);
+			SetFileData(data.FileNameLenght, data.FileSize, data.FileName, data.File);
 		}
 
-		private void SetFileData(short nameLenght, long fileSize, string fileName, byte[] fileData, FileStream stream = null)
+		private void SetFileData(short nameLenght, long fileSize, string fileName, FileStream stream)
 		{
 			this.FileNameLenght = nameLenght;
 			this.FileSize = fileSize;
 			this.FileName = fileName;
-			this.FileData = fileData;
 			this.File = stream;
 		}		
 	}
