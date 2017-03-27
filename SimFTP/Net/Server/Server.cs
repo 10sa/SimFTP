@@ -34,7 +34,7 @@ namespace SimFTP.Net.Server
 		private List<Thread> threadList = new List<Thread>();
 		private Thread serverThread;
 
-		private TransferConfig config = new TransferConfig();
+		public TransferConfig config = new TransferConfig();
 		private AccountConfig accountConfig = new AccountConfig();
 
 		#endregion

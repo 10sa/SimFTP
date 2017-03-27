@@ -15,7 +15,7 @@ namespace SimFTP.Config
 		private object threadLocker = new object();
 		private Stream fileStream;
 
-		protected Dictionary<string, string> configTable = new Dictionary<string, string>();
+		public Dictionary<string, string> ConfigTable = new Dictionary<string, string>();
 		protected abstract void InitializeConfig();
 
 		// Not Using This Constructor. //
@@ -41,13 +41,13 @@ namespace SimFTP.Config
 		{
 			lock(threadLocker)
 			{
-				configTable.Add(key, value);
+				ConfigTable.Add(key, value);
 			}
 		}
 
 		public virtual string GetConfigTable(string key)
 		{
-			return configTable[key];
+			return ConfigTable[key];
 		}
 
 		#region IO Part
@@ -55,7 +55,7 @@ namespace SimFTP.Config
 		{
 			try
 			{
-				binaryFormatter.Serialize(fileStream, configTable);
+				binaryFormatter.Serialize(fileStream, ConfigTable);
 				fileStream.Flush();
 			}
 			catch
@@ -69,7 +69,7 @@ namespace SimFTP.Config
 		{
 			try
 			{
-				configTable = (Dictionary<string, string>)binaryFormatter.Deserialize(fileStream);
+				ConfigTable = (Dictionary<string, string>)binaryFormatter.Deserialize(fileStream);
 			}
 			catch
 			{
@@ -93,7 +93,7 @@ namespace SimFTP.Config
 				}
 
 				binaryFormatter = null;
-				configTable = null;
+				ConfigTable = null;
 
 				disposedValue = true;
 			}

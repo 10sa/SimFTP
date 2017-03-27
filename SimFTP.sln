@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimFTP", "SimFTP\SimFTP.csproj", "{98DD0B62-ACF6-4156-B0AC-C8799DCBFB6C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestConsoleProject", "UnitTestConsoleProject\UnitTestConsoleProject.csproj", "{6E50FEFE-2296-4FB4-98B4-EA1959CC4159}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimFTPV", "SimFTPV\SimFTPV.csproj", "{D6598872-A7F2-4885-BBE6-25459B196137}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{98DD0B62-ACF6-4156-B0AC-C8799DCBFB6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98DD0B62-ACF6-4156-B0AC-C8799DCBFB6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98DD0B62-ACF6-4156-B0AC-C8799DCBFB6C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6E50FEFE-2296-4FB4-98B4-EA1959CC4159}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E50FEFE-2296-4FB4-98B4-EA1959CC4159}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E50FEFE-2296-4FB4-98B4-EA1959CC4159}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E50FEFE-2296-4FB4-98B4-EA1959CC4159}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6598872-A7F2-4885-BBE6-25459B196137}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6598872-A7F2-4885-BBE6-25459B196137}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6598872-A7F2-4885-BBE6-25459B196137}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6598872-A7F2-4885-BBE6-25459B196137}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
