@@ -24,7 +24,7 @@ namespace SimFTP.Net.Client
 		private readonly string ServerAddress;
 		private const int ServerPort = 44335;
 		private Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-		private PacketType SendType;
+		public PacketType SendType { get; private set; }
 
 		public Client(string address, PacketType sendingType)
 		{

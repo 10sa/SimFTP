@@ -29,15 +29,35 @@
 		private void InitializeComponent()
 		{
 			this.listView1 = new System.Windows.Forms.ListView();
+			this.Key = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.Value = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.SuspendLayout();
 			// 
 			// listView1
 			// 
+			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.Key,
+            this.Value});
+			this.listView1.FullRowSelect = true;
+			this.listView1.GridLines = true;
+			this.listView1.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+			this.listView1.HideSelection = false;
 			this.listView1.Location = new System.Drawing.Point(12, 12);
 			this.listView1.Name = "listView1";
-			this.listView1.Size = new System.Drawing.Size(600, 137);
+			this.listView1.Size = new System.Drawing.Size(600, 144);
+			this.listView1.Sorting = System.Windows.Forms.SortOrder.Ascending;
 			this.listView1.TabIndex = 1;
 			this.listView1.UseCompatibleStateImageBehavior = false;
+			this.listView1.View = System.Windows.Forms.View.Details;
+			this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
+			// 
+			// Key
+			// 
+			this.Key.Text = "키";
+			// 
+			// Value
+			// 
+			this.Value.Text = "값";
 			// 
 			// ReceiveConfigs
 			// 
@@ -55,5 +75,7 @@
 		#endregion
 
 		private System.Windows.Forms.ListView listView1;
+		private System.Windows.Forms.ColumnHeader Key;
+		private System.Windows.Forms.ColumnHeader Value;
 	}
 }

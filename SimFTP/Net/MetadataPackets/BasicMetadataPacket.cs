@@ -10,10 +10,10 @@ namespace SimFTP.Net.MetadataPackets
 	public enum PacketType
 	{
 		BasicFrame,
-		Error,
-		Info,
 		BasicSecurity,
-		ExpertSecurity
+		ExpertSecurity,
+		Error,
+		Info
 	}
 
 	public class BasicMetadataPacket

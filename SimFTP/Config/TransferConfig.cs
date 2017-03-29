@@ -18,7 +18,6 @@ namespace SimFTP.Config
 			AddConfigTable("Accept_Anonymous_Login", bool.TrueString);
 
 			AddConfigTable("Accpet_Expert_Security_Packet", bool.TrueString);
-			
 		}
 	}
 }

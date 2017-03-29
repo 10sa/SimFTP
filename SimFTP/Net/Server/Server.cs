@@ -41,6 +41,7 @@ namespace SimFTP.Net.Server
 
 		#region Public Callback field
 		public event ServerTransferCallback ServerTransferCallbackEvent = delegate { };
+		public bool IsRunning { get { if(serverThread.ThreadState == ThreadState.Running) { return true; } else { return false; } } }
 		#endregion
 
 		public Server()
@@ -55,6 +56,12 @@ namespace SimFTP.Net.Server
 		public void Start ()
 		{
 			serverThread.Start();
+		}
+
+		public void Stop()
+		{
+			// It's Really Not Looks good...
+			serverThread.Interrupt();
 		}
 
 		public void AddPermission(string username, string password)
@@ -78,6 +85,7 @@ namespace SimFTP.Net.Server
 				threadList.Remove(thread);
 			}
 
+			serverThread.Abort(null);
 			return;
 		}
 
@@ -86,12 +94,28 @@ namespace SimFTP.Net.Server
 		{
 			while(true)
 			{
-				Socket clientSocket = serverSocket.Accept();
-				clientSocket.NoDelay = false;
+				SocketAsyncEventArgs saea = new SocketAsyncEventArgs();
+				try
+				{
+					serverSocket.AcceptAsync(saea);
+				}
+				catch(ObjectDisposedException) { }
+				
 
-				Thread connectHandleRoutine = new Thread(new ParameterizedThreadStart(ConnectHandleRoutine));
-				connectHandleRoutine.Name = string.Format("Client_IO_Handler", clientSocket.Handle);
-				connectHandleRoutine.Start(clientSocket);
+				if(saea.ConnectSocket != null)
+				{
+					saea.AcceptSocket.NoDelay = false;
+
+					Thread connectHandleRoutine = new Thread(new ParameterizedThreadStart(ConnectHandleRoutine));
+					connectHandleRoutine.Name = string.Format("Client_IO_Handler", saea.AcceptSocket.Handle);
+					connectHandleRoutine.Start(saea.AcceptSocket);
+				}
+
+
+				try {
+					Thread.Sleep(1);
+				}
+				catch(ThreadInterruptedException) { }
 			}
 		}
 		#endregion

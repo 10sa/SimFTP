@@ -12,7 +12,6 @@ namespace SimFTP.Config
 	public abstract class ConfigManager : IDisposable
 	{
 		private BinaryFormatter binaryFormatter = new BinaryFormatter();
-		private object threadLocker = new object();
 		private Stream fileStream;
 
 		public Dictionary<string, string> ConfigTable = new Dictionary<string, string>();
@@ -39,10 +38,14 @@ namespace SimFTP.Config
 
 		public virtual void AddConfigTable(string key, string value)
 		{
-			lock(threadLocker)
-			{
-				ConfigTable.Add(key, value);
-			}
+			ConfigTable.Add(key, value);
+			SaveData();
+		}
+
+		public virtual void SetConfigTable(string key, string value)
+		{
+			ConfigTable[key] = value;
+			SaveData();
 		}
 
 		public virtual string GetConfigTable(string key)
@@ -53,6 +56,7 @@ namespace SimFTP.Config
 		#region IO Part
 		public void SaveData()
 		{
+			fileStream.Position = 0;
 			try
 			{
 				binaryFormatter.Serialize(fileStream, ConfigTable);
@@ -67,6 +71,7 @@ namespace SimFTP.Config
 
 		public void LoadData()
 		{
+			fileStream.Position = 0;
 			try
 			{
 				ConfigTable = (Dictionary<string, string>)binaryFormatter.Deserialize(fileStream);
