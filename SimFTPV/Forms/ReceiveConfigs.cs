@@ -32,6 +32,14 @@ namespace SimFTPV
 				listView1.Items.Add(items);
 			}
 
+			foreach(var config in server.accountConfig.ConfigTable)
+			{
+				ListViewItem items = new ListViewItem(config.Key);
+				items.SubItems.Add(config.Value);
+
+				listView2.Items.Add(items);
+			}
+
 			listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
 		}
 
@@ -43,6 +51,23 @@ namespace SimFTPV
 				listView1.SelectedItems[0].SubItems[1].Text = bool.TrueString;
 
 			server.config.SetConfigTable(listView1.SelectedItems[0].Text, listView1.SelectedItems[0].SubItems[1].Text);
+		}
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			if (MessageBox.Show("사용자를 삭제하시겠습니까?", "사용자 삭제", MessageBoxButtons.YesNo) == DialogResult.Yes)
+			{
+				foreach(ListViewItem item in listView2.SelectedItems)
+				{
+					listView2.Items.Remove(item);
+					server.accountConfig.RemoveAccount(item.SubItems[0].Text);
+				}
+			}
+		}
+
+		private void button2_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }

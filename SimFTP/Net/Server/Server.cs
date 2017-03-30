@@ -35,13 +35,14 @@ namespace SimFTP.Net.Server
 		private Thread serverThread;
 
 		public TransferConfig config = new TransferConfig();
-		private AccountConfig accountConfig = new AccountConfig();
+		public AccountConfig accountConfig = new AccountConfig();
+		private ManualResetEvent threadEvent = new ManualResetEvent(false);
 
 		#endregion
 
 		#region Public Callback field
 		public event ServerTransferCallback ServerTransferCallbackEvent = delegate { };
-		public bool IsRunning { get { if(serverThread.ThreadState == ThreadState.Running) { return true; } else { return false; } } }
+		public bool IsRunning { get { return threadEvent.WaitOne(0); } }
 		#endregion
 
 		public Server()
@@ -51,17 +52,17 @@ namespace SimFTP.Net.Server
 			serverSocket.NoDelay = false;
 
 			serverThread = new Thread(new ThreadStart(ConnectionHandleRoutine));
+			serverThread.Start();
 		}
 
 		public void Start ()
 		{
-			serverThread.Start();
+			threadEvent.Set();
 		}
 
 		public void Stop()
 		{
-			// It's Really Not Looks good...
-			serverThread.Interrupt();
+			threadEvent.Reset();
 		}
 
 		public void AddPermission(string username, string password)
@@ -92,28 +93,36 @@ namespace SimFTP.Net.Server
 		#region Server Thread Area
 		private void ConnectionHandleRoutine ()
 		{
-			while(true)
+			try
 			{
-				SocketAsyncEventArgs saea = new SocketAsyncEventArgs();
-				try
-				{
-					serverSocket.AcceptAsync(saea);
-				}
-				catch(ObjectDisposedException) { }
-				
+				threadEvent.WaitOne();
+			}
+			catch(ThreadInterruptedException) { }
 
-				if(saea.ConnectSocket != null)
+			SocketAsyncEventArgs saea = new SocketAsyncEventArgs();
+			saea.Completed += (a, b) =>
+			{
+				if(b.ConnectSocket != null)
 				{
-					saea.AcceptSocket.NoDelay = false;
+					b.ConnectSocket.NoDelay = false;
 
 					Thread connectHandleRoutine = new Thread(new ParameterizedThreadStart(ConnectHandleRoutine));
-					connectHandleRoutine.Name = string.Format("Client_IO_Handler", saea.AcceptSocket.Handle);
-					connectHandleRoutine.Start(saea.AcceptSocket);
+					connectHandleRoutine.Name = string.Format("Client_IO_Handler", b.ConnectSocket.Handle);
+					connectHandleRoutine.Start(b.ConnectSocket);
 				}
 
+				threadEvent.WaitOne();
+				serverSocket.AcceptAsync(saea);
+			};
 
+			serverSocket.AcceptAsync(saea);
+
+			while(true)
+			{
 				try {
-					Thread.Sleep(1);
+					// For Async Call. //
+					threadEvent.WaitOne();
+					Thread.Sleep(10);
 				}
 				catch(ThreadInterruptedException) { }
 			}

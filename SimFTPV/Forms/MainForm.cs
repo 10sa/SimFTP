@@ -102,7 +102,10 @@ namespace SimFTPV
 		private void button1_Click(object sender, EventArgs e)
 		{
 			if(textBox1.Text == string.Empty)
+			{
+				MessageBox.Show("잘못된 주소입니다.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
+			}
 
 			client = new Client(textBox1.Text, (PacketType)Enum.Parse(typeof(PacketType), clConfig.GetConfigTable("Using_Mode")));
 

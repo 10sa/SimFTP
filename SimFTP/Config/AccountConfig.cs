@@ -16,6 +16,11 @@ namespace SimFTP.Config
 			base.AddConfigTable(key, Util.GetHashedString(value));
 		}
 
+		public void RemoveAccount(string key)
+		{
+			ConfigTable.Remove(key);
+		}
+
 		public override string GetConfigTable(string key)
 		{
 			try
