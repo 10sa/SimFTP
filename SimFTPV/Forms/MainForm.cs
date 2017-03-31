@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Threading;
 
 using SimFTP.Net.Server;
 using SimFTP.Net.Client;
@@ -16,15 +17,40 @@ using SimFTP.Net.MetadataPackets;
 
 using SimFTPV.Forms;
 
-namespace SimFTPV
+namespace SimFTPV.Forms
 {
 	public partial class MainForm : Form
 	{
+		#region Private Const Language Define
+
+		private const string serverTurnOn = "서버 켜기";
+		private const string serverTurnOff = "서버 끄기";
+
+		private const string serverOnline = "서버 켜짐";
+		private const string serverRunningOnBackground = "서버가 백그라운드에서 가동 중입니다.";
+
+		private const string programRunningBackground = "백그라운드 가동";
+		private const string programRunningOnBackground = "프로그렘이 백그라운드에서 가동 중입니다.";
+
+		private const string startSendingFiles = "전송 시작";
+		private const string sendingFiles = "파일을 보내는 중 입니다.";
+		private const string sendingFailure = "전송 실패";
+
+		private const string inputWrongAddress_desc = "잘못된 주소입니다.";
+		private const string inputWrongAddress = "주소 오류";
+
+		#endregion
+
+		#region Private Const Configs Define
+
+		private const int notifyShowTime = 5;
+
+		#endregion
+
 		// ICON LINK : https://www.iconfinder.com/icons/103291/arrow_down_full_icon //
 
 		ClientConfig clConfig = new ClientConfig();
 		Server server = new Server();
-		Client client;
 		
 		public MainForm()
 		{
@@ -34,7 +60,6 @@ namespace SimFTPV
 		private void MainForm_Load(object sender, EventArgs e)
 		{
 			this.contextMenuStrip1.Visible = false;
-			this.notifyIcon1.Visible = false;
 			this.notifyIcon1.ContextMenuStrip = this.contextMenuStrip1;
 		}
 
@@ -64,31 +89,36 @@ namespace SimFTPV
 			if(server.IsRunning)
 			{
 				server.Stop();
-				button3.Text = "서버 켜기";
+				button3.Text = serverTurnOn;
 			}
 			else
 			{
 				server.Start();
-				button3.Text = "서버 끄기";
+				button3.Text = serverTurnOff;
+
+				notifyIcon1.ShowBalloonTip(notifyShowTime, serverOnline, serverRunningOnBackground, ToolTipIcon.Info);
 			}
 		}
 
 		private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
 			this.Visible = true;
-			this.notifyIcon1.Visible = false;
 			this.Activate();
 		}
 
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			if(e.CloseReason == CloseReason.ApplicationExitCall)
+			{
+				notifyIcon1.Visible = false;
 				return;
-			
+			}
+
+			notifyIcon1.ShowBalloonTip(notifyShowTime, programRunningBackground, programRunningOnBackground, ToolTipIcon.Info);
+
 			e.Cancel = true;
 			this.Hide();
 			this.Visible = false;
-			this.notifyIcon1.Visible = true;
 		}
 
 		private void 종료ToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -103,27 +133,38 @@ namespace SimFTPV
 		{
 			if(textBox1.Text == string.Empty)
 			{
-				MessageBox.Show("잘못된 주소입니다.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show(inputWrongAddress_desc, inputWrongAddress, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 
-			client = new Client(textBox1.Text, (PacketType)Enum.Parse(typeof(PacketType), clConfig.GetConfigTable("Using_Mode")));
+			notifyIcon1.ShowBalloonTip(notifyShowTime, startSendingFiles, sendingFiles, ToolTipIcon.Info);
+			Thread clientSendlingHandler = new Thread(() => {
+				try
+				{
+					Client client = new Client(textBox1.Text, (PacketType)Enum.Parse(typeof(PacketType), clConfig.GetConfigTable("Using_Mode")));
 
-			if(client.SendType == PacketType.BasicFrame)
-			{
-				SendingBasicDataFiles();
-			}
-			else if(client.SendType == PacketType.BasicSecurity)
-			{
-				SendingBasicSecurityFiles();
-			}
-			else if(client.SendType == PacketType.ExpertSecurity)
-			{
-				SendingExpertDataFiles();
-			}
+					if(client.SendType == PacketType.BasicFrame)
+					{
+						SendingBasicDataFiles(client);
+					}
+					else if(client.SendType == PacketType.BasicSecurity)
+					{
+						SendingBasicSecurityFiles(client);
+					}
+					else if(client.SendType == PacketType.ExpertSecurity)
+					{
+						SendingExpertDataFiles(client);
+					}
+				}
+				catch(Exception excpt)
+				{
+					notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
+				}
+			});
+			clientSendlingHandler.Start();
 		}
 
-		private void SendingExpertDataFiles()
+		private void SendingExpertDataFiles(Client client)
 		{
 			List<ExpertSecurityDataPacket> files = new List<ExpertSecurityDataPacket>();
 
@@ -136,7 +177,7 @@ namespace SimFTPV
 			client.SendFile(files.ToArray());
 		}
 
-		private void SendingBasicDataFiles()
+		private void SendingBasicDataFiles(Client client)
 		{
 			List<BasicDataPacket> files = new List<BasicDataPacket>();
 
@@ -149,7 +190,7 @@ namespace SimFTPV
 			client.SendFile(files.ToArray());
 		}
 
-		private void SendingBasicSecurityFiles()
+		private void SendingBasicSecurityFiles(Client client)
 		{
 			List<BasicSecurityDataPacket> files = new List<BasicSecurityDataPacket>();
 

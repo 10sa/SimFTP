@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 using SimFTP.Net.Server;
 
-namespace SimFTPV
+namespace SimFTPV.Forms
 {
 	public partial class ReceiveConfigs : Form
 	{
@@ -23,7 +23,12 @@ namespace SimFTPV
 
 		private void ReceiveConfigs_Load(object sender, EventArgs e)
 		{
+			RefreshConfigList();
+			RefreshAccountList();
+		}
 
+		private void RefreshConfigList()
+		{
 			foreach(var config in server.config.ConfigTable)
 			{
 				ListViewItem items = new ListViewItem(config.Key);
@@ -32,6 +37,11 @@ namespace SimFTPV
 				listView1.Items.Add(items);
 			}
 
+			listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+		}
+
+		private void RefreshAccountList()
+		{
 			foreach(var config in server.accountConfig.ConfigTable)
 			{
 				ListViewItem items = new ListViewItem(config.Key);
@@ -40,7 +50,7 @@ namespace SimFTPV
 				listView2.Items.Add(items);
 			}
 
-			listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+			listView2.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 		}
 
 		private void listView1_DoubleClick(object sender, EventArgs e)
@@ -63,11 +73,16 @@ namespace SimFTPV
 					server.accountConfig.RemoveAccount(item.SubItems[0].Text);
 				}
 			}
+
+			RefreshAccountList();
 		}
 
 		private void button2_Click(object sender, EventArgs e)
 		{
+			AddAcount accountAddHandler = new AddAcount(ref this.server.accountConfig);
+			accountAddHandler.ShowDialog();
 
+			RefreshAccountList();
 		}
 	}
 }

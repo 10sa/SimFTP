@@ -1,4 +1,4 @@
-﻿namespace SimFTPV
+﻿namespace SimFTPV.Forms
 {
 	partial class MainForm
 	{
@@ -13,6 +13,9 @@
 		/// <param name="disposing">관리되는 리소스를 삭제해야 하면 true이고, 그렇지 않으면 false입니다.</param>
 		protected override void Dispose(bool disposing)
 		{
+			clConfig.Dispose();
+			server.Dispose();
+
 			if(disposing && (components != null))
 			{
 				components.Dispose();
@@ -164,7 +167,7 @@
 			// notifyIcon1
 			// 
 			this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
-			this.notifyIcon1.Text = "notifyIcon1";
+			this.notifyIcon1.Text = "SimFTPV";
 			this.notifyIcon1.Visible = true;
 			this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
 			// 
@@ -186,6 +189,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.ClientSize = new System.Drawing.Size(624, 441);
 			this.Controls.Add(this.button4);
 			this.Controls.Add(this.button3);

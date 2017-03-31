@@ -10,7 +10,7 @@ namespace SimFTPV
 {
 	public class ClientConfig : ConfigManager
 	{
-		public ClientConfig() : base("ClientConfig.cfg") { }
+		public ClientConfig() : base("ProgramConfigs.cfg") { }
 
 		protected override void InitializeConfig()
 		{
@@ -18,6 +18,7 @@ namespace SimFTPV
 			AddConfigTable("Auth_Username", "");
 			AddConfigTable("Auth_Password", "");
 			AddConfigTable("Auth_Anonymous", bool.TrueString);
+			AddConfigTable("Using_Tray_Mode", bool.TrueString);
 		}
 	}
 }

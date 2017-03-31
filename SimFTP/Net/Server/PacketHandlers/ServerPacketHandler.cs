@@ -89,7 +89,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 					else
 						ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
 				}
-				else if(accountConfig.GetConfigTable(childPacket.Username) == Util.GetHashedString(childPacket.Password))
+				else if(Util.GetHashedString(accountConfig.GetConfigTable(childPacket.Username)) == Util.GetHashedString(childPacket.Password))
 				{
 					ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 					BasicSecurityDataPacektHandling(packetData);
@@ -129,7 +129,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 					else
 						ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
 				}
-				else if(accountConfig.GetConfigTable(childPacket.Username) == Util.GetHashedString(childPacket.Password))
+				else if(Util.GetHashedString(accountConfig.GetConfigTable(childPacket.Username)) == Util.GetHashedString(childPacket.Password))
 				{
 					ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 					ExpertSecurityDataPacketHandling(packetData);

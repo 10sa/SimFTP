@@ -73,6 +73,7 @@ namespace SimFTP.Net.Server
 
 		public void Dispose ()
 		{
+			threadEvent.Dispose();
 			serverSocket.Dispose();
 			accountConfig.Dispose();
 			config.Dispose();
@@ -111,8 +112,12 @@ namespace SimFTP.Net.Server
 					connectHandleRoutine.Start(b.ConnectSocket);
 				}
 
-				threadEvent.WaitOne();
-				serverSocket.AcceptAsync(saea);
+				try
+				{
+					threadEvent.WaitOne();
+					serverSocket.AcceptAsync(saea);
+				}
+				catch(ObjectDisposedException) { }
 			};
 
 			serverSocket.AcceptAsync(saea);

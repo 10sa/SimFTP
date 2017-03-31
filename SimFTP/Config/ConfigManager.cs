@@ -14,7 +14,8 @@ namespace SimFTP.Config
 		private BinaryFormatter binaryFormatter = new BinaryFormatter();
 		private Stream fileStream;
 
-		public Dictionary<string, string> ConfigTable = new Dictionary<string, string>();
+		public Dictionary<string, string> ConfigTable { get; protected set; } = new Dictionary<string, string>();
+
 		protected abstract void InitializeConfig();
 
 		// Not Using This Constructor. //

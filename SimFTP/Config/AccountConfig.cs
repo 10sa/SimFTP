@@ -11,11 +11,6 @@ namespace SimFTP.Config
 	{
 		public AccountConfig() : base("AccountConfig.cfg") { }
 
-		public override void AddConfigTable(string key, string value)
-		{
-			base.AddConfigTable(key, Util.GetHashedString(value));
-		}
-
 		public void RemoveAccount(string key)
 		{
 			ConfigTable.Remove(key);
