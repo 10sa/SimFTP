@@ -15,6 +15,7 @@
 		{
 			clConfig.Dispose();
 			server.Dispose();
+			notifyIcon1.Visible = false;
 
 			if(disposing && (components != null))
 			{

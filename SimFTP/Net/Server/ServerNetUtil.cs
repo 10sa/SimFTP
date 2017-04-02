@@ -17,7 +17,7 @@ using System.Net.Sockets;
 
 namespace SimFTP.Net.Server
 {
-	public class ServerNetUtil
+	public static class ServerNetUtil
 	{
 		public static string GetClientAddress (Socket clientSocket)
 		{

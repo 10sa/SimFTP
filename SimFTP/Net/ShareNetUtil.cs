@@ -17,7 +17,7 @@ using System.Net.Sockets;
 
 namespace SimFTP.Net
 {
-	public class ShareNetUtil
+	public static class ShareNetUtil
 	{
 		public static InfoPacket ReceiveInfoPacket(Socket clientSocket)
 		{

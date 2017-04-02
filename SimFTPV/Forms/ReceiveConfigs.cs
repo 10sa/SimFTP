@@ -37,6 +37,13 @@ namespace SimFTPV.Forms
 				listView1.Items.Add(items);
 			}
 
+			foreach(ListViewItem item in listView1.Items)
+			{
+				if(item.SubItems[1].Text == bool.TrueString)
+					item.Checked = true;
+				else
+					item.Checked = false;
+			}
 			listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 		}
 
@@ -55,12 +62,7 @@ namespace SimFTPV.Forms
 
 		private void listView1_DoubleClick(object sender, EventArgs e)
 		{
-			if(listView1.SelectedItems[0].SubItems[1].Text == bool.TrueString)
-				listView1.SelectedItems[0].SubItems[1].Text = bool.FalseString;
-			else
-				listView1.SelectedItems[0].SubItems[1].Text = bool.TrueString;
 
-			server.config.SetConfigTable(listView1.SelectedItems[0].Text, listView1.SelectedItems[0].SubItems[1].Text);
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -83,6 +85,16 @@ namespace SimFTPV.Forms
 			accountAddHandler.ShowDialog();
 
 			RefreshAccountList();
+		}
+
+		private void listView1_ItemCheck(object sender, ItemCheckEventArgs e)
+		{
+			if(e.NewValue == CheckState.Checked)
+				listView1.Items[e.Index].SubItems[1].Text = bool.TrueString;
+			else
+				listView1.Items[e.Index].SubItems[1].Text = bool.FalseString;
+
+			server.config.SetConfigTable(listView1.Items[e.Index].SubItems[0].Text, listView1.Items[e.Index].SubItems[1].Text);
 		}
 	}
 }
