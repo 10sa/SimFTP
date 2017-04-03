@@ -146,68 +146,73 @@ namespace SimFTPV.Forms
 			}
 
 			notifyIcon1.ShowBalloonTip(notifyShowTime, startSendingFiles, sendingFiles, ToolTipIcon.Info);
-			Thread clientSendlingHandler = new Thread((a) => {
-				ListView.ListViewItemCollection items = new ListView.ListViewItemCollection(new ListView());
-				Invoke(new MethodInvoker(delegate () { }));
+			Thread clientSendlingHandler = new Thread(SendingThreadRoutine);
+			List<string> parameter = new List<string>();
+			foreach(ListViewItem value in listView1.Items)
+				parameter.Add(value.Text);
 
-				try
-				{
-					Client client = new Client(textBox1.Text, (PacketType)Enum.Parse(typeof(PacketType), sendConfig.GetConfigTable("Using_Mode")));
-
-					if(client.SendType == PacketType.BasicFrame)
-					{
-						SendingBasicDataFiles(client, items);
-					}
-					else if(client.SendType == PacketType.BasicSecurity)
-					{
-						SendingBasicSecurityFiles(client, items);
-					}
-					else if(client.SendType == PacketType.ExpertSecurity)
-					{
-						SendingExpertDataFiles(client, items);
-					}
-				}
-				catch(Exception excpt)
-				{
-					throw;// notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
-				}
-			});
-			clientSendlingHandler.Start(listView1.Items);
+			clientSendlingHandler.Start(parameter.ToArray());
 		}
 
-		private void SendingExpertDataFiles(Client client, ListView.ListViewItemCollection items)
+		private void SendingThreadRoutine(object a)
+		{
+			string[] items = (string[])a;
+			try
+			{
+				Client client = new Client(textBox1.Text, (PacketType)Enum.Parse(typeof(PacketType), sendConfig.GetConfigTable("Using_Mode")));
+
+				if(client.SendType == PacketType.BasicFrame)
+				{
+					SendingBasicDataFiles(client, items);
+				}
+				else if(client.SendType == PacketType.BasicSecurity)
+				{
+					SendingBasicSecurityFiles(client, items);
+				}
+				else if(client.SendType == PacketType.ExpertSecurity)
+				{
+					SendingExpertDataFiles(client, items);
+				}
+			}
+			catch(Exception excpt)
+			{
+				throw;
+			}
+		}
+
+		private void SendingExpertDataFiles(Client client, string[] items)
 		{
 			List<ExpertSecurityDataPacket> files = new List<ExpertSecurityDataPacket>();
 
-			foreach(ListViewItem value in items)
+			foreach(var value in items)
 			{
-				FileInfo fileInfo = new FileInfo(value.Text);
+				FileInfo fileInfo = new FileInfo(value);
 				files.Add(new ExpertSecurityDataPacket(new BasicDataPacket(fileInfo.Name, File.Open(fileInfo.FullName, FileMode.Open))));
 			}
 
 			client.SendFile(files.ToArray());
 		}
 
-		private void SendingBasicDataFiles(Client client, ListView.ListViewItemCollection items)
+		private void SendingBasicDataFiles(Client client, string[] items)
 		{
 			List<BasicDataPacket> files = new List<BasicDataPacket>();
 
-			foreach(ListViewItem value in items)
+			foreach(var value in items)
 			{
-				FileInfo fileInfo = new FileInfo(value.Text);
+				FileInfo fileInfo = new FileInfo(value);
 				files.Add(new BasicDataPacket(fileInfo.Name, File.Open(fileInfo.FullName, FileMode.Open)));
 			}
 
 			client.SendFile(files.ToArray());
 		}
 
-		private void SendingBasicSecurityFiles(Client client, ListView.ListViewItemCollection items)
+		private void SendingBasicSecurityFiles(Client client, string[] items)
 		{
 			List<BasicSecurityDataPacket> files = new List<BasicSecurityDataPacket>();
 
-			foreach(ListViewItem value in items)
+			foreach(var value in items)
 			{
-				FileInfo fileInfo = new FileInfo(value.Text);
+				FileInfo fileInfo = new FileInfo(value);
 				files.Add(new BasicSecurityDataPacket(fileInfo.Name, File.Open(fileInfo.FullName, FileMode.Open)));
 			}
 

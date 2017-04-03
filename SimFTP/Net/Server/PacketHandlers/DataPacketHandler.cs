@@ -76,30 +76,27 @@ namespace SimFTP.Net.Server.PacketHandlers
 			const int FileBufferSize = int.MaxValue / 8;
 			long leftFileSize = fileSize;
 
-			if(fileSize > FileBufferSize)
+			using(BinaryWriter writer = new BinaryWriter(File.Create(fileName, FileBufferSize)))
 			{
-				using(BinaryWriter writer = new BinaryWriter(File.Create(fileName, FileBufferSize)))
+				byte[] buffer = new byte[FileBufferSize];
+				while(leftFileSize > buffer.Length)
 				{
-					byte[] buffer = new byte[FileBufferSize];
-					while(leftFileSize > buffer.Length)
-					{
-						int readedSize = ShareNetUtil.BufferedReceivePacket(clientSocket, buffer, buffer.Length);
-						writer.Write(buffer, 0, readedSize);
-						leftFileSize -= readedSize;
-					}
-
-					while(leftFileSize > 0)
-					{
-						int readedSize = ShareNetUtil.BufferedReceivePacket(clientSocket, buffer, (int)leftFileSize);
-						writer.Write(buffer, 0, readedSize);
-						leftFileSize -= readedSize;
-					}
-
-					buffer = null;
+					int readedSize = ShareNetUtil.BufferedReceivePacket(clientSocket, buffer, buffer.Length);
+					writer.Write(buffer, 0, readedSize);
+					leftFileSize -= readedSize;
 				}
 
-				GC.Collect();
+				while(leftFileSize > 0)
+				{
+					int readedSize = ShareNetUtil.BufferedReceivePacket(clientSocket, buffer, (int)leftFileSize);
+					writer.Write(buffer, 0, readedSize);
+					leftFileSize -= readedSize;
+				}
+
+				buffer = null;
 			}
+
+			GC.Collect();
 		}
 	}
 }

@@ -261,12 +261,13 @@ namespace SimFTP.Net.Client
 						fileBuffer = null;
 					}
 
-
 					GC.Collect();
 					clientSocket.Send(file.GetBinaryData());
-					clientSocket.Shutdown(SocketShutdown.Send);
+					
 				}
 			}
+
+			clientSocket.Shutdown(SocketShutdown.Send);
 		}
 
 		private InfoPacket InfoExchangeHandler()

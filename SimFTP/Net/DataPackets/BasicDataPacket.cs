@@ -29,12 +29,7 @@ namespace SimFTP.Net.DataPackets
 
 		public BasicDataPacket(string fileName, FileStream file)
 		{
-			FileNameLenght = (short)fileName.Length;
-			FileName = fileName;
-			File = file;
-
-			if(file != null)
-				FileSize = file.Length;
+			SetFileData(fileName, file);
 		}
 
 		public byte[] GetBinaryData()
@@ -53,15 +48,17 @@ namespace SimFTP.Net.DataPackets
 
 		protected BasicDataPacket(BasicDataPacket data)
 		{
-			SetFileData(data.FileNameLenght, data.FileSize, data.FileName, data.File);
+			SetFileData(data.FileName, data.File);
 		}
 
-		private void SetFileData(short nameLenght, long fileSize, string fileName, FileStream stream)
+		private void SetFileData(string fileName, FileStream stream)
 		{
-			this.FileNameLenght = nameLenght;
-			this.FileSize = fileSize;
+			this.FileNameLenght = (short)Encoding.UTF8.GetByteCount(fileName);
 			this.FileName = fileName;
 			this.File = stream;
+
+			if(stream != null)
+				this.FileSize = stream.Length;
 		}		
 	}
 }

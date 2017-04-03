@@ -37,11 +37,15 @@ namespace SimFTP.Net.Server
 		public TransferConfig config = new TransferConfig();
 		public AccountConfig accountConfig = new AccountConfig();
 		private ManualResetEvent threadEvent = new ManualResetEvent(false);
+		private ManualResetEvent threadControllEvent = new ManualResetEvent(true);
 
 		#endregion
 
 		#region Public Callback field
 		public event ServerTransferCallback ServerTransferCallbackEvent = delegate { };
+		#endregion
+
+		#region Public Var
 		public bool IsRunning { get { return threadEvent.WaitOne(0); } }
 		#endregion
 
@@ -57,12 +61,12 @@ namespace SimFTP.Net.Server
 
 		public void Start ()
 		{
-			threadEvent.Set();
+			threadControllEvent.Set();
 		}
 
 		public void Stop()
 		{
-			threadEvent.Reset();
+			threadControllEvent.Reset();
 		}
 
 		public void AddPermission(string username, string password)
@@ -73,6 +77,7 @@ namespace SimFTP.Net.Server
 
 		public void Dispose ()
 		{
+			threadControllEvent.Dispose();
 			threadEvent.Dispose();
 			serverSocket.Dispose();
 			accountConfig.Dispose();
@@ -94,43 +99,36 @@ namespace SimFTP.Net.Server
 		#region Server Thread Area
 		private void ConnectionHandleRoutine ()
 		{
-			try
-			{
-				threadEvent.WaitOne();
-			}
-			catch(ThreadInterruptedException) { }
+			SocketAsyncEventArgs serverSocketArgs = new SocketAsyncEventArgs();
+			serverSocketArgs.Completed += this.AccpetCallBack;
 
-			SocketAsyncEventArgs saea = new SocketAsyncEventArgs();
-			saea.Completed += (a, b) =>
-			{
-				if(b.ConnectSocket != null)
-				{
-					b.ConnectSocket.NoDelay = false;
-
-					Thread connectHandleRoutine = new Thread(new ParameterizedThreadStart(ConnectHandleRoutine));
-					connectHandleRoutine.Name = string.Format("Client_IO_Handler", b.ConnectSocket.Handle);
-					connectHandleRoutine.Start(b.ConnectSocket);
-				}
-
-				try
-				{
-					threadEvent.WaitOne();
-					serverSocket.AcceptAsync(saea);
-				}
-				catch(ObjectDisposedException) { }
-			};
-
-			serverSocket.AcceptAsync(saea);
+			threadEvent.Set();
 
 			while(true)
 			{
 				try {
 					// For Async Call. //
+					threadControllEvent.WaitOne();
 					threadEvent.WaitOne();
-					Thread.Sleep(10);
+
+					serverSocket.AcceptAsync(serverSocketArgs);
+					
+
+					threadEvent.Reset();
 				}
 				catch(ThreadInterruptedException) { }
 			}
+		}
+
+		private void AccpetCallBack(object sender, SocketAsyncEventArgs callbackArgs)
+		{
+			Thread connectHandleRoutine = new Thread(new ParameterizedThreadStart(ConnectHandleRoutine));
+			Socket clientSocket = callbackArgs.AcceptSocket;
+			connectHandleRoutine.Name = string.Format("{0}_Client_IO_Handler", clientSocket.Handle);
+			connectHandleRoutine.Start(clientSocket);
+
+			callbackArgs.AcceptSocket = null;
+			threadEvent.Set();
 		}
 		#endregion
 
