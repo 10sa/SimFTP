@@ -13,7 +13,8 @@
 		/// <param name="disposing">관리되는 리소스를 삭제해야 하면 true이고, 그렇지 않으면 false입니다.</param>
 		protected override void Dispose(bool disposing)
 		{
-			clConfig.Dispose();
+			sendConfig.Dispose();
+			programConfig.Dispose();
 			server.Dispose();
 			notifyIcon1.Visible = false;
 
@@ -50,6 +51,7 @@
 			this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.종료ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+			this.프로그램설정ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -68,7 +70,8 @@
 			// 
 			this.설정ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.SettingsReceive,
-            this.송신설정ToolStripMenuItem});
+            this.송신설정ToolStripMenuItem,
+            this.프로그램설정ToolStripMenuItem});
 			this.설정ToolStripMenuItem.Name = "설정ToolStripMenuItem";
 			this.설정ToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
 			this.설정ToolStripMenuItem.Text = "설정";
@@ -76,14 +79,14 @@
 			// SettingsReceive
 			// 
 			this.SettingsReceive.Name = "SettingsReceive";
-			this.SettingsReceive.Size = new System.Drawing.Size(126, 22);
+			this.SettingsReceive.Size = new System.Drawing.Size(152, 22);
 			this.SettingsReceive.Text = "수신 설정";
 			this.SettingsReceive.Click += new System.EventHandler(this.SettingsReceive_Click);
 			// 
 			// 송신설정ToolStripMenuItem
 			// 
 			this.송신설정ToolStripMenuItem.Name = "송신설정ToolStripMenuItem";
-			this.송신설정ToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
+			this.송신설정ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.송신설정ToolStripMenuItem.Text = "송신 설정";
 			this.송신설정ToolStripMenuItem.Click += new System.EventHandler(this.송신설정ToolStripMenuItem_Click);
 			// 
@@ -186,6 +189,13 @@
 			this.종료ToolStripMenuItem1.Text = "종료";
 			this.종료ToolStripMenuItem1.Click += new System.EventHandler(this.종료ToolStripMenuItem1_Click);
 			// 
+			// 프로그램설정ToolStripMenuItem
+			// 
+			this.프로그램설정ToolStripMenuItem.Name = "프로그램설정ToolStripMenuItem";
+			this.프로그램설정ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.프로그램설정ToolStripMenuItem.Text = "프로그램 설정";
+			this.프로그램설정ToolStripMenuItem.Click += new System.EventHandler(this.프로그램설정ToolStripMenuItem_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -202,7 +212,7 @@
 			this.Controls.Add(this.menuStrip1);
 			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "MainForm";
-			this.Text = "SimFTP Viewer";
+			this.Text = "SimFTP 뷰어";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.menuStrip1.ResumeLayout(false);
@@ -231,6 +241,7 @@
 		private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
 		private System.Windows.Forms.ToolStripMenuItem 종료ToolStripMenuItem1;
 		private System.Windows.Forms.ToolStripMenuItem 송신설정ToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem 프로그램설정ToolStripMenuItem;
 	}
 }
 

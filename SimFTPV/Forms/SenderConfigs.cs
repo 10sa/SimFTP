@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using SimFTP.Net.MetadataPackets;
+using SimFTPV.Configs;
 
 namespace SimFTPV.Forms
 {
 	public partial class SenderConfigs : Form
 	{
-		ClientConfig cfg;
-		public SenderConfigs(ref ClientConfig cfg)
+		SendConfig cfg;
+		public SenderConfigs(ref SendConfig cfg)
 		{
 			this.cfg = cfg;
 			InitializeComponent();

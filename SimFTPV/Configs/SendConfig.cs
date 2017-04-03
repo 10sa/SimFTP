@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using SimFTP.Config;
 using SimFTP.Net.MetadataPackets;
 
-namespace SimFTPV
+namespace SimFTPV.Configs
 {
-	public class ClientConfig : ConfigManager
+	public class SendConfig : ConfigManager
 	{
-		public ClientConfig() : base("ProgramConfigs.cfg") { }
+		public SendConfig() : base("SendConfigs.cfg") { }
 
 		protected override void InitializeConfig()
 		{
@@ -18,7 +18,6 @@ namespace SimFTPV
 			AddConfigTable("Auth_Username", "");
 			AddConfigTable("Auth_Password", "");
 			AddConfigTable("Auth_Anonymous", bool.TrueString);
-			AddConfigTable("Using_Tray_Mode", bool.TrueString);
 		}
 	}
 }

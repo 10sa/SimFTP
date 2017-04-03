@@ -101,7 +101,7 @@
 			this.Controls.Add(this.textBox2);
 			this.Controls.Add(this.textBox1);
 			this.Name = "AddAcount";
-			this.Text = "AddAcount";
+			this.Text = "계정 추가";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

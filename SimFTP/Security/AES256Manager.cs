@@ -37,6 +37,8 @@ namespace SimFTP.Security
 			AESManager.KeySize = Util.HashByteSize * 8;
 		}
 
+		/*
+
 		public byte[] Encrypt(byte[] data)
 		{
 			using (MemoryStream encryptMemoryStream = new MemoryStream())
@@ -64,6 +66,8 @@ namespace SimFTP.Security
 				}
 			}
 		}
+
+		*/
 
 		public CryptoStream GetEncryptStream(Stream baseStream)
 		{

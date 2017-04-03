@@ -170,7 +170,7 @@
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
 			this.Name = "SenderConfigs";
-			this.Text = "SenderConfigs";
+			this.Text = "송신 설정";
 			this.Load += new System.EventHandler(this.SenderConfigs_Load);
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
