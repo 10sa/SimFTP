@@ -19,7 +19,7 @@ using System.Net.Sockets;
 
 namespace SimFTP.Net.Server
 {
-	public delegate void ServerTransferCallback (string address, string statusMessage);
+	public delegate void ServerTransferEvent (ServerEventArgs args);
 
 	public class Server : IDisposable
 	{
@@ -42,7 +42,20 @@ namespace SimFTP.Net.Server
 		#endregion
 
 		#region Public Callback field
-		public event ServerTransferCallback ServerTransferCallbackEvent = delegate { };
+
+		public event ServerTransferEvent ConnectedClient = delegate { };
+
+		public event ServerTransferEvent AcceptBasicPacket = delegate { };
+		public event ServerTransferEvent ClientSendErrorPacekt = delegate { };
+		public event ServerTransferEvent ReceiveErrorData = delegate { };
+
+		public event ServerTransferEvent ReceivedBasicPacket = delegate { };
+		public event ServerTransferEvent ReceivedBasicSecurityPacket = delegate { };
+		public event ServerTransferEvent ReceivedExpertSecurityPacket = delegate { };
+		public event ServerTransferEvent ReceivedErrorPacket = delegate { };
+		public event ServerTransferEvent ReceivedInvaildPacket = delegate { };
+		public event ServerTransferEvent ReceiveEnd = delegate { };
+
 		#endregion
 
 		#region Public Var
@@ -56,6 +69,7 @@ namespace SimFTP.Net.Server
 			serverSocket.NoDelay = false;
 
 			serverThread = new Thread(new ThreadStart(ConnectionHandleRoutine));
+			serverThread.Name = "Server Connection Handler";
 			serverThread.Start();
 		}
 
@@ -67,12 +81,6 @@ namespace SimFTP.Net.Server
 		public void Stop()
 		{
 			threadControllEvent.Reset();
-		}
-
-		public void AddPermission(string username, string password)
-		{
-			accountConfig.AddConfigTable(username, password);
-			accountConfig.SaveData();
 		}
 
 		public void Dispose ()
@@ -112,7 +120,6 @@ namespace SimFTP.Net.Server
 					threadEvent.WaitOne();
 
 					serverSocket.AcceptAsync(serverSocketArgs);
-					
 
 					threadEvent.Reset();
 				}
@@ -127,6 +134,7 @@ namespace SimFTP.Net.Server
 			connectHandleRoutine.Name = string.Format("{0}_Client_IO_Handler", clientSocket.Handle);
 			connectHandleRoutine.Start(clientSocket);
 
+			ConnectedClient(new ServerEventArgs(null, clientSocket.RemoteEndPoint.ToString()));
 			callbackArgs.AcceptSocket = null;
 			threadEvent.Set();
 		}
@@ -143,6 +151,15 @@ namespace SimFTP.Net.Server
 		{
 			clientSocket.ReceiveTimeout = 300;
 			ServerPacketHandler handler = new ServerPacketHandler(clientSocket, ref config, ref accountConfig);
+
+			handler.ReceivedBasicPacket += ReceivedBasicPacket;
+			handler.ReceivedBasicSecurityPacket += ReceivedBasicSecurityPacket;
+			handler.ReceivedExpertSecurityPacket += ReceivedExpertSecurityPacket;
+			handler.ReceivedErrorPacket += ReceivedErrorPacket;
+			handler.ReceivedInvaildPacket += ReceivedInvaildPacket;
+			handler.ReceiveEnd += ReceiveEnd;
+
+			handler.StartHandling();
 		}
 		#endregion
 	}

@@ -19,7 +19,7 @@ using System.Net.Sockets;
 
 namespace SimFTP.Net.Server.PacketHandlers
 {
-	class MetadataPacketHandler
+	internal class MetadataPacketHandler
 	{
 		private Socket clientSocket;
 

@@ -27,6 +27,17 @@ namespace SimFTP.Net.Server.PacketHandlers
 		private DataPacketHandler dataHandler;
 		private Socket clientSocket;
 
+		#region Event Define
+
+		public event ServerTransferEvent ReceivedBasicPacket = delegate { };
+		public event ServerTransferEvent ReceivedBasicSecurityPacket = delegate { };
+		public event ServerTransferEvent ReceivedExpertSecurityPacket = delegate { };
+		public event ServerTransferEvent ReceivedErrorPacket = delegate { };
+		public event ServerTransferEvent ReceivedInvaildPacket = delegate { };
+		public event ServerTransferEvent ReceiveEnd = delegate { };
+
+		#endregion
+
 		public ServerPacketHandler(Socket clientSocket, ref TransferConfig config, ref AccountConfig accountConfig)
 		{
 			this.config = config;
@@ -35,23 +46,57 @@ namespace SimFTP.Net.Server.PacketHandlers
 			metadataHandler = new MetadataPacketHandler(clientSocket);
 			dataHandler = new DataPacketHandler(clientSocket);
 			this.clientSocket = clientSocket;
+		}
 
+		public void StartHandling()
+		{
 			BasicMetadataPacket packetData = metadataHandler.ReceiveBasicMetadataPacket();
+			ReceivePackets(clientSocket, packetData);
+		}
 
+		private void ReceivePackets(Socket clientSocket, BasicMetadataPacket packetData)
+		{
 			switch(packetData.PacketType)
 			{
 				case PacketType.BasicFrame:
-					BasicMetatdataPacketHandling(packetData);
+					ValidCheck(ReceivedBasicPacket, packetData, (a) => { BasicMetatdataPacketHandling(a); });
 					break;
 				case PacketType.BasicSecurity:
-					BasicSecurityMetadataPacketHandling(packetData);
+					ValidCheck(ReceivedBasicSecurityPacket, packetData, (a) => { BasicSecurityDataPacektHandling(a); });
 					break;
 				case PacketType.ExpertSecurity:
-					ExpertSecurityMetadataPacketHandling(packetData);
+					ValidCheck(ReceivedExpertSecurityPacket, packetData, (a) => { ExpertSecurityDataPacketHandling(a); });
 					break;
-				case PacketType.Error:
+				case PacketType.Info:
+					ReceiveInfoPacketHandling(clientSocket);
 					break;
 			};
+		}
+
+		private void ReceiveInfoPacketHandling(Socket clientSocket)
+		{
+			InfoPacket info = ShareNetUtil.ReceiveInfoPacket(clientSocket);
+
+			if(info.Info == InfoType.Error)
+			{
+				ErrorPacket error = ShareNetUtil.ReceiveErrorPacket(clientSocket, info);
+				ReceivedErrorPacket(new ServerEventArgs(error.ErrorType.ToString(), ServerNetUtil.GetClientAddress(clientSocket)));
+			}
+			else
+				ReceivedInvaildPacket(new ServerEventArgs(info.Info.ToString(), ServerNetUtil.GetClientAddress(clientSocket)));
+		}
+
+		private delegate void ValidCheckDelegate(BasicMetadataPacket data);
+
+		private void ValidCheck(ServerTransferEvent callEvent, BasicMetadataPacket packetData, ValidCheckDelegate work)
+		{
+			ServerEventArgs eventArg = new ServerEventArgs("", ServerNetUtil.GetClientAddress(clientSocket));
+			callEvent(eventArg);
+
+			if(!eventArg.Cancel)
+				work(packetData);
+			else
+				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
 		}
 
 		private void BasicMetatdataPacketHandling (BasicMetadataPacket packetData)

@@ -67,6 +67,7 @@
     <Compile Include="Net\Server\PacketHandlers\MetadataPacketHandler.cs" />
     <Compile Include="Net\Server\Server.cs" />
     <Compile Include="Net\Server\PacketHandlers\ServerPacketHandler.cs" />
+    <Compile Include="Net\Server\ServerEventArgs.cs" />
     <Compile Include="Net\Server\ServerNetUtil.cs" />
     <Compile Include="Net\ShareNetUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

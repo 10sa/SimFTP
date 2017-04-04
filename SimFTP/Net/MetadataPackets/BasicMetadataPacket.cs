@@ -12,7 +12,6 @@ namespace SimFTP.Net.MetadataPackets
 		BasicFrame,
 		BasicSecurity,
 		ExpertSecurity,
-		Error,
 		Info
 	}
 
