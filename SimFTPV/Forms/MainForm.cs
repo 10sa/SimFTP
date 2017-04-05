@@ -48,7 +48,11 @@ namespace SimFTPV.Forms
 
 		#region Private Const Config Values
 
-		private const int notifyShowTime = 5;
+		private const int notifyShowTime = 1;
+		private const string SendingCompleted = "송신 완료";
+		private const string SuccessfulSending = "파일이 성공적으로 전송되었습니다.";
+		private const string IsReceiveClient = "{0} 으로 부터 데이터를 수신할까요?";
+		private const string ReceiveNotify = "수신 알림";
 
 		#endregion
 
@@ -61,6 +65,37 @@ namespace SimFTPV.Forms
 		public MainForm()
 		{
 			InitializeComponent();
+			server.ReceivedBasicPacket += Server_ReceivedBasicPacket;
+		}
+
+		private void Server_ReceivedBasicPacket(ServerEventArgs args)
+		{
+			if(this.Visible)
+			{
+				if(MessageBox.Show(string.Format(IsReceiveClient, args.ClientAddress), ReceiveNotify, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+					args.Cancel = true;
+			}
+			else
+			{
+				EventHandler ballonTipEvent = (a, b) => 
+				{
+					if(MessageBox.Show(string.Format(IsReceiveClient, args.ClientAddress), ReceiveNotify, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+						args.Cancel = true;
+				};
+
+				EventHandler ballonTipTimeout = (a, b) =>
+				{
+					args.Cancel = true;
+				};
+
+				notifyIcon1.BalloonTipClicked += ballonTipEvent;
+				notifyIcon1.BalloonTipClosed += ballonTipTimeout;
+
+				notifyIcon1.ShowBalloonTip(notifyShowTime, ReceiveNotify, string.Format(IsReceiveClient, args.ClientAddress), ToolTipIcon.Info);
+
+				notifyIcon1.BalloonTipClicked -= ballonTipEvent;
+				notifyIcon1.BalloonTipClosed -= ballonTipTimeout;
+			}
 		}
 
 		private void MainForm_Load(object sender, EventArgs e)
@@ -154,12 +189,18 @@ namespace SimFTPV.Forms
 			clientSendlingHandler.Start(parameter.ToArray());
 		}
 
+		private void SendingCallback(string status, string address)
+		{
+			notifyIcon1.ShowBalloonTip(notifyShowTime, SendingCompleted, SuccessfulSending, ToolTipIcon.Info);
+		}
+
 		private void SendingThreadRoutine(object a)
 		{
 			string[] items = (string[])a;
 			try
 			{
 				Client client = new Client(textBox1.Text, (PacketType)Enum.Parse(typeof(PacketType), sendConfig.GetConfigTable("Using_Mode")));
+				client.SendingCompleted += SendingCallback;
 
 				if(client.SendType == PacketType.BasicFrame)
 				{
@@ -176,7 +217,7 @@ namespace SimFTPV.Forms
 			}
 			catch(Exception excpt)
 			{
-				throw;
+				notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
 			}
 		}
 

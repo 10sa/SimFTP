@@ -37,7 +37,7 @@ namespace SimFTP.Net.Server
 		public TransferConfig config = new TransferConfig();
 		public AccountConfig accountConfig = new AccountConfig();
 		private ManualResetEvent threadEvent = new ManualResetEvent(false);
-		private ManualResetEvent threadControllEvent = new ManualResetEvent(true);
+		private ManualResetEvent threadControllEvent = new ManualResetEvent(false);
 
 		#endregion
 
@@ -59,7 +59,7 @@ namespace SimFTP.Net.Server
 		#endregion
 
 		#region Public Var
-		public bool IsRunning { get { return threadEvent.WaitOne(0); } }
+		public bool IsRunning { get { return threadControllEvent.WaitOne(0); } }
 		#endregion
 
 		public Server()
@@ -129,12 +129,15 @@ namespace SimFTP.Net.Server
 
 		private void AccpetCallBack(object sender, SocketAsyncEventArgs callbackArgs)
 		{
+			if(callbackArgs.AcceptSocket == null || !callbackArgs.AcceptSocket.Connected)
+				return;
+
 			Thread connectHandleRoutine = new Thread(new ParameterizedThreadStart(ConnectHandleRoutine));
 			Socket clientSocket = callbackArgs.AcceptSocket;
 			connectHandleRoutine.Name = string.Format("{0}_Client_IO_Handler", clientSocket.Handle);
 			connectHandleRoutine.Start(clientSocket);
-
 			ConnectedClient(new ServerEventArgs(null, clientSocket.RemoteEndPoint.ToString()));
+
 			callbackArgs.AcceptSocket = null;
 			threadEvent.Set();
 		}

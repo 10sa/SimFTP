@@ -80,5 +80,9 @@ namespace SimFTP.Net
 			return (PacketType)Enum.Parse(typeof(PacketType), data[0].ToString());
 		}
 
+		public static string GetRemotePointAddress(Socket socket)
+		{
+			return socket.RemoteEndPoint.ToString();
+		}
 	}
 }

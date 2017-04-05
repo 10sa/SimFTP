@@ -19,6 +19,8 @@ using System.Net.Sockets;
 
 namespace SimFTP.Net.Client
 {
+	public delegate void ClientEvent(string status, string address);
+
 	public class Client : IDisposable
 	{
 		private readonly string ServerAddress;
@@ -26,6 +28,7 @@ namespace SimFTP.Net.Client
 		private Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		public PacketType SendType { get; private set; }
 
+		public event ClientEvent SendingCompleted = delegate { };
 		public Client(string address, PacketType sendingType)
 		{
 			clientSocket.NoDelay = false;
@@ -44,6 +47,8 @@ namespace SimFTP.Net.Client
 			{
 				clientSocket.Connect(ServerAddress, ServerPort);
 				SendHandlingBasicPackets(files);
+
+				SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
 			}
 			else
 				ThrowFormattedException(PacketType.BasicFrame);
@@ -55,6 +60,8 @@ namespace SimFTP.Net.Client
 			{
 				clientSocket.Connect(ServerAddress, ServerPort);
 				SendHandlingBasicSecurityPacket(username, password, files);
+
+				SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
 			}
 			else
 				ThrowFormattedException(PacketType.BasicSecurity);
@@ -66,6 +73,8 @@ namespace SimFTP.Net.Client
 			{
 				clientSocket.Connect(ServerAddress, ServerPort);
 				SendHandlingBasicSecurityPacket(files);
+
+				SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
 			}
 			else
 				ThrowFormattedException(PacketType.BasicSecurity);
@@ -77,6 +86,8 @@ namespace SimFTP.Net.Client
 			{
 				clientSocket.Connect(ServerAddress, ServerPort);
 				SendHandlingExpertSecurityPacket(files);
+
+				SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
 			}
 			else
 				ThrowFormattedException(PacketType.ExpertSecurity);
@@ -88,6 +99,8 @@ namespace SimFTP.Net.Client
 			{
 				clientSocket.Connect(ServerAddress, ServerPort);
 				SendHandlingExpertSecurityPacket(username, password, files);
+
+				SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
 			}
 			else
 				ThrowFormattedException(PacketType.ExpertSecurity);
