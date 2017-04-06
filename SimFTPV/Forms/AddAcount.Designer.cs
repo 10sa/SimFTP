@@ -100,6 +100,7 @@
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.textBox2);
 			this.Controls.Add(this.textBox1);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.Name = "AddAcount";
 			this.Text = "계정 추가";
 			this.ResumeLayout(false);

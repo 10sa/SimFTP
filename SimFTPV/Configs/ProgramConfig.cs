@@ -15,7 +15,7 @@ namespace SimFTPV.Configs
 		protected override void InitializeConfig()
 		{
 			ConfigTable.Add("Using_Program_Tray", bool.TrueString);
-			ConfigTable.Add("Notify_Basic_Packet_Accept", bool.FalseString);
+			ConfigTable.Add("Notify_Packet_Accept", bool.FalseString);
 		}
 	}
 }

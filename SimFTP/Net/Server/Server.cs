@@ -30,7 +30,7 @@ namespace SimFTP.Net.Server
 		#endregion
 
 		#region Private field
-		private Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+		public Socket serverSocket { get; private set; } = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		private List<Thread> threadList = new List<Thread>();
 		private Thread serverThread;
 

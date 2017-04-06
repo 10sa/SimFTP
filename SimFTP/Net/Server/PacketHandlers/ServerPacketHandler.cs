@@ -80,17 +80,17 @@ namespace SimFTP.Net.Server.PacketHandlers
 			if(info.Info == InfoType.Error)
 			{
 				ErrorPacket error = ShareNetUtil.ReceiveErrorPacket(clientSocket, info);
-				ReceivedErrorPacket(new ServerEventArgs(error.ErrorType.ToString(), ServerNetUtil.GetClientAddress(clientSocket)));
+				ReceivedErrorPacket(new ServerEventArgs(error.ErrorType.ToString(), ShareNetUtil.GetRemotePointAddress(clientSocket)));
 			}
 			else
-				ReceivedInvaildPacket(new ServerEventArgs(info.Info.ToString(), ServerNetUtil.GetClientAddress(clientSocket)));
+				ReceivedInvaildPacket(new ServerEventArgs(info.Info.ToString(), ShareNetUtil.GetRemotePointAddress(clientSocket)));
 		}
 
 		private delegate void ValidCheckDelegate(BasicMetadataPacket data);
 
 		private void ValidCheck(ServerTransferEvent callEvent, BasicMetadataPacket packetData, ValidCheckDelegate work)
 		{
-			ServerEventArgs eventArg = new ServerEventArgs("", ServerNetUtil.GetClientAddress(clientSocket));
+			ServerEventArgs eventArg = new ServerEventArgs("", ShareNetUtil.GetRemotePointAddress(clientSocket));
 			callEvent(eventArg);
 
 			if(!eventArg.Cancel)

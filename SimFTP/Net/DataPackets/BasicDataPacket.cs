@@ -23,8 +23,6 @@ namespace SimFTP.Net.DataPackets
 
 		private bool _CalledOnlyBasicDataPacket = false;
 
-		public bool IsOversize { get { if (FileSize > int.MaxValue / 4) { return true; } else { return false; } } }
-
 		private BasicDataPacket () { }
 
 		public BasicDataPacket(string fileName, FileStream file)

@@ -19,11 +19,6 @@ namespace SimFTP.Net.Server
 {
 	public static class ServerNetUtil
 	{
-		public static string GetClientAddress (Socket clientSocket)
-		{
-			return clientSocket.RemoteEndPoint.ToString();
-		}
-		
 		public static void SendErrorPacket (Socket clientSocket, ErrorType error)
 		{
 			clientSocket.Send(new ErrorPacket(error).GetBinaryData());

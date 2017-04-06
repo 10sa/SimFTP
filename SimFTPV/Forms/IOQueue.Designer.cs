@@ -1,6 +1,6 @@
 ﻿namespace SimFTPV.Forms
 {
-	partial class ProgramConfigs
+	partial class IOQueue
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -28,36 +28,21 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
 			this.SuspendLayout();
 			// 
-			// checkedListBox1
-			// 
-			this.checkedListBox1.FormattingEnabled = true;
-			this.checkedListBox1.Location = new System.Drawing.Point(12, 12);
-			this.checkedListBox1.Name = "checkedListBox1";
-			this.checkedListBox1.Size = new System.Drawing.Size(600, 420);
-			this.checkedListBox1.Sorted = true;
-			this.checkedListBox1.TabIndex = 0;
-			this.checkedListBox1.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.checkedListBox1_ItemCheck);
-			// 
-			// ProgramConfigs
+			// IOQueue
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.ClientSize = new System.Drawing.Size(624, 441);
-			this.Controls.Add(this.checkedListBox1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-			this.Name = "ProgramConfigs";
-			this.Text = "프로그램 설정";
-			this.Load += new System.EventHandler(this.ProgramConfigs_Load);
+			this.Name = "IOQueue";
+			this.Text = "IOQueue";
 			this.ResumeLayout(false);
 
 		}
 
 		#endregion
-
-		private System.Windows.Forms.CheckedListBox checkedListBox1;
 	}
 }

@@ -169,6 +169,7 @@
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.Name = "SenderConfigs";
 			this.Text = "송신 설정";
 			this.Load += new System.EventHandler(this.SenderConfigs_Load);

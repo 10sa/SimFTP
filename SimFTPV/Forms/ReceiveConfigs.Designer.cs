@@ -36,6 +36,8 @@
 			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.button1 = new System.Windows.Forms.Button();
 			this.button2 = new System.Windows.Forms.Button();
+			this.textBox1 = new System.Windows.Forms.TextBox();
+			this.label1 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// listView1
@@ -48,9 +50,9 @@
 			this.listView1.GridLines = true;
 			this.listView1.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.listView1.HideSelection = false;
-			this.listView1.Location = new System.Drawing.Point(12, 12);
+			this.listView1.Location = new System.Drawing.Point(12, 51);
 			this.listView1.Name = "listView1";
-			this.listView1.Size = new System.Drawing.Size(600, 155);
+			this.listView1.Size = new System.Drawing.Size(600, 154);
 			this.listView1.Sorting = System.Windows.Forms.SortOrder.Ascending;
 			this.listView1.TabIndex = 1;
 			this.listView1.UseCompatibleStateImageBehavior = false;
@@ -73,9 +75,9 @@
 			this.listView2.FullRowSelect = true;
 			this.listView2.GridLines = true;
 			this.listView2.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-			this.listView2.Location = new System.Drawing.Point(12, 173);
+			this.listView2.Location = new System.Drawing.Point(12, 211);
 			this.listView2.Name = "listView2";
-			this.listView2.Size = new System.Drawing.Size(600, 194);
+			this.listView2.Size = new System.Drawing.Size(600, 156);
 			this.listView2.Sorting = System.Windows.Forms.SortOrder.Ascending;
 			this.listView2.TabIndex = 2;
 			this.listView2.UseCompatibleStateImageBehavior = false;
@@ -109,20 +111,41 @@
 			this.button2.UseVisualStyleBackColor = true;
 			this.button2.Click += new System.EventHandler(this.button2_Click);
 			// 
+			// textBox1
+			// 
+			this.textBox1.Location = new System.Drawing.Point(14, 24);
+			this.textBox1.Name = "textBox1";
+			this.textBox1.ReadOnly = true;
+			this.textBox1.Size = new System.Drawing.Size(181, 21);
+			this.textBox1.TabIndex = 5;
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(12, 9);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(57, 12);
+			this.label1.TabIndex = 6;
+			this.label1.Text = "접속 주소";
+			// 
 			// ReceiveConfigs
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.ClientSize = new System.Drawing.Size(624, 441);
+			this.Controls.Add(this.label1);
+			this.Controls.Add(this.textBox1);
 			this.Controls.Add(this.button2);
 			this.Controls.Add(this.button1);
 			this.Controls.Add(this.listView2);
 			this.Controls.Add(this.listView1);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.Name = "ReceiveConfigs";
 			this.Text = "수신 설정";
 			this.Load += new System.EventHandler(this.ReceiveConfigs_Load);
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
@@ -136,5 +159,7 @@
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.Button button1;
 		private System.Windows.Forms.Button button2;
+		private System.Windows.Forms.TextBox textBox1;
+		private System.Windows.Forms.Label label1;
 	}
 }

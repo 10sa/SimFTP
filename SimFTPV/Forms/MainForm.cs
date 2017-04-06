@@ -70,6 +70,9 @@ namespace SimFTPV.Forms
 
 		private void Server_ReceivedBasicPacket(ServerEventArgs args)
 		{
+			if(programConfig.GetConfigTable("Notify_Packet_Accept") == bool.FalseString)
+				return;
+
 			if(this.Visible)
 			{
 				if(MessageBox.Show(string.Format(IsReceiveClient, args.ClientAddress), ReceiveNotify, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)

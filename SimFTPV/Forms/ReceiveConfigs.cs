@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net;
 
 using SimFTP.Net.Server;
 
@@ -14,17 +15,38 @@ namespace SimFTPV.Forms
 {
 	public partial class ReceiveConfigs : Form
 	{
+		private const string InvaildIPAddress = "IP 주소 탐색에 실패하였습니다.";
+		private const string RequestRemoveUser = "사용자를 삭제하시겠습니까?";
+		private const string UserRemove = "사용자 삭제";
+
 		Server server;
+
 		public ReceiveConfigs(ref Server cfg)
 		{
 			InitializeComponent();
 			server = cfg;
+
+			string localAddress = GetPublicAddress();
+
+			if(localAddress == null)
+				textBox1.Text = InvaildIPAddress;
+			else
+				textBox1.Text = localAddress;
+			
 		}
 
 		private void ReceiveConfigs_Load(object sender, EventArgs e)
 		{
 			RefreshConfigList();
 			RefreshAccountList();
+		}
+
+		private string GetPublicAddress()
+		{
+			try {
+				return new WebClient().DownloadString("https://api.ipify.org");
+			}
+			catch(Exception) { return null; }
 		}
 
 		private void RefreshConfigList()
@@ -60,14 +82,9 @@ namespace SimFTPV.Forms
 			listView2.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 		}
 
-		private void listView1_DoubleClick(object sender, EventArgs e)
-		{
-
-		}
-
 		private void button1_Click(object sender, EventArgs e)
 		{
-			if (MessageBox.Show("사용자를 삭제하시겠습니까?", "사용자 삭제", MessageBoxButtons.YesNo) == DialogResult.Yes)
+			if (MessageBox.Show(RequestRemoveUser, UserRemove, MessageBoxButtons.YesNo) == DialogResult.Yes)
 			{
 				foreach(ListViewItem item in listView2.SelectedItems)
 				{
