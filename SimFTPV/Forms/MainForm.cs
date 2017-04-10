@@ -61,11 +61,24 @@ namespace SimFTPV.Forms
 		SendConfig sendConfig = new SendConfig();
 		ProgramConfig programConfig = new ProgramConfig();
 		Server server = new Server();
+        IOQueue IOQueueForm = new IOQueue();
 		
 		public MainForm()
 		{
 			InitializeComponent();
 			server.ReceivedBasicPacket += Server_ReceivedBasicPacket;
+			server.ConnectedClient += Server_ConnectedCallback;
+			server.ReceiveEnd += Server_ReceiveEndCallback;
+		}
+
+		private void Server_ConnectedCallback(ServerEventArgs args)
+		{
+			IOQueueForm.AddServerQueue(args.ClientAddress);
+		}
+
+		private void Server_ReceiveEndCallback(ServerEventArgs args)
+		{
+			IOQueueForm.RemoveServerQueue();
 		}
 
 		private void Server_ReceivedBasicPacket(ServerEventArgs args)
@@ -195,6 +208,7 @@ namespace SimFTPV.Forms
 		private void SendingCallback(string status, string address)
 		{
 			notifyIcon1.ShowBalloonTip(notifyShowTime, SendingCompleted, SuccessfulSending, ToolTipIcon.Info);
+			Invoke((MethodInvoker)delegate { IOQueueForm.RemoveClientQueue(); });
 		}
 
 		private void SendingThreadRoutine(object a)
@@ -202,8 +216,12 @@ namespace SimFTPV.Forms
 			string[] items = (string[])a;
 			try
 			{
-				Client client = new Client(textBox1.Text, (PacketType)Enum.Parse(typeof(PacketType), sendConfig.GetConfigTable("Using_Mode")));
+				List<string> temp = new List<string>();
+				temp.Add(textBox1.Text);
+
+				Client client = new Client(temp.ToArray(), (PacketType)Enum.Parse(typeof(PacketType), sendConfig.GetConfigTable("Using_Mode")));
 				client.SendingCompleted += SendingCallback;
+				Invoke((MethodInvoker)delegate { IOQueueForm.AddClientQueue(textBox1.Text); });
 
 				if(client.SendType == PacketType.BasicFrame)
 				{
@@ -273,6 +291,11 @@ namespace SimFTPV.Forms
 		{
 			ProgramConfigs programCfg = new ProgramConfigs(ref programConfig);
 			programCfg.ShowDialog();
+		}
+
+		private void 전송상황ToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			IOQueueForm.ShowDialog();
 		}
 	}
 }

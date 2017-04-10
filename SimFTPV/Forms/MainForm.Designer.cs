@@ -52,6 +52,7 @@
 			this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.종료ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+			this.전송상황ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -59,7 +60,8 @@
 			// menuStrip1
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.설정ToolStripMenuItem});
+            this.설정ToolStripMenuItem,
+            this.전송상황ToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(624, 24);
@@ -196,6 +198,13 @@
 			this.종료ToolStripMenuItem1.Text = "종료";
 			this.종료ToolStripMenuItem1.Click += new System.EventHandler(this.종료ToolStripMenuItem1_Click);
 			// 
+			// 전송상황ToolStripMenuItem
+			// 
+			this.전송상황ToolStripMenuItem.Name = "전송상황ToolStripMenuItem";
+			this.전송상황ToolStripMenuItem.Size = new System.Drawing.Size(71, 20);
+			this.전송상황ToolStripMenuItem.Text = "전송 상황";
+			this.전송상황ToolStripMenuItem.Click += new System.EventHandler(this.전송상황ToolStripMenuItem_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -243,6 +252,7 @@
 		private System.Windows.Forms.ToolStripMenuItem 종료ToolStripMenuItem1;
 		private System.Windows.Forms.ToolStripMenuItem 송신설정ToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem 프로그램설정ToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem 전송상황ToolStripMenuItem;
 	}
 }
 

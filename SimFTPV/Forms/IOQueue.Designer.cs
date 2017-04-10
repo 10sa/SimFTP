@@ -28,7 +28,55 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.listView1 = new System.Windows.Forms.ListView();
+			this.listView2 = new System.Windows.Forms.ListView();
+			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.SuspendLayout();
+			// 
+			// listView1
+			// 
+			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+			this.listView1.Location = new System.Drawing.Point(12, 12);
+			this.listView1.MultiSelect = false;
+			this.listView1.Name = "listView1";
+			this.listView1.Size = new System.Drawing.Size(600, 200);
+			this.listView1.TabIndex = 0;
+			this.listView1.UseCompatibleStateImageBehavior = false;
+			this.listView1.View = System.Windows.Forms.View.Details;
+			// 
+			// listView2
+			// 
+			this.listView2.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader3,
+            this.columnHeader4});
+			this.listView2.Location = new System.Drawing.Point(12, 229);
+			this.listView2.MultiSelect = false;
+			this.listView2.Name = "listView2";
+			this.listView2.Size = new System.Drawing.Size(600, 200);
+			this.listView2.TabIndex = 1;
+			this.listView2.UseCompatibleStateImageBehavior = false;
+			this.listView2.View = System.Windows.Forms.View.Details;
+			// 
+			// columnHeader1
+			// 
+			this.columnHeader1.Text = "송신자";
+			// 
+			// columnHeader2
+			// 
+			this.columnHeader2.Text = "상태";
+			// 
+			// columnHeader3
+			// 
+			this.columnHeader3.Text = "수신자";
+			// 
+			// columnHeader4
+			// 
+			this.columnHeader4.Text = "상태";
 			// 
 			// IOQueue
 			// 
@@ -36,13 +84,23 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.ClientSize = new System.Drawing.Size(624, 441);
+			this.Controls.Add(this.listView2);
+			this.Controls.Add(this.listView1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.Name = "IOQueue";
 			this.Text = "IOQueue";
+			this.Load += new System.EventHandler(this.IOQueue_Load);
 			this.ResumeLayout(false);
 
 		}
 
 		#endregion
+
+		private System.Windows.Forms.ListView listView1;
+		private System.Windows.Forms.ListView listView2;
+		private System.Windows.Forms.ColumnHeader columnHeader1;
+		private System.Windows.Forms.ColumnHeader columnHeader2;
+		private System.Windows.Forms.ColumnHeader columnHeader3;
+		private System.Windows.Forms.ColumnHeader columnHeader4;
 	}
 }

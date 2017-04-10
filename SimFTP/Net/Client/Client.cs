@@ -23,13 +23,23 @@ namespace SimFTP.Net.Client
 
 	public class Client : IDisposable
 	{
-		private readonly string ServerAddress;
+		#region Private Field
+
+		private readonly string[] ServerAddress;
 		private const int ServerPort = 44335;
 		private Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+		private delegate void HandlerCallerDelegate();
+
+		#endregion
+
+		#region Public Field
 		public PacketType SendType { get; private set; }
 
 		public event ClientEvent SendingCompleted = delegate { };
-		public Client(string address, PacketType sendingType)
+		#endregion
+
+
+		public Client(string[] address, PacketType sendingType)
 		{
 			clientSocket.NoDelay = false;
 			clientSocket.SendBufferSize = int.MaxValue / 8;
@@ -43,64 +53,40 @@ namespace SimFTP.Net.Client
 
 		public void SendFile(params BasicDataPacket[] files)
 		{
-			if(SendType == PacketType.BasicFrame)
-			{
-				clientSocket.Connect(ServerAddress, ServerPort);
-				SendHandlingBasicPackets(files);
-
-				SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
-			}
-			else
-				ThrowFormattedException(PacketType.BasicFrame);
+			HandlerCaller(PacketType.BasicFrame, () => { SendHandlingBasicPackets(files); });
 		}
 
 		public void SendFile(string username, string password, params BasicSecurityDataPacket[] files)
 		{
-			if(SendType == PacketType.BasicSecurity)
-			{
-				clientSocket.Connect(ServerAddress, ServerPort);
-				SendHandlingBasicSecurityPacket(username, password, files);
-
-				SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
-			}
-			else
-				ThrowFormattedException(PacketType.BasicSecurity);
+			HandlerCaller(PacketType.BasicSecurity, () => { SendHandlingBasicSecurityPacket(username, password, files); });
 		}
 
 		public void SendFile(params BasicSecurityDataPacket[] files)
 		{
-			if(SendType == PacketType.BasicSecurity)
-			{
-				clientSocket.Connect(ServerAddress, ServerPort);
-				SendHandlingBasicSecurityPacket(files);
-
-				SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
-			}
-			else
-				ThrowFormattedException(PacketType.BasicSecurity);
+			HandlerCaller(PacketType.BasicSecurity, () => { SendHandlingBasicSecurityPacket(files); });
 		}
 
 		public void SendFile(params ExpertSecurityDataPacket[] files)
 		{
-			if(SendType == PacketType.ExpertSecurity)
-			{
-				clientSocket.Connect(ServerAddress, ServerPort);
-				SendHandlingExpertSecurityPacket(files);
-
-				SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
-			}
-			else
-				ThrowFormattedException(PacketType.ExpertSecurity);
+			HandlerCaller(PacketType.ExpertSecurity, () => { SendHandlingExpertSecurityPacket(files); });
 		}
 
 		public void SendFile(string username, string password, params ExpertSecurityDataPacket[] files)
 		{
-			if(SendType == PacketType.ExpertSecurity)
-			{
-				clientSocket.Connect(ServerAddress, ServerPort);
-				SendHandlingExpertSecurityPacket(username, password, files);
+			HandlerCaller(PacketType.ExpertSecurity, () => { SendHandlingExpertSecurityPacket(username, password, files); });
+		}
 
-				SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
+		private void HandlerCaller(PacketType inputType, HandlerCallerDelegate work)
+		{
+			if(inputType == SendType)
+			{
+				foreach(var address in ServerAddress)
+				{
+					clientSocket.Connect(address, ServerPort);
+					work();
+
+					SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
+				}
 			}
 			else
 				ThrowFormattedException(PacketType.ExpertSecurity);

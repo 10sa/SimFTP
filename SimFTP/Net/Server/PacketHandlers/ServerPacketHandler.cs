@@ -56,6 +56,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 
 		private void ReceivePackets(Socket clientSocket, BasicMetadataPacket packetData)
 		{
+			string clientAddress = ShareNetUtil.GetRemotePointAddress(clientSocket);
 			switch(packetData.PacketType)
 			{
 				case PacketType.BasicFrame:
@@ -71,6 +72,8 @@ namespace SimFTP.Net.Server.PacketHandlers
 					ReceiveInfoPacketHandling(clientSocket);
 					break;
 			};
+
+			ReceiveEnd(new ServerEventArgs("", clientAddress));
 		}
 
 		private void ReceiveInfoPacketHandling(Socket clientSocket)
