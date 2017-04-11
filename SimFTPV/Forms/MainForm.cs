@@ -58,10 +58,11 @@ namespace SimFTPV.Forms
 
 		// ICON LINK : https://www.iconfinder.com/icons/103291/arrow_down_full_icon //
 
-		SendConfig sendConfig = new SendConfig();
-		ProgramConfig programConfig = new ProgramConfig();
-		Server server = new Server();
-        IOQueue IOQueueForm = new IOQueue();
+		private SendConfig sendConfig = new SendConfig();
+		private ProgramConfig programConfig = new ProgramConfig();
+		private Server server = new Server();
+        private IOQueue IOQueueForm = new IOQueue();
+		private ManualResetEvent LastClientEvent;
 		
 		public MainForm()
 		{
@@ -73,12 +74,12 @@ namespace SimFTPV.Forms
 
 		private void Server_ConnectedCallback(ServerEventArgs args)
 		{
-			IOQueueForm.AddServerQueue(args.ClientAddress);
+			Invoke((MethodInvoker)delegate () { IOQueueForm.AddServerQueue(args.ClientAddress); });
 		}
 
 		private void Server_ReceiveEndCallback(ServerEventArgs args)
 		{
-			IOQueueForm.RemoveServerQueue();
+			Invoke((MethodInvoker)delegate () { IOQueueForm.RemoveServerQueue(); });
 		}
 
 		private void Server_ReceivedBasicPacket(ServerEventArgs args)
@@ -219,9 +220,13 @@ namespace SimFTPV.Forms
 				List<string> temp = new List<string>();
 				temp.Add(textBox1.Text);
 
-				Client client = new Client(temp.ToArray(), (PacketType)Enum.Parse(typeof(PacketType), sendConfig.GetConfigTable("Using_Mode")));
+				Client client = new Client(temp.ToArray(), (PacketType)Enum.Parse(typeof(PacketType), sendConfig.GetConfigTable("Using_Mode")), LastClientEvent);
 				client.SendingCompleted += SendingCallback;
 				Invoke((MethodInvoker)delegate { IOQueueForm.AddClientQueue(textBox1.Text); });
+				LastClientEvent = client.ClientIOCompleteEvent;
+
+				if(client.WaitingEvent != null)
+					client.WaitingEvent.WaitOne();
 
 				if(client.SendType == PacketType.BasicFrame)
 				{
@@ -238,7 +243,7 @@ namespace SimFTPV.Forms
 			}
 			catch(Exception excpt)
 			{
-				notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
+				throw; // notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
 			}
 		}
 
@@ -257,8 +262,10 @@ namespace SimFTPV.Forms
 
 		private void SendingBasicDataFiles(Client client, string[] items)
 		{
-			List<BasicDataPacket> files = new List<BasicDataPacket>();
+			if(client.WaitingEvent != null)
+				client.WaitingEvent.WaitOne();
 
+			List<BasicDataPacket> files = new List<BasicDataPacket>();
 			foreach(var value in items)
 			{
 				FileInfo fileInfo = new FileInfo(value);
@@ -295,7 +302,7 @@ namespace SimFTPV.Forms
 
 		private void 전송상황ToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			IOQueueForm.ShowDialog();
+			IOQueueForm.Show();
 		}
 	}
 }

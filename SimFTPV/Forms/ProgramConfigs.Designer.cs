@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProgramConfigs));
 			this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
 			this.SuspendLayout();
 			// 
@@ -49,6 +50,7 @@
 			this.ClientSize = new System.Drawing.Size(624, 441);
 			this.Controls.Add(this.checkedListBox1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "ProgramConfigs";
 			this.Text = "프로그램 설정";
 			this.Load += new System.EventHandler(this.ProgramConfigs_Load);

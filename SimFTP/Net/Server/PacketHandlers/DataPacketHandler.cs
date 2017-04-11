@@ -94,6 +94,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				}
 
 				buffer = null;
+				writer.Close();
 			}
 
 			GC.Collect();

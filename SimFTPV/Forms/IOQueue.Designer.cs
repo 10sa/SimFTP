@@ -28,10 +28,11 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IOQueue));
 			this.listView1 = new System.Windows.Forms.ListView();
-			this.listView2 = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.listView2 = new System.Windows.Forms.ListView();
 			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.SuspendLayout();
@@ -49,6 +50,14 @@
 			this.listView1.UseCompatibleStateImageBehavior = false;
 			this.listView1.View = System.Windows.Forms.View.Details;
 			// 
+			// columnHeader1
+			// 
+			this.columnHeader1.Text = "송신자";
+			// 
+			// columnHeader2
+			// 
+			this.columnHeader2.Text = "상태";
+			// 
 			// listView2
 			// 
 			this.listView2.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -61,14 +70,6 @@
 			this.listView2.TabIndex = 1;
 			this.listView2.UseCompatibleStateImageBehavior = false;
 			this.listView2.View = System.Windows.Forms.View.Details;
-			// 
-			// columnHeader1
-			// 
-			this.columnHeader1.Text = "송신자";
-			// 
-			// columnHeader2
-			// 
-			this.columnHeader2.Text = "상태";
 			// 
 			// columnHeader3
 			// 
@@ -87,8 +88,9 @@
 			this.Controls.Add(this.listView2);
 			this.Controls.Add(this.listView1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "IOQueue";
-			this.Text = "IOQueue";
+			this.Text = "송수신 상황";
 			this.Load += new System.EventHandler(this.IOQueue_Load);
 			this.ResumeLayout(false);
 

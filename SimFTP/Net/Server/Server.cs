@@ -38,6 +38,7 @@ namespace SimFTP.Net.Server
 		public AccountConfig accountConfig = new AccountConfig();
 		private ManualResetEvent threadEvent = new ManualResetEvent(false);
 		private ManualResetEvent threadControllEvent = new ManualResetEvent(false);
+		private ManualResetEvent lastSubroutineEvent;
 
 		#endregion
 
@@ -127,6 +128,20 @@ namespace SimFTP.Net.Server
 			}
 		}
 
+		private struct ThreadArgs
+		{
+			public Socket clientSocket;
+			public ManualResetEvent threadControl;
+			public ManualResetEvent outputControl;
+
+			public ThreadArgs(Socket socket, ManualResetEvent controlEvent)
+			{
+				clientSocket = socket;
+				threadControl = controlEvent;
+				outputControl = null;
+			}
+		}
+
 		private void AccpetCallBack(object sender, SocketAsyncEventArgs callbackArgs)
 		{
 			if(callbackArgs.AcceptSocket == null || !callbackArgs.AcceptSocket.Connected)
@@ -134,9 +149,11 @@ namespace SimFTP.Net.Server
 
 			Thread connectHandleRoutine = new Thread(new ParameterizedThreadStart(ConnectHandleRoutine));
 			Socket clientSocket = callbackArgs.AcceptSocket;
+			ThreadArgs threadArgs = new ThreadArgs(clientSocket, lastSubroutineEvent);
+
 			connectHandleRoutine.Name = string.Format("{0}_Client_IO_Handler", clientSocket.Handle);
-			connectHandleRoutine.Start(clientSocket);
 			ConnectedClient(new ServerEventArgs(null, clientSocket.RemoteEndPoint.ToString()));
+			connectHandleRoutine.Start(threadArgs);
 
 			callbackArgs.AcceptSocket = null;
 			threadEvent.Set();
@@ -146,8 +163,17 @@ namespace SimFTP.Net.Server
 		#region Handling Thread Area
 		private void ConnectHandleRoutine (object threadArgs)
 		{
-			Socket clientSocket = (Socket)threadArgs;
+			ThreadArgs args = (ThreadArgs)threadArgs;
+			Socket clientSocket = args.clientSocket;
+			ManualResetEvent waitEvent = args.threadControl;
+			ManualResetEvent localEvent = new ManualResetEvent(false);
+			lastSubroutineEvent = localEvent;
+
+			if(waitEvent != null)
+				waitEvent.WaitOne();
+
 			ClientConnectHandling(clientSocket);
+			localEvent.Set();
 		}
 
 		private void ClientConnectHandling (Socket clientSocket)

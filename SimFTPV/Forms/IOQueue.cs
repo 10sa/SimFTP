@@ -58,7 +58,6 @@ namespace SimFTPV.Forms
 		private void RefreshServerQueue()
 		{
 			listView1.Items.Clear();
-
 			foreach(var data in ServerQueue)
 			{
 				ListViewItem item = new ListViewItem(data.Address);
@@ -66,12 +65,14 @@ namespace SimFTPV.Forms
 
 				listView1.Items.Add(item);
 			}
+
+			if(listView1.Items.Count > 0)
+				listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 		}
 
 		private void RefreshClientQueue()
 		{
 			listView2.Items.Clear();
-
 			foreach(var data in ClientQueue)
 			{
 				ListViewItem item = new ListViewItem(data.Address);
@@ -79,6 +80,9 @@ namespace SimFTPV.Forms
 
 				listView2.Items.Add(item);
 			}
+
+			if(listView2.Items.Count > 0)
+				listView2.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 		}
 	}
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Security;
 using System.Security.Cryptography;
 
@@ -36,14 +37,18 @@ namespace SimFTP.Net.Client
 		public PacketType SendType { get; private set; }
 
 		public event ClientEvent SendingCompleted = delegate { };
+		public ManualResetEvent ClientIOCompleteEvent { get; private set; } = new ManualResetEvent(false);
+
+		public ManualResetEvent WaitingEvent { get; private set; }
 		#endregion
 
 
-		public Client(string[] address, PacketType sendingType)
+		public Client(string[] address, PacketType sendingType, ManualResetEvent waitEvent)
 		{
 			clientSocket.NoDelay = false;
 			clientSocket.SendBufferSize = int.MaxValue / 8;
 			ServerAddress = address;
+			WaitingEvent = waitEvent;
 
 			if(sendingType == PacketType.BasicFrame || sendingType == PacketType.BasicSecurity || sendingType == PacketType.ExpertSecurity)
 				SendType = sendingType;
@@ -68,16 +73,19 @@ namespace SimFTP.Net.Client
 
 		public void SendFile(params ExpertSecurityDataPacket[] files)
 		{
-			HandlerCaller(PacketType.ExpertSecurity, () => { SendHandlingExpertSecurityPacket(files); });
+			HandlerCaller(PacketType.ExpertSecurity, () => { HandlingExpertSecurityExchange(files); });
 		}
 
 		public void SendFile(string username, string password, params ExpertSecurityDataPacket[] files)
 		{
-			HandlerCaller(PacketType.ExpertSecurity, () => { SendHandlingExpertSecurityPacket(username, password, files); });
+			HandlerCaller(PacketType.ExpertSecurity, () => { HandlingExpertSecurityExchange(files, username, password); });
 		}
 
 		private void HandlerCaller(PacketType inputType, HandlerCallerDelegate work)
 		{
+			if(WaitingEvent != null)
+				WaitingEvent.WaitOne();
+
 			if(inputType == SendType)
 			{
 				foreach(var address in ServerAddress)
@@ -86,6 +94,7 @@ namespace SimFTP.Net.Client
 					work();
 
 					SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
+					ClientIOCompleteEvent.Set();
 				}
 			}
 			else
@@ -100,27 +109,15 @@ namespace SimFTP.Net.Client
 		private void SendHandlingBasicPackets(params BasicDataPacket[] files)
 		{
 			clientSocket.Send(new BasicMetadataPacket(files.Length).GetBinaryData());
-
 			InfoPacket infoPacket = InfoExchangeHandler();
-
-			// TO DO : CALL INFO PACKET RECEIVE EVENT. (Arg : InfoPacket) //
-
-			//
 			FileSendHandler(files);
-
-			
 		}
 
 		// Anonymous Send //
 		private void SendHandlingBasicSecurityPacket(params BasicSecurityDataPacket[] files)
 		{
 			clientSocket.Send(new BasicSecurityMetadataPacket(files.Length).GetBinaryData());
-
 			InfoPacket infoPacket = InfoExchangeHandler();
-			// TO DO : CALL INFO PACKET RECEIVE EVENT. (Arg : InfoPacket) //
-
-			//
-
 			FileSendHandler(files);
 		}
 
@@ -129,23 +126,7 @@ namespace SimFTP.Net.Client
 		{
 			clientSocket.Send(new BasicSecurityMetadataPacket(username, password, files.Length).GetBinaryData());
 			InfoPacket infoPacket = InfoExchangeHandler();
-
-			// TO DO : CALL INFO PACKET RECEIVE EVENT. (Arg : InfoPacket) //
-
-			//
-
 			FileSendHandler(files);
-		}
-
-		// Anonymous Encrypted Send //
-		private void SendHandlingExpertSecurityPacket(params ExpertSecurityDataPacket[] files)
-		{
-			HandlingExpertSecurityExchange(files);
-		}
-
-		private void SendHandlingExpertSecurityPacket(string username, string password, params ExpertSecurityDataPacket[] files)
-		{
-			HandlingExpertSecurityExchange(files, username, password);
 		}
 
 		private void HandlingExpertSecurityExchange(ExpertSecurityDataPacket[] files, string username = null, string password = null)

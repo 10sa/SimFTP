@@ -40,6 +40,7 @@
 			this.SettingsReceive = new System.Windows.Forms.ToolStripMenuItem();
 			this.송신설정ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.프로그램설정ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.전송상황ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.listView1 = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.button1 = new System.Windows.Forms.Button();
@@ -52,7 +53,6 @@
 			this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.종료ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-			this.전송상황ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -98,6 +98,13 @@
 			this.프로그램설정ToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
 			this.프로그램설정ToolStripMenuItem.Text = "프로그램 설정";
 			this.프로그램설정ToolStripMenuItem.Click += new System.EventHandler(this.프로그램설정ToolStripMenuItem_Click);
+			// 
+			// 전송상황ToolStripMenuItem
+			// 
+			this.전송상황ToolStripMenuItem.Name = "전송상황ToolStripMenuItem";
+			this.전송상황ToolStripMenuItem.Size = new System.Drawing.Size(83, 20);
+			this.전송상황ToolStripMenuItem.Text = "송수신 상황";
+			this.전송상황ToolStripMenuItem.Click += new System.EventHandler(this.전송상황ToolStripMenuItem_Click);
 			// 
 			// listView1
 			// 
@@ -198,13 +205,6 @@
 			this.종료ToolStripMenuItem1.Text = "종료";
 			this.종료ToolStripMenuItem1.Click += new System.EventHandler(this.종료ToolStripMenuItem1_Click);
 			// 
-			// 전송상황ToolStripMenuItem
-			// 
-			this.전송상황ToolStripMenuItem.Name = "전송상황ToolStripMenuItem";
-			this.전송상황ToolStripMenuItem.Size = new System.Drawing.Size(71, 20);
-			this.전송상황ToolStripMenuItem.Text = "전송 상황";
-			this.전송상황ToolStripMenuItem.Click += new System.EventHandler(this.전송상황ToolStripMenuItem_Click);
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -220,6 +220,7 @@
 			this.Controls.Add(this.listView1);
 			this.Controls.Add(this.menuStrip1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "MainForm";
 			this.Text = "SimFTP 뷰어";
