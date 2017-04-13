@@ -304,5 +304,10 @@ namespace SimFTPV.Forms
 		{
 			IOQueueForm.Show();
 		}
+
+		private void 프로그램정보ToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			MessageBox.Show("프로그램 정보", "이 프로그램은 MIT 라이센스 조건 하에 모든 사용이 허가됩니다.\n아이콘 출처 : www.iconfinder.com/icons/103291/arrow_down_full_icon", MessageBoxButtons.OK, MessageBoxIcon.Information);
+		}
 	}
 }

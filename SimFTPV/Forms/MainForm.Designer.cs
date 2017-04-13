@@ -53,6 +53,7 @@
 			this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.종료ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+			this.프로그램정보ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -61,7 +62,8 @@
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.설정ToolStripMenuItem,
-            this.전송상황ToolStripMenuItem});
+            this.전송상황ToolStripMenuItem,
+            this.프로그램정보ToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(624, 24);
@@ -205,6 +207,13 @@
 			this.종료ToolStripMenuItem1.Text = "종료";
 			this.종료ToolStripMenuItem1.Click += new System.EventHandler(this.종료ToolStripMenuItem1_Click);
 			// 
+			// 프로그램정보ToolStripMenuItem
+			// 
+			this.프로그램정보ToolStripMenuItem.Name = "프로그램정보ToolStripMenuItem";
+			this.프로그램정보ToolStripMenuItem.Size = new System.Drawing.Size(95, 20);
+			this.프로그램정보ToolStripMenuItem.Text = "프로그램 정보";
+			this.프로그램정보ToolStripMenuItem.Click += new System.EventHandler(this.프로그램정보ToolStripMenuItem_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -254,6 +263,7 @@
 		private System.Windows.Forms.ToolStripMenuItem 송신설정ToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem 프로그램설정ToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem 전송상황ToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem 프로그램정보ToolStripMenuItem;
 	}
 }
 
