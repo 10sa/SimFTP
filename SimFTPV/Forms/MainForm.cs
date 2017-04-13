@@ -53,6 +53,8 @@ namespace SimFTPV.Forms
 		private const string SuccessfulSending = "파일이 성공적으로 전송되었습니다.";
 		private const string IsReceiveClient = "{0} 으로 부터 데이터를 수신할까요?";
 		private const string ReceiveNotify = "수신 알림";
+		private const string CreditMessageBoxDesc = "이 프로그램은 MIT 라이센스 조건 하에 모든 사용이 허가됩니다.\n아이콘 출처 www.iconfinder.com/icons/103291/arrow_down_full_icon";
+		private const string CreditMessageBoxName = "프로그램 정보";
 
 		#endregion
 
@@ -307,7 +309,7 @@ namespace SimFTPV.Forms
 
 		private void 프로그램정보ToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			MessageBox.Show("프로그램 정보", "이 프로그램은 MIT 라이센스 조건 하에 모든 사용이 허가됩니다.\n아이콘 출처 : www.iconfinder.com/icons/103291/arrow_down_full_icon", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			MessageBox.Show(CreditMessageBoxDesc, CreditMessageBoxName, MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
 	}
 }
