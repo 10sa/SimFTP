@@ -18,7 +18,8 @@ namespace SimFTPV.Forms
 		private const string InvaildIPAddress = "IP 주소 탐색에 실패하였습니다.";
 		private const string RequestRemoveUser = "사용자를 삭제하시겠습니까?";
 		private const string UserRemove = "사용자 삭제";
-
+		private const string AddressGetFailure = "불러오기 실패";
+		private const string DataLoading = "불러오는 중...";
 		Server server;
 
 		public ReceiveConfigs(ref Server cfg)
@@ -26,13 +27,22 @@ namespace SimFTPV.Forms
 			InitializeComponent();
 			server = cfg;
 
-			string localAddress = GetPublicAddress();
+			textBox1.Text = DataLoading;
+			textBox2.Text = DataLoading;
 
-			if(localAddress == null)
-				textBox1.Text = InvaildIPAddress;
-			else
-				textBox1.Text = localAddress;
-			
+			BackgroundWorker worker = new BackgroundWorker();
+			worker.DoWork += (a, b) =>
+			{
+				b.Result = new string[] { GetPublicAddress(), GetLocalIPv4Address() };
+			};
+
+			worker.RunWorkerCompleted += (a, b) =>
+			{
+				string[] result = (string[])b.Result;
+				textBox1.Text = result[0];
+				textBox2.Text = result[1];
+			};
+			worker.RunWorkerAsync();
 		}
 
 		private void ReceiveConfigs_Load(object sender, EventArgs e)
@@ -46,7 +56,22 @@ namespace SimFTPV.Forms
 			try {
 				return new WebClient().DownloadString("https://api.ipify.org");
 			}
-			catch(Exception) { return null; }
+			catch(Exception) { return AddressGetFailure; }
+		}
+
+		private string GetLocalIPv4Address()
+		{
+			try
+			{
+				foreach(var address in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
+				{
+					if(address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+						return address.ToString();
+				}
+
+				return AddressGetFailure;
+			}
+			catch(Exception) { return AddressGetFailure; }
 		}
 
 		private void RefreshConfigList()

@@ -39,6 +39,8 @@
 			this.button2 = new System.Windows.Forms.Button();
 			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
+			this.textBox2 = new System.Windows.Forms.TextBox();
+			this.label2 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// listView1
@@ -127,7 +129,24 @@
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(57, 12);
 			this.label1.TabIndex = 6;
-			this.label1.Text = "접속 주소";
+			this.label1.Text = "외부 주소";
+			// 
+			// textBox2
+			// 
+			this.textBox2.Location = new System.Drawing.Point(431, 24);
+			this.textBox2.Name = "textBox2";
+			this.textBox2.ReadOnly = true;
+			this.textBox2.Size = new System.Drawing.Size(181, 21);
+			this.textBox2.TabIndex = 7;
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(429, 9);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(57, 12);
+			this.label2.TabIndex = 8;
+			this.label2.Text = "내부 주소";
 			// 
 			// ReceiveConfigs
 			// 
@@ -135,6 +154,8 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.ClientSize = new System.Drawing.Size(624, 441);
+			this.Controls.Add(this.label2);
+			this.Controls.Add(this.textBox2);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.textBox1);
 			this.Controls.Add(this.button2);
@@ -163,5 +184,7 @@
 		private System.Windows.Forms.Button button2;
 		private System.Windows.Forms.TextBox textBox1;
 		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.TextBox textBox2;
+		private System.Windows.Forms.Label label2;
 	}
 }
