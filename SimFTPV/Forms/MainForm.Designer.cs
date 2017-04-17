@@ -54,6 +54,8 @@
 			this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.종료ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.menuStrip1.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -118,7 +120,9 @@
 			// listView1
 			// 
 			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1});
+            this.columnHeader1,
+            this.columnHeader2,
+            this.columnHeader3});
 			this.listView1.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.listView1.Location = new System.Drawing.Point(12, 27);
 			this.listView1.Name = "listView1";
@@ -129,7 +133,7 @@
 			// 
 			// columnHeader1
 			// 
-			this.columnHeader1.Text = "File";
+			this.columnHeader1.Text = "파일";
 			this.columnHeader1.Width = 596;
 			// 
 			// button1
@@ -213,6 +217,14 @@
 			this.종료ToolStripMenuItem1.Text = "종료";
 			this.종료ToolStripMenuItem1.Click += new System.EventHandler(this.종료ToolStripMenuItem1_Click);
 			// 
+			// columnHeader2
+			// 
+			this.columnHeader2.Text = "용량";
+			// 
+			// columnHeader3
+			// 
+			this.columnHeader3.Text = "생성 일자";
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -263,6 +275,8 @@
 		private System.Windows.Forms.ToolStripMenuItem 프로그램설정ToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem 전송상황ToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem 프로그램정보ToolStripMenuItem;
+		private System.Windows.Forms.ColumnHeader columnHeader2;
+		private System.Windows.Forms.ColumnHeader columnHeader3;
 	}
 }
 

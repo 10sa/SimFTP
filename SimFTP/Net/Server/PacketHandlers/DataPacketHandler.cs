@@ -31,9 +31,9 @@ namespace SimFTP.Net.Server.PacketHandlers
 
 		public BasicDataPacket ReceiveBasicDataPacket ()
 		{
-			short fileNameLenght = BitConverter.ToInt16(ShareNetUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
+			short fileNameLength = BitConverter.ToInt16(ShareNetUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
 			long fileSize = BitConverter.ToInt64(ShareNetUtil.ReceivePacket(clientSocket, sizeof(long)), 0);
-			string fileName = Encoding.UTF8.GetString(ShareNetUtil.ReceivePacket(clientSocket, fileNameLenght));
+			string fileName = Encoding.UTF8.GetString(ShareNetUtil.ReceivePacket(clientSocket, fileNameLength));
 			GetFileData(clientSocket, fileSize, fileName);
 
 			return new BasicDataPacket(fileName, null);

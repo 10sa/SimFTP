@@ -25,11 +25,11 @@ namespace SimFTP.Net
 			int dataCount = BitConverter.ToInt32(ShareNetUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
 
 			InfoType infoType = (InfoType)Enum.Parse(typeof(InfoType), ShareNetUtil.ReceivePacket(clientSocket, sizeof(byte))[0].ToString());
-			int responseLenght = BitConverter.ToInt32(ShareNetUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
+			int responseLength = BitConverter.ToInt32(ShareNetUtil.ReceivePacket(clientSocket, sizeof(int)), 0);
 			byte[] responseData = null;
 
-			if(responseLenght > 0)
-				responseData = ShareNetUtil.ReceivePacket(clientSocket, responseLenght);
+			if(responseLength > 0)
+				responseData = ShareNetUtil.ReceivePacket(clientSocket, responseLength);
 
 			return new InfoPacket(infoType, responseData);
 		}

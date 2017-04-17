@@ -20,7 +20,32 @@ using System.Net.Sockets;
 
 namespace SimFTP.Net.Client
 {
-	public delegate void ClientEvent(string status, string address);
+	public delegate void ClientEvent(ClientEventArgs args);
+
+	public class ClientEventArgs
+	{
+		public long SendingFileSize { get; private set; }
+
+		public long LeftFileSize { get; private set; }
+
+		public string Status { get; private set; }
+
+		public string ClientAddress { get; private set; }
+
+		public ClientEventArgs(string status, string address)
+		{
+			Status = status;
+			ClientAddress = address;
+		}
+
+		public ClientEventArgs(string status, string address, long sendingFileSize, long leftFileSize)
+		{
+			Status = status;
+			ClientAddress = address;
+			SendingFileSize = sendingFileSize;
+			LeftFileSize = leftFileSize;
+		}
+	}
 
 	public class Client : IDisposable
 	{
@@ -37,6 +62,12 @@ namespace SimFTP.Net.Client
 		public PacketType SendType { get; private set; }
 
 		public event ClientEvent SendingCompleted = delegate { };
+		public event ClientEvent SendingData = delegate { };
+		public event ClientEvent StartSending = delegate { };
+		public event ClientEvent ReceiveData = delegate { };
+		public event ClientEvent StartReceive = delegate { };
+		
+
 		public ManualResetEvent ClientIOCompleteEvent { get; private set; } = new ManualResetEvent(false);
 
 		public ManualResetEvent WaitingEvent { get; private set; }
@@ -96,11 +127,11 @@ namespace SimFTP.Net.Client
 					{
 						work();
 
-						SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
+						SendingCompleted(new ClientEventArgs("", ShareNetUtil.GetRemotePointAddress(clientSocket)));
 					}
 					catch(Exception e)
 					{
-						SendingCompleted(e.Message, ShareNetUtil.GetRemotePointAddress(clientSocket));
+						SendingCompleted(new ClientEventArgs(e.Message, ShareNetUtil.GetRemotePointAddress(clientSocket)));
 						throw;
 					}
 					finally
@@ -234,20 +265,25 @@ namespace SimFTP.Net.Client
 					using(BinaryReader reader = new BinaryReader(file.File))
 					{
 						byte[] fileBuffer = new byte[int.MaxValue / 8];
+						StartSending(new ClientEventArgs("", ShareNetUtil.GetRemotePointAddress(clientSocket), 0, leftFileSize));
 						while(leftFileSize > 0)
 						{
+							int readByte;
+
 							if(leftFileSize > fileBuffer.Length)
 							{
-								int readByte = reader.Read(fileBuffer, 0, fileBuffer.Length);
+								readByte = reader.Read(fileBuffer, 0, fileBuffer.Length);
 								clientSocket.Send(fileBuffer, 0, readByte, SocketFlags.None);
 								leftFileSize -= readByte;
 							}
 							else
 							{
-								int readByte = reader.Read(fileBuffer, 0, (int)leftFileSize);
+								readByte = reader.Read(fileBuffer, 0, (int)leftFileSize);
 								clientSocket.Send(fileBuffer, readByte, SocketFlags.None);
 								leftFileSize = readByte;
 							}
+
+							SendingData(new ClientEventArgs("", ShareNetUtil.GetRemotePointAddress(clientSocket), readByte, leftFileSize));
 						}
 
 						fileBuffer = null;
@@ -255,7 +291,6 @@ namespace SimFTP.Net.Client
 
 					GC.Collect();
 					clientSocket.Send(file.GetBinaryData());
-					
 				}
 			}
 
@@ -288,6 +323,8 @@ namespace SimFTP.Net.Client
 			if(clientSocket.Connected)
 				clientSocket.Disconnect(false);
 
+			ClientIOCompleteEvent.Dispose();
+			WaitingEvent.Dispose();
 			clientSocket.Dispose();
 			return;
 		}

@@ -55,6 +55,7 @@ namespace SimFTPV.Forms
 		private const string ReceiveNotify = "수신 알림";
 		private const string CreditMessageBoxDesc = "이 프로그램은 MIT 라이센스 조건 하에 모든 사용이 허가됩니다.\n아이콘 출처 www.iconfinder.com/icons/103291/arrow_down_full_icon";
 		private const string CreditMessageBoxName = "프로그램 정보";
+		private const string V = "Using_Mode";
 
 		#endregion
 
@@ -135,7 +136,13 @@ namespace SimFTPV.Forms
 			{
 				foreach(var file in openFileDialog1.FileNames)
 				{
-					listView1.Items.Add(new ListViewItem(file));
+					FileInfo fileInfo = new FileInfo(file);
+					ListViewItem item = new ListViewItem(fileInfo.FullName);
+
+					item.SubItems.Add(GetAutoChangedFileSize(fileInfo.Length));
+					item.SubItems.Add(fileInfo.CreationTime.ToString());
+
+					listView1.Items.Add(item);
 				}
 
 				listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
@@ -143,12 +150,22 @@ namespace SimFTPV.Forms
 			}
 		}
 
+		private string GetAutoChangedFileSize(long fileSize)
+		{
+			if(fileSize > (int.MaxValue / 2))
+				return Math.Round(((double)fileSize / 1024 / 1024 / 1024), 2).ToString() + " GB";
+			else if(fileSize > (int.MaxValue / 4))
+				return Math.Round(((double)fileSize / 1024 / 1024), 2).ToString() + " MB";
+			else
+				return Math.Round(((double)fileSize / 1024), 2).ToString() + " KB";
+		}
+
 		private void button4_Click(object sender, EventArgs e)
 		{
 			if(listView1.SelectedItems.Count > 0)
 				listView1.Items.RemoveAt(listView1.SelectedItems[0].Index);
 			else
-				listView1.Clear();
+				listView1.Items.Clear();
 		}
 
 		private void button3_Click(object sender, EventArgs e)
@@ -196,40 +213,37 @@ namespace SimFTPV.Forms
 		private void button1_Click(object sender, EventArgs e)
 		{
 			if(textBox1.Text == string.Empty)
-			{
 				MessageBox.Show(inputWrongAddress_desc, inputWrongAddress, MessageBoxButtons.OK, MessageBoxIcon.Error);
-				return;
-			}
 			else if(listView1.Items.Count <= 0)
-			{
 				MessageBox.Show(noAddedFiles, noFiles, MessageBoxButtons.OK, MessageBoxIcon.Error);
-				return;
+			else
+			{
+				notifyIcon1.ShowBalloonTip(notifyShowTime, startSendingFiles, sendingFiles, ToolTipIcon.Info);
+				Thread clientSendlingHandler = new Thread(SendingThreadRoutine);
+				List<string> parameter = new List<string>();
+
+				foreach(ListViewItem value in listView1.Items)
+					parameter.Add(value.Text);
+
+				clientSendlingHandler.Start(parameter.ToArray());
 			}
-
-			notifyIcon1.ShowBalloonTip(notifyShowTime, startSendingFiles, sendingFiles, ToolTipIcon.Info);
-			Thread clientSendlingHandler = new Thread(SendingThreadRoutine);
-			List<string> parameter = new List<string>();
-			foreach(ListViewItem value in listView1.Items)
-				parameter.Add(value.Text);
-
-			clientSendlingHandler.Start(parameter.ToArray());
 		}
 
-		private void SendingCallback(string status, string address)
+		private void SendingCallback(ClientEventArgs args)
 		{
-			notifyIcon1.ShowBalloonTip(notifyShowTime, SendingCompleted, SuccessfulSending, ToolTipIcon.Info);
+			notifyIcon1.ShowBalloonTip(notifyShowTime, SendingCompleted, args.ClientAddress + SuccessfulSending, ToolTipIcon.Info);
 			Invoke((MethodInvoker)delegate { IOQueueForm.RemoveClientQueue(); });
 		}
 
 		private void SendingThreadRoutine(object a)
 		{
-			string[] items = (string[])a;
 			try
 			{
+				string[] items = (string[])a;
 				List<string> temp = new List<string>();
 				temp.Add(textBox1.Text);
 
-				Client client = new Client(temp.ToArray(), (PacketType)Enum.Parse(typeof(PacketType), sendConfig.GetConfigTable("Using_Mode")), LastClientEvent);
+				Client client = new Client(temp.ToArray(), (PacketType)Enum.Parse(typeof(PacketType), sendConfig.GetConfigTable(V)), LastClientEvent);
 				client.SendingCompleted += SendingCallback;
 				Invoke((MethodInvoker)delegate { IOQueueForm.AddClientQueue(textBox1.Text); });
 				LastClientEvent = client.ClientIOCompleteEvent;
@@ -238,17 +252,11 @@ namespace SimFTPV.Forms
 					client.WaitingEvent.WaitOne();
 
 				if(client.SendType == PacketType.BasicFrame)
-				{
 					SendingBasicDataFiles(client, items);
-				}
 				else if(client.SendType == PacketType.BasicSecurity)
-				{
 					SendingBasicSecurityFiles(client, items);
-				}
 				else if(client.SendType == PacketType.ExpertSecurity)
-				{
 					SendingExpertDataFiles(client, items);
-				}
 			}
 			catch(Exception excpt)
 			{

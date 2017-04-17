@@ -14,7 +14,7 @@ namespace SimFTP.Net.DataPackets
 {
 	public class BasicDataPacket 
 	{
-		public short FileNameLenght { get; protected set; }
+		public short FileNameLength { get; protected set; }
 		public long FileSize { get; protected set; }
 
 		public string FileName { get; protected set; }
@@ -33,7 +33,7 @@ namespace SimFTP.Net.DataPackets
 		public byte[] GetBinaryData()
 		{
 			if (!_CalledOnlyBasicDataPacket)
-				return Util.AttachByteArray(BitConverter.GetBytes(FileNameLenght), BitConverter.GetBytes(FileSize), Encoding.UTF8.GetBytes(FileName));
+				return Util.AttachByteArray(BitConverter.GetBytes(FileNameLength), BitConverter.GetBytes(FileSize), Encoding.UTF8.GetBytes(FileName));
 			else
 				return new byte[] { };
 		}	
@@ -41,7 +41,7 @@ namespace SimFTP.Net.DataPackets
 		public byte[] GetOnlyBasicDataPacket()
 		{
 			this._CalledOnlyBasicDataPacket = true;
-			return Util.AttachByteArray(BitConverter.GetBytes(FileNameLenght), BitConverter.GetBytes(FileSize), Encoding.UTF8.GetBytes(FileName));
+			return Util.AttachByteArray(BitConverter.GetBytes(FileNameLength), BitConverter.GetBytes(FileSize), Encoding.UTF8.GetBytes(FileName));
 		}
 
 		protected BasicDataPacket(BasicDataPacket data)
@@ -51,7 +51,7 @@ namespace SimFTP.Net.DataPackets
 
 		private void SetFileData(string fileName, FileStream stream)
 		{
-			this.FileNameLenght = (short)Encoding.UTF8.GetByteCount(fileName);
+			this.FileNameLength = (short)Encoding.UTF8.GetByteCount(fileName);
 			this.FileName = fileName;
 			this.File = stream;
 

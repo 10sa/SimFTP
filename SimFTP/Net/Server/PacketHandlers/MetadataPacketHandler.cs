@@ -45,10 +45,10 @@ namespace SimFTP.Net.Server.PacketHandlers
 				return new BasicSecurityMetadataPacket(orignalPacket.DataCount);
 			else
 			{
-				short usernameLenght = BitConverter.ToInt16(ShareNetUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
-				short passwordLenght = BitConverter.ToInt16(ShareNetUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
-				string username = Encoding.UTF8.GetString(ShareNetUtil.ReceivePacket(clientSocket, usernameLenght));
-				string password = Encoding.UTF8.GetString(ShareNetUtil.ReceivePacket(clientSocket, passwordLenght));
+				short usernameLength = BitConverter.ToInt16(ShareNetUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
+				short passwordLength = BitConverter.ToInt16(ShareNetUtil.ReceivePacket(clientSocket, sizeof(short)), 0);
+				string username = Encoding.UTF8.GetString(ShareNetUtil.ReceivePacket(clientSocket, usernameLength));
+				string password = Encoding.UTF8.GetString(ShareNetUtil.ReceivePacket(clientSocket, passwordLength));
 
 				return new BasicSecurityMetadataPacket(username, password, orignalPacket.DataCount);
 			}
