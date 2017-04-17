@@ -131,17 +131,24 @@ namespace SimFTPV.Forms
 
 		private void button2_Click(object sender, EventArgs e)
 		{
-			openFileDialog1.ShowDialog();
-			foreach(var file in openFileDialog1.FileNames)
-				listView1.Items.Add(new ListViewItem(file));
+			if(openFileDialog1.ShowDialog() == DialogResult.OK)
+			{
+				foreach(var file in openFileDialog1.FileNames)
+				{
+					listView1.Items.Add(new ListViewItem(file));
+				}
 
-			listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-			listView1.Update();
+				listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+				listView1.Update();
+			}
 		}
 
 		private void button4_Click(object sender, EventArgs e)
 		{
-			listView1.Items.Clear();
+			if(listView1.SelectedItems.Count > 0)
+				listView1.Items.RemoveAt(listView1.SelectedItems[0].Index);
+			else
+				listView1.Clear();
 		}
 
 		private void button3_Click(object sender, EventArgs e)
@@ -245,7 +252,7 @@ namespace SimFTPV.Forms
 			}
 			catch(Exception excpt)
 			{
-				throw; // notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
+				notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
 			}
 		}
 

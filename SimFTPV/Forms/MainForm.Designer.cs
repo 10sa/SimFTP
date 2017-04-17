@@ -41,6 +41,7 @@
 			this.송신설정ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.프로그램설정ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.전송상황ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.프로그램정보ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.listView1 = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.button1 = new System.Windows.Forms.Button();
@@ -53,7 +54,6 @@
 			this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.종료ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-			this.프로그램정보ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -108,6 +108,13 @@
 			this.전송상황ToolStripMenuItem.Text = "송수신 상황";
 			this.전송상황ToolStripMenuItem.Click += new System.EventHandler(this.전송상황ToolStripMenuItem_Click);
 			// 
+			// 프로그램정보ToolStripMenuItem
+			// 
+			this.프로그램정보ToolStripMenuItem.Name = "프로그램정보ToolStripMenuItem";
+			this.프로그램정보ToolStripMenuItem.Size = new System.Drawing.Size(95, 20);
+			this.프로그램정보ToolStripMenuItem.Text = "프로그램 정보";
+			this.프로그램정보ToolStripMenuItem.Click += new System.EventHandler(this.프로그램정보ToolStripMenuItem_Click);
+			// 
 			// listView1
 			// 
 			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -157,9 +164,9 @@
 			this.label1.AutoSize = true;
 			this.label1.Location = new System.Drawing.Point(159, 393);
 			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(57, 12);
+			this.label1.Size = new System.Drawing.Size(84, 12);
 			this.label1.TabIndex = 5;
-			this.label1.Text = "서버 주소";
+			this.label1.Text = "수신자 IP 주소";
 			// 
 			// button3
 			// 
@@ -183,7 +190,6 @@
 			// 
 			// openFileDialog1
 			// 
-			this.openFileDialog1.FileName = "openFileDialog1";
 			this.openFileDialog1.Multiselect = true;
 			// 
 			// notifyIcon1
@@ -206,13 +212,6 @@
 			this.종료ToolStripMenuItem1.Size = new System.Drawing.Size(98, 22);
 			this.종료ToolStripMenuItem1.Text = "종료";
 			this.종료ToolStripMenuItem1.Click += new System.EventHandler(this.종료ToolStripMenuItem1_Click);
-			// 
-			// 프로그램정보ToolStripMenuItem
-			// 
-			this.프로그램정보ToolStripMenuItem.Name = "프로그램정보ToolStripMenuItem";
-			this.프로그램정보ToolStripMenuItem.Size = new System.Drawing.Size(95, 20);
-			this.프로그램정보ToolStripMenuItem.Text = "프로그램 정보";
-			this.프로그램정보ToolStripMenuItem.Click += new System.EventHandler(this.프로그램정보ToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 

@@ -172,8 +172,14 @@ namespace SimFTP.Net.Server
 			if(waitEvent != null)
 				waitEvent.WaitOne();
 
-			ClientConnectHandling(clientSocket);
-			localEvent.Set();
+			try
+			{
+				ClientConnectHandling(clientSocket);
+			}
+			finally
+			{
+				localEvent.Set();
+			}
 		}
 
 		private void ClientConnectHandling (Socket clientSocket)

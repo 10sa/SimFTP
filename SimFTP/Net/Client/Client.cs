@@ -91,10 +91,22 @@ namespace SimFTP.Net.Client
 				foreach(var address in ServerAddress)
 				{
 					clientSocket.Connect(address, ServerPort);
-					work();
 
-					SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
-					ClientIOCompleteEvent.Set();
+					try
+					{
+						work();
+
+						SendingCompleted("", ShareNetUtil.GetRemotePointAddress(clientSocket));
+					}
+					catch(Exception e)
+					{
+						SendingCompleted(e.Message, ShareNetUtil.GetRemotePointAddress(clientSocket));
+						throw;
+					}
+					finally
+					{
+						ClientIOCompleteEvent.Set();
+					}
 				}
 			}
 			else
