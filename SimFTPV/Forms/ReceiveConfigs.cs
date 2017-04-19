@@ -49,6 +49,7 @@ namespace SimFTPV.Forms
 		{
 			RefreshConfigList();
 			RefreshAccountList();
+			textBox3.Text = server.config.GetConfigTable("Download_Folder");
 		}
 
 		private string GetPublicAddress()
@@ -78,6 +79,9 @@ namespace SimFTPV.Forms
 		{
 			foreach(var config in server.config.ConfigTable)
 			{
+				if(config.Key == "Download_Folder")
+					continue;
+
 				ListViewItem items = new ListViewItem(config.Key);
 				items.SubItems.Add(config.Value);
 
@@ -142,6 +146,15 @@ namespace SimFTPV.Forms
 		private void textBox3_TextChanged(object sender, EventArgs e)
 		{
 			server.config.SetConfigTable("Download_Folder", textBox3.Text);
+		}
+
+		private void button3_Click(object sender, EventArgs e)
+		{
+			if(folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+			{
+				textBox3.Text = folderBrowserDialog1.SelectedPath;
+				server.config.SetConfigTable("Download_Folder", textBox3.Text);
+			}
 		}
 	}
 }

@@ -44,6 +44,7 @@
 			this.textBox3 = new System.Windows.Forms.TextBox();
 			this.button3 = new System.Windows.Forms.Button();
 			this.label3 = new System.Windows.Forms.Label();
+			this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
 			this.SuspendLayout();
 			// 
 			// listView1
@@ -167,6 +168,7 @@
 			this.button3.TabIndex = 10;
 			this.button3.Text = "폴더 선택";
 			this.button3.UseVisualStyleBackColor = true;
+			this.button3.Click += new System.EventHandler(this.button3_Click);
 			// 
 			// label3
 			// 
@@ -221,5 +223,6 @@
 		private System.Windows.Forms.TextBox textBox3;
 		private System.Windows.Forms.Button button3;
 		private System.Windows.Forms.Label label3;
+		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
 	}
 }
