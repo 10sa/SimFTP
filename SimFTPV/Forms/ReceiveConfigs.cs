@@ -138,5 +138,10 @@ namespace SimFTPV.Forms
 
 			server.config.SetConfigTable(listView1.Items[e.Index].SubItems[0].Text, listView1.Items[e.Index].SubItems[1].Text);
 		}
+
+		private void textBox3_TextChanged(object sender, EventArgs e)
+		{
+			server.config.SetConfigTable("Download_Folder", textBox3.Text);
+		}
 	}
 }

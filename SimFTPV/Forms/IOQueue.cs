@@ -84,6 +84,15 @@ namespace SimFTPV.Forms
 			if(listView2.Items.Count > 0)
 				listView2.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 		}
+
+		private void IOQueue_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			if(e.CloseReason == CloseReason.UserClosing)
+			{
+				e.Cancel = true;
+				this.Hide();
+			}
+		}
 	}
 
 	public class QueueModel

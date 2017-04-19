@@ -55,18 +55,21 @@ namespace SimFTPV.Forms
 		private const string ReceiveNotify = "수신 알림";
 		private const string CreditMessageBoxDesc = "이 프로그램은 MIT 라이센스 조건 하에 모든 사용이 허가됩니다.\n아이콘 출처 www.iconfinder.com/icons/103291/arrow_down_full_icon";
 		private const string CreditMessageBoxName = "프로그램 정보";
-		private const string V = "Using_Mode";
 
 		#endregion
 
 		// ICON LINK : https://www.iconfinder.com/icons/103291/arrow_down_full_icon //
 
+		#region Private Field 
+		
 		private SendConfig sendConfig = new SendConfig();
 		private ProgramConfig programConfig = new ProgramConfig();
 		private Server server = new Server();
         private IOQueue IOQueueForm = new IOQueue();
 		private ManualResetEvent LastClientEvent;
-		
+
+		#endregion
+
 		public MainForm()
 		{
 			InitializeComponent();
@@ -241,10 +244,11 @@ namespace SimFTPV.Forms
 			{
 				string[] items = (string[])a;
 				List<string> temp = new List<string>();
-				temp.Add(textBox1.Text);
+				Invoke((MethodInvoker)delegate { temp.Add(textBox1.Text); });
 
-				Client client = new Client(temp.ToArray(), (PacketType)Enum.Parse(typeof(PacketType), sendConfig.GetConfigTable(V)), LastClientEvent);
+				Client client = new Client(temp.ToArray(), (PacketType)Enum.Parse(typeof(PacketType), sendConfig.GetConfigTable("Using_Mode")), LastClientEvent);
 				client.SendingCompleted += SendingCallback;
+
 				Invoke((MethodInvoker)delegate { IOQueueForm.AddClientQueue(textBox1.Text); });
 				LastClientEvent = client.ClientIOCompleteEvent;
 
@@ -260,7 +264,7 @@ namespace SimFTPV.Forms
 			}
 			catch(Exception excpt)
 			{
-				notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
+				throw; // notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
 			}
 		}
 

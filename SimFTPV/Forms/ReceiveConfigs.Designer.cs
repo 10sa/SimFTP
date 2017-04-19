@@ -41,6 +41,9 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.textBox2 = new System.Windows.Forms.TextBox();
 			this.label2 = new System.Windows.Forms.Label();
+			this.textBox3 = new System.Windows.Forms.TextBox();
+			this.button3 = new System.Windows.Forms.Button();
+			this.label3 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// listView1
@@ -148,12 +151,41 @@
 			this.label2.TabIndex = 8;
 			this.label2.Text = "내부 주소";
 			// 
+			// textBox3
+			// 
+			this.textBox3.Location = new System.Drawing.Point(155, 461);
+			this.textBox3.Name = "textBox3";
+			this.textBox3.Size = new System.Drawing.Size(303, 21);
+			this.textBox3.TabIndex = 9;
+			this.textBox3.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
+			// 
+			// button3
+			// 
+			this.button3.Location = new System.Drawing.Point(12, 439);
+			this.button3.Name = "button3";
+			this.button3.Size = new System.Drawing.Size(137, 43);
+			this.button3.TabIndex = 10;
+			this.button3.Text = "폴더 선택";
+			this.button3.UseVisualStyleBackColor = true;
+			// 
+			// label3
+			// 
+			this.label3.AutoSize = true;
+			this.label3.Location = new System.Drawing.Point(157, 446);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(57, 12);
+			this.label3.TabIndex = 11;
+			this.label3.Text = "수신 경로";
+			// 
 			// ReceiveConfigs
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.ClientSize = new System.Drawing.Size(624, 441);
+			this.ClientSize = new System.Drawing.Size(624, 494);
+			this.Controls.Add(this.label3);
+			this.Controls.Add(this.button3);
+			this.Controls.Add(this.textBox3);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.textBox2);
 			this.Controls.Add(this.label1);
@@ -186,5 +218,8 @@
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.TextBox textBox2;
 		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.TextBox textBox3;
+		private System.Windows.Forms.Button button3;
+		private System.Windows.Forms.Label label3;
 	}
 }

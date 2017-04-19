@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configs\CacheConfigs.cs" />
     <Compile Include="Configs\ProgramConfig.cs" />
     <Compile Include="Configs\SendConfig.cs" />
     <Compile Include="Forms\AddAcount.cs">

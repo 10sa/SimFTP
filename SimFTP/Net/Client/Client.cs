@@ -64,8 +64,6 @@ namespace SimFTP.Net.Client
 		public event ClientEvent SendingCompleted = delegate { };
 		public event ClientEvent SendingData = delegate { };
 		public event ClientEvent StartSending = delegate { };
-		public event ClientEvent ReceiveData = delegate { };
-		public event ClientEvent StartReceive = delegate { };
 		
 
 		public ManualResetEvent ClientIOCompleteEvent { get; private set; } = new ManualResetEvent(false);
@@ -323,7 +321,6 @@ namespace SimFTP.Net.Client
 			if(clientSocket.Connected)
 				clientSocket.Disconnect(false);
 
-			ClientIOCompleteEvent.Dispose();
 			WaitingEvent.Dispose();
 			clientSocket.Dispose();
 			return;

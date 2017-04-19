@@ -44,9 +44,10 @@
 			this.프로그램정보ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.listView1 = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.button1 = new System.Windows.Forms.Button();
 			this.button2 = new System.Windows.Forms.Button();
-			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.button3 = new System.Windows.Forms.Button();
 			this.button4 = new System.Windows.Forms.Button();
@@ -54,8 +55,7 @@
 			this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.종료ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.textBox1 = new System.Windows.Forms.ComboBox();
 			this.menuStrip1.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -136,6 +136,14 @@
 			this.columnHeader1.Text = "파일";
 			this.columnHeader1.Width = 596;
 			// 
+			// columnHeader2
+			// 
+			this.columnHeader2.Text = "용량";
+			// 
+			// columnHeader3
+			// 
+			this.columnHeader3.Text = "생성 일자";
+			// 
 			// button1
 			// 
 			this.button1.Location = new System.Drawing.Point(12, 396);
@@ -155,13 +163,6 @@
 			this.button2.Text = "파일 추가";
 			this.button2.UseVisualStyleBackColor = true;
 			this.button2.Click += new System.EventHandler(this.button2_Click);
-			// 
-			// textBox1
-			// 
-			this.textBox1.Location = new System.Drawing.Point(161, 408);
-			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(453, 21);
-			this.textBox1.TabIndex = 4;
 			// 
 			// label1
 			// 
@@ -217,13 +218,13 @@
 			this.종료ToolStripMenuItem1.Text = "종료";
 			this.종료ToolStripMenuItem1.Click += new System.EventHandler(this.종료ToolStripMenuItem1_Click);
 			// 
-			// columnHeader2
+			// textBox1
 			// 
-			this.columnHeader2.Text = "용량";
-			// 
-			// columnHeader3
-			// 
-			this.columnHeader3.Text = "생성 일자";
+			this.textBox1.FormattingEnabled = true;
+			this.textBox1.Location = new System.Drawing.Point(159, 409);
+			this.textBox1.Name = "textBox1";
+			this.textBox1.Size = new System.Drawing.Size(453, 20);
+			this.textBox1.TabIndex = 8;
 			// 
 			// MainForm
 			// 
@@ -231,10 +232,10 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.ClientSize = new System.Drawing.Size(624, 441);
+			this.Controls.Add(this.textBox1);
 			this.Controls.Add(this.button4);
 			this.Controls.Add(this.button3);
 			this.Controls.Add(this.label1);
-			this.Controls.Add(this.textBox1);
 			this.Controls.Add(this.button2);
 			this.Controls.Add(this.button1);
 			this.Controls.Add(this.listView1);
@@ -262,7 +263,6 @@
 		private System.Windows.Forms.ListView listView1;
 		private System.Windows.Forms.Button button1;
 		private System.Windows.Forms.Button button2;
-		private System.Windows.Forms.TextBox textBox1;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Button button3;
 		private System.Windows.Forms.Button button4;
@@ -277,6 +277,7 @@
 		private System.Windows.Forms.ToolStripMenuItem 프로그램정보ToolStripMenuItem;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.ColumnHeader columnHeader3;
+		private System.Windows.Forms.ComboBox textBox1;
 	}
 }
 

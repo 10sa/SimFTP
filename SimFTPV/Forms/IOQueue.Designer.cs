@@ -91,6 +91,7 @@
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "IOQueue";
 			this.Text = "송수신 상황";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.IOQueue_FormClosing);
 			this.Load += new System.EventHandler(this.IOQueue_Load);
 			this.ResumeLayout(false);
 

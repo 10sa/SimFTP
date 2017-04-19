@@ -36,6 +36,7 @@ namespace SimFTP.Net.Server
 
 		public TransferConfig config = new TransferConfig();
 		public AccountConfig accountConfig = new AccountConfig();
+
 		private ManualResetEvent threadEvent = new ManualResetEvent(false);
 		private ManualResetEvent threadControllEvent = new ManualResetEvent(false);
 		private ManualResetEvent lastSubroutineEvent;

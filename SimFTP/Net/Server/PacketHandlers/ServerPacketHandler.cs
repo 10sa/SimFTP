@@ -20,6 +20,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 {
 	internal class ServerPacketHandler
 	{
+		private const string AnonymousFolderName = "Anonymous";
 		private readonly AccountConfig accountConfig;
 		private readonly TransferConfig config;
 
@@ -44,7 +45,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 			this.accountConfig = accountConfig;
 
 			metadataHandler = new MetadataPacketHandler(clientSocket);
-			dataHandler = new DataPacketHandler(clientSocket);
+			dataHandler = new DataPacketHandler(clientSocket, config.GetConfigTable("Download_Folder"), bool.Parse(config.GetConfigTable("Is_Save_Date_Folder")), bool.Parse(config.GetConfigTable("Is_Overwrite")), bool.Parse(config.GetConfigTable("Is_Save_User_Folder")));
 			this.clientSocket = clientSocket;
 		}
 
@@ -63,7 +64,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 					ValidCheck(ReceivedBasicPacket, packetData, (a) => { BasicMetatdataPacketHandling(a); });
 					break;
 				case PacketType.BasicSecurity:
-					ValidCheck(ReceivedBasicSecurityPacket, packetData, (a) => { BasicSecurityDataPacektHandling(a); });
+					ValidCheck(ReceivedBasicSecurityPacket, packetData, (a) => { BasicSecurityMetadataPacketHandling(a); });
 					break;
 				case PacketType.ExpertSecurity:
 					ValidCheck(ReceivedExpertSecurityPacket, packetData, (a) => { ExpertSecurityDataPacketHandling(a); });
@@ -109,7 +110,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
 
 				for(int i = 0; i < packetData.DataCount; i++)
-				{ BasicDataPacket data = dataHandler.ReceiveBasicDataPacket(); }
+				{ BasicDataPacket data = dataHandler.ReceiveBasicDataPacket(AnonymousFolderName); }
 
 				clientSocket.Send(new InfoPacket(InfoType.Close).GetBinaryData());
 				clientSocket.Close(150);
@@ -129,7 +130,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 					if(config.GetConfigTable("Accept_Anonymous_Login") == bool.TrueString)
 					{
 						ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
-						BasicSecurityDataPacektHandling(packetData);
+						BasicSecurityDataPacektHandling(childPacket);
 
 						clientSocket.Send(new InfoPacket(InfoType.Close).GetBinaryData());
 						clientSocket.Close(150);
@@ -140,7 +141,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				else if(Util.GetHashedString(accountConfig.GetConfigTable(childPacket.Username)) == Util.GetHashedString(childPacket.Password))
 				{
 					ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
-					BasicSecurityDataPacektHandling(packetData);
+					BasicSecurityDataPacektHandling(childPacket);
 
 					clientSocket.Send(new InfoPacket(InfoType.Close).GetBinaryData());
 					clientSocket.Close(150);
@@ -152,13 +153,14 @@ namespace SimFTP.Net.Server.PacketHandlers
 				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
 		}
 
-		private void BasicSecurityDataPacektHandling(BasicMetadataPacket packetData)
+		private void BasicSecurityDataPacektHandling(BasicSecurityMetadataPacket packetData)
 		{
 			for(int i = 0; i < packetData.DataCount; i++)
 			{
-				BasicSecurityDataPacket data = dataHandler.ReceiveBasicSecurityDataPacket();
+				BasicSecurityDataPacket data = dataHandler.ReceiveBasicSecurityDataPacket(packetData.IsAnonynomus ? AnonymousFolderName : packetData.Username);
 			}
 		}
+
 		private void ExpertSecurityMetadataPacketHandling(BasicMetadataPacket packetData)
 		{
 			if(config.GetConfigTable("Accpet_Expert_Security_Packet") == bool.TrueString)
@@ -205,7 +207,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				{
 					for(int i = 0; i < packetData.DataCount; i++)
 					{
-						ExpertSecurityDataPacket data = dataHandler.ReceiveExpertSecurityDataPacket(dh.GetShareKey(clientShareInfo.ResponseData));
+						ExpertSecurityDataPacket data = dataHandler.ReceiveExpertSecurityDataPacket(dh.GetShareKey(clientShareInfo.ResponseData), "");
 					}
 				}
 			}
