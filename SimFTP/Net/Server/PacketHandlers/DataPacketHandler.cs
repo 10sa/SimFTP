@@ -63,9 +63,9 @@ namespace SimFTP.Net.Server.PacketHandlers
 			{
 				ExpertSecurityDataPacket data = new ExpertSecurityDataPacket(ReceiveBasicSecurityDataPacket(plusFolder));
 
-				using(BinaryReader reader = new BinaryReader(File.Open(data.FileName, FileMode.Open)))
+				using(BinaryReader reader = new BinaryReader(File.Open(CreateFileName(data.FileName), FileMode.Open)))
 				{
-					CryptoStream writerStream = aes.GetDencryptStream(File.Open(data.FileName + ".DENCRYPT", FileMode.Create));
+					CryptoStream writerStream = aes.GetDencryptStream(File.Open(CreateFileName(data.FileName) + ".DENCRYPT", FileMode.Create));
 
 					byte[] buffer = new byte[int.MaxValue / 8];
 					int readedBytes;
@@ -86,11 +86,9 @@ namespace SimFTP.Net.Server.PacketHandlers
 		private void GetFileData (Socket clientSocket, long fileSize, string fileName)
 		{
 			const int FileBufferSize = int.MaxValue / 8;
-			StringBuilder builder = new StringBuilder();
 			long leftFileSize = fileSize;
-			CreateFileName(fileName, builder);
 
-			using(BinaryWriter writer = new BinaryWriter(File.Create(builder.ToString(), FileBufferSize)))
+			using(BinaryWriter writer = new BinaryWriter(File.Create(CreateFileName(fileName), FileBufferSize)))
 			{
 				byte[] buffer = new byte[FileBufferSize];
 				while(leftFileSize > buffer.Length)
@@ -114,8 +112,9 @@ namespace SimFTP.Net.Server.PacketHandlers
 			GC.Collect();
 		}
 
-		private void CreateFileName(string fileName, StringBuilder builder)
+		private string CreateFileName(string fileName)
 		{
+			StringBuilder builder = new StringBuilder();
 			if(saveFolder != string.Empty)
 				builder.Append(saveFolder + "/");
 			else
@@ -135,7 +134,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				if(!File.Exists(builder.ToString() + fileName))
 				{
 					builder.Append(fileName);
-					return;
+					return builder.ToString();
 				}
 					
 				string[] splitName = fileName.Split('.');
@@ -150,10 +149,13 @@ namespace SimFTP.Net.Server.PacketHandlers
 						break;
 					}
 				}
+
+				return builder.ToString();
 			}
 			else
 			{
 				builder.Append(fileName);
+				return builder.ToString();
 			}
 		}
 	}

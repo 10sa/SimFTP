@@ -45,7 +45,13 @@ namespace SimFTP.Net.Server.PacketHandlers
 			this.accountConfig = accountConfig;
 
 			metadataHandler = new MetadataPacketHandler(clientSocket);
-			dataHandler = new DataPacketHandler(clientSocket, config.GetConfigTable("Download_Folder"), bool.Parse(config.GetConfigTable("Is_Save_Date_Folder")), bool.Parse(config.GetConfigTable("Is_Overwrite")), bool.Parse(config.GetConfigTable("Is_Save_User_Folder")));
+			dataHandler = new DataPacketHandler(clientSocket, 
+				config.GetConfigTable(TransferConfig.DownloadDirectory), 
+				bool.Parse(config.GetConfigTable(TransferConfig.IsSaveDateDirectory)), 
+				bool.Parse(config.GetConfigTable(TransferConfig.IsOverwrite)),
+				bool.Parse(config.GetConfigTable(TransferConfig.IsSaveUserDirectory))
+			);
+
 			this.clientSocket = clientSocket;
 		}
 

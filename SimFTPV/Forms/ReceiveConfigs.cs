@@ -25,6 +25,7 @@ namespace SimFTPV.Forms
 		private const string DataLoading = "불러오는 중...";
 		private const string WrongFolderDirectory = "잘못된 폴더 경로입니다.";
 		private const string Warning = "경고";
+		private bool _IsLoaded = false;
 
 		private readonly Dictionary<string, string> ConfigDesc = new Dictionary<string, string>()
 		{
@@ -34,7 +35,7 @@ namespace SimFTPV.Forms
 			{ TransferConfig.AccpetAnonymousUser, "익명 접속 승인" },
 			{ TransferConfig.IsOverwrite, "덮어 씌우기 여부" },
 			{ TransferConfig.IsSaveDateDirectory, "시간 폴더에 저장 여부" },
-			{ TransferConfig.IsSaveUserDirectory, "송신자 이름 폴더에 저장 여부" },
+			{ TransferConfig.IsSaveUserDirectory, "송신자 이름 폴더 생성 후 저장 여부" },
 		};
 
 		Server server;
@@ -43,6 +44,9 @@ namespace SimFTPV.Forms
 		{
 			InitializeComponent();
 			server = cfg;
+
+			listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+			listView2.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
 
 			textBox1.Text = DataLoading;
 			textBox2.Text = DataLoading;
@@ -66,6 +70,7 @@ namespace SimFTPV.Forms
 			RefreshConfigList();
 			RefreshAccountList();
 			textBox3.Text = server.config.GetConfigTable(TransferConfig.DownloadDirectory);
+			_IsLoaded = true;
 		}
 
 		private string GetPublicAddress()
@@ -109,7 +114,8 @@ namespace SimFTPV.Forms
 				listView1.Items.Add(item);
 			}
 
-			listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+			if(listView1.Items.Count > 0)
+				listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 		}
 
 		private void RefreshAccountList()
@@ -122,7 +128,8 @@ namespace SimFTPV.Forms
 				listView2.Items.Add(items);
 			}
 
-			listView2.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+			if(listView2.Items.Count > 0)
+				listView2.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -149,16 +156,17 @@ namespace SimFTPV.Forms
 
 		private void listView1_ItemCheck(object sender, ItemCheckEventArgs e)
 		{
-			if(e.NewValue == CheckState.Checked)
-				listView1.Items[e.Index].SubItems[1].Text = bool.TrueString;
-			else
-				listView1.Items[e.Index].SubItems[1].Text = bool.FalseString;
+			if(_IsLoaded)
+			{
+				if(e.NewValue == CheckState.Checked)
+					listView1.Items[e.Index].SubItems[1].Text = bool.TrueString;
+				else
+					listView1.Items[e.Index].SubItems[1].Text = bool.FalseString;
 
-			string key;
-			ConfigDesc.TryGetValue(listView1.Items[e.Index].SubItems[0].Text, out key);
-
-			if(!string.IsNullOrEmpty(key))
-				server.config.SetConfigTable(key, listView1.Items[e.Index].SubItems[1].Text);
+				var data = ConfigDesc.FirstOrDefault(x => x.Value == listView1.Items[e.Index].SubItems[0].Text);
+				if(!string.IsNullOrEmpty(data.Key))
+					server.config.SetConfigTable(data.Key, listView1.Items[e.Index].SubItems[1].Text);
+			}
 		}
 
 
@@ -201,6 +209,8 @@ namespace SimFTPV.Forms
 				if(!DownloadFolderValidCheck())
 					e.Cancel = true;
 			}
+			else
+				_IsLoaded = false;
 		}
 	}
 }

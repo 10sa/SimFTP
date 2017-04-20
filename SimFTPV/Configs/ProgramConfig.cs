@@ -10,12 +10,15 @@ namespace SimFTPV.Configs
 {
 	public class ProgramConfig : ConfigManager
 	{
+		public const string UsingProgramTray = "Using_Program_Tray";
+		public const string NotifyAcceptEvent = "Notify_Packet_Accept";
+
 		public ProgramConfig() : base("ProgramConfig.cfg") { }
 
 		protected override void InitializeConfig()
 		{
-			ConfigTable.Add("Using_Program_Tray", bool.TrueString);
-			ConfigTable.Add("Notify_Packet_Accept", bool.FalseString);
+			ConfigTable.Add(UsingProgramTray, bool.TrueString);
+			ConfigTable.Add(NotifyAcceptEvent, bool.FalseString);
 		}
 	}
 }

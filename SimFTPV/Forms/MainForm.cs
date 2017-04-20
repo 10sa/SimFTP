@@ -90,7 +90,7 @@ namespace SimFTPV.Forms
 
 		private void Server_ReceivedBasicPacket(ServerEventArgs args)
 		{
-			if(programConfig.GetConfigTable("Notify_Packet_Accept") == bool.FalseString)
+			if(programConfig.GetConfigTable(ProgramConfig.NotifyAcceptEvent) == bool.FalseString)
 				return;
 
 			if(this.Visible)
@@ -195,7 +195,7 @@ namespace SimFTPV.Forms
 
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			if(e.CloseReason == CloseReason.ApplicationExitCall || programConfig.GetConfigTable("Using_Program_Tray") == bool.FalseString)
+			if(e.CloseReason == CloseReason.ApplicationExitCall || programConfig.GetConfigTable(ProgramConfig.UsingProgramTray) == bool.FalseString)
 			{
 				notifyIcon1.Visible = false;
 				return;
@@ -234,7 +234,7 @@ namespace SimFTPV.Forms
 
 		private void SendingCallback(ClientEventArgs args)
 		{
-			notifyIcon1.ShowBalloonTip(notifyShowTime, SendingCompleted, args.ClientAddress + SuccessfulSending, ToolTipIcon.Info);
+			notifyIcon1.ShowBalloonTip(notifyShowTime, SendingCompleted, args.ClientAddress + " " + SuccessfulSending, ToolTipIcon.Info);
 			Invoke((MethodInvoker)delegate { IOQueueForm.RemoveClientQueue(); });
 		}
 
@@ -264,7 +264,11 @@ namespace SimFTPV.Forms
 			}
 			catch(Exception excpt)
 			{
-				throw; // notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
+				if(excpt.Message.Contains("ERROR CODE :"))
+				{
+					excpt.Message.Split("ERROR CODE :", StringSplitOptions.RemoveEmptyEntries);
+				}
+				notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
 			}
 		}
 

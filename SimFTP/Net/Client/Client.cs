@@ -54,6 +54,7 @@ namespace SimFTP.Net.Client
 		private readonly string[] ServerAddress;
 		private const int ServerPort = 44335;
 		private Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+		private string ClientAddress;
 		private delegate void HandlerCallerDelegate();
 
 		#endregion
@@ -120,16 +121,16 @@ namespace SimFTP.Net.Client
 				foreach(var address in ServerAddress)
 				{
 					clientSocket.Connect(address, ServerPort);
+					ClientAddress = ShareNetUtil.GetRemotePointAddress(clientSocket);
 
 					try
 					{
 						work();
 
-						SendingCompleted(new ClientEventArgs("", ShareNetUtil.GetRemotePointAddress(clientSocket)));
+						SendingCompleted(new ClientEventArgs("", ClientAddress));
 					}
 					catch(Exception e)
 					{
-						SendingCompleted(new ClientEventArgs(e.Message, ShareNetUtil.GetRemotePointAddress(clientSocket)));
 						throw;
 					}
 					finally
