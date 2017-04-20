@@ -158,7 +158,7 @@
 			this.textBox3.Name = "textBox3";
 			this.textBox3.Size = new System.Drawing.Size(303, 21);
 			this.textBox3.TabIndex = 9;
-			this.textBox3.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
+			this.textBox3.Leave += new System.EventHandler(this.textBox3_Leave);
 			// 
 			// button3
 			// 
@@ -200,6 +200,7 @@
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "ReceiveConfigs";
 			this.Text = "수신 설정";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ReceiveConfigs_FormClosing);
 			this.Load += new System.EventHandler(this.ReceiveConfigs_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();

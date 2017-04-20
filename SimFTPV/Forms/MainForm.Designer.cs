@@ -55,7 +55,7 @@
 			this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.종료ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-			this.textBox1 = new System.Windows.Forms.ComboBox();
+			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.menuStrip1.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -220,10 +220,9 @@
 			// 
 			// textBox1
 			// 
-			this.textBox1.FormattingEnabled = true;
-			this.textBox1.Location = new System.Drawing.Point(159, 409);
+			this.textBox1.Location = new System.Drawing.Point(161, 408);
 			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(453, 20);
+			this.textBox1.Size = new System.Drawing.Size(451, 21);
 			this.textBox1.TabIndex = 8;
 			// 
 			// MainForm
@@ -277,7 +276,7 @@
 		private System.Windows.Forms.ToolStripMenuItem 프로그램정보ToolStripMenuItem;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.ColumnHeader columnHeader3;
-		private System.Windows.Forms.ComboBox textBox1;
+		private System.Windows.Forms.TextBox textBox1;
 	}
 }
 

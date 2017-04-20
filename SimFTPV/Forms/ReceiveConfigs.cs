@@ -8,8 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
+using System.IO;
+
 
 using SimFTP.Net.Server;
+using SimFTP.Config;
 
 namespace SimFTPV.Forms
 {
@@ -20,6 +23,20 @@ namespace SimFTPV.Forms
 		private const string UserRemove = "사용자 삭제";
 		private const string AddressGetFailure = "불러오기 실패";
 		private const string DataLoading = "불러오는 중...";
+		private const string WrongFolderDirectory = "잘못된 폴더 경로입니다.";
+		private const string Warning = "경고";
+
+		private readonly Dictionary<string, string> ConfigDesc = new Dictionary<string, string>()
+		{
+			{ TransferConfig.AcceptDefaultPacket, "기본 모드 승인" },
+			{ TransferConfig.AcceptBasicSecurityPacket, "기초 보안 모드 승인" },
+			{ TransferConfig.AcceptExpertSecurityPacket, "전문 보안 모드 승인" },
+			{ TransferConfig.AccpetAnonymousUser, "익명 접속 승인" },
+			{ TransferConfig.IsOverwrite, "덮어 씌우기 여부" },
+			{ TransferConfig.IsSaveDateDirectory, "시간 폴더에 저장 여부" },
+			{ TransferConfig.IsSaveUserDirectory, "송신자 이름 폴더에 저장 여부" },
+		};
+
 		Server server;
 
 		public ReceiveConfigs(ref Server cfg)
@@ -31,8 +48,7 @@ namespace SimFTPV.Forms
 			textBox2.Text = DataLoading;
 
 			BackgroundWorker worker = new BackgroundWorker();
-			worker.DoWork += (a, b) =>
-			{
+			worker.DoWork += (a, b) => {
 				b.Result = new string[] { GetPublicAddress(), GetLocalIPv4Address() };
 			};
 
@@ -49,7 +65,7 @@ namespace SimFTPV.Forms
 		{
 			RefreshConfigList();
 			RefreshAccountList();
-			textBox3.Text = server.config.GetConfigTable("Download_Folder");
+			textBox3.Text = server.config.GetConfigTable(TransferConfig.DownloadDirectory);
 		}
 
 		private string GetPublicAddress()
@@ -79,22 +95,20 @@ namespace SimFTPV.Forms
 		{
 			foreach(var config in server.config.ConfigTable)
 			{
-				if(config.Key == "Download_Folder")
+				if(config.Key == TransferConfig.DownloadDirectory)
 					continue;
 
-				ListViewItem items = new ListViewItem(config.Key);
-				items.SubItems.Add(config.Value);
+				ListViewItem item = new ListViewItem(ConfigDesc[config.Key]);
+				item.SubItems.Add(config.Value);
 
-				listView1.Items.Add(items);
-			}
-
-			foreach(ListViewItem item in listView1.Items)
-			{
 				if(item.SubItems[1].Text == bool.TrueString)
 					item.Checked = true;
 				else
 					item.Checked = false;
+
+				listView1.Items.Add(item);
 			}
+
 			listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 		}
 
@@ -140,20 +154,52 @@ namespace SimFTPV.Forms
 			else
 				listView1.Items[e.Index].SubItems[1].Text = bool.FalseString;
 
-			server.config.SetConfigTable(listView1.Items[e.Index].SubItems[0].Text, listView1.Items[e.Index].SubItems[1].Text);
+			string key;
+			ConfigDesc.TryGetValue(listView1.Items[e.Index].SubItems[0].Text, out key);
+
+			if(!string.IsNullOrEmpty(key))
+				server.config.SetConfigTable(key, listView1.Items[e.Index].SubItems[1].Text);
 		}
 
-		private void textBox3_TextChanged(object sender, EventArgs e)
-		{
-			server.config.SetConfigTable("Download_Folder", textBox3.Text);
-		}
 
 		private void button3_Click(object sender, EventArgs e)
 		{
 			if(folderBrowserDialog1.ShowDialog() == DialogResult.OK)
 			{
 				textBox3.Text = folderBrowserDialog1.SelectedPath;
-				server.config.SetConfigTable("Download_Folder", textBox3.Text);
+				server.config.SetConfigTable(TransferConfig.DownloadDirectory, textBox3.Text);
+			}
+		}
+
+		private void textBox3_Leave(object sender, EventArgs e)
+		{
+			DownloadFolderValidCheck();
+		}
+
+		private bool DownloadFolderValidCheck()
+		{
+			if(!Directory.Exists(textBox3.Text) && textBox3.Text != string.Empty)
+			{
+				MessageBox.Show(WrongFolderDirectory, Warning, MessageBoxButtons.OK);
+				server.config.SetConfigTable(TransferConfig.DownloadDirectory, "");
+				textBox3.Text = "";
+				textBox3.Select();
+
+				return false;
+			}
+			else
+			{
+				server.config.SetConfigTable(TransferConfig.DownloadDirectory, textBox3.Text);
+				return true;
+			}
+		}
+
+		private void ReceiveConfigs_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			if(e.CloseReason == CloseReason.UserClosing)
+			{
+				if(!DownloadFolderValidCheck())
+					e.Cancel = true;
 			}
 		}
 	}
