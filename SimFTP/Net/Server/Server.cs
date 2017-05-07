@@ -51,6 +51,7 @@ namespace SimFTP.Net.Server
 		public event ServerTransferEvent ClientSendErrorPacekt = delegate { };
 		public event ServerTransferEvent ReceiveErrorData = delegate { };
 
+        public event ServerTransferEvent ClientInvalidCast = delegate { };
 		public event ServerTransferEvent ReceivedBasicPacket = delegate { };
 		public event ServerTransferEvent ReceivedBasicSecurityPacket = delegate { };
 		public event ServerTransferEvent ReceivedExpertSecurityPacket = delegate { };
@@ -194,6 +195,7 @@ namespace SimFTP.Net.Server
 			handler.ReceivedErrorPacket += ReceivedErrorPacket;
 			handler.ReceivedInvaildPacket += ReceivedInvaildPacket;
 			handler.ReceiveEnd += ReceiveEnd;
+            handler.ClientInvaliData += ClientInvalidCast;
 
 			handler.StartHandling();
 		}

@@ -129,7 +129,7 @@ namespace SimFTP.Net.Client
 
 						SendingCompleted(new ClientEventArgs("", ClientAddress));
 					}
-					catch(Exception e)
+					catch(Exception)
 					{
 						throw;
 					}

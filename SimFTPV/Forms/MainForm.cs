@@ -78,6 +78,11 @@ namespace SimFTPV.Forms
 			server.ReceiveEnd += Server_ReceiveEndCallback;
 		}
 
+        private void Server_ClientInvalid(ServerEventArgs args)
+        {
+            Invoke((MethodInvoker)delegate () { IOQueueForm.RemoveServerQueue(); });
+        }
+
 		private void Server_ConnectedCallback(ServerEventArgs args)
 		{
 			Invoke((MethodInvoker)delegate () { IOQueueForm.AddServerQueue(args.ClientAddress); });
@@ -266,10 +271,15 @@ namespace SimFTPV.Forms
 			{
 				if(excpt.Message.Contains("ERROR CODE :"))
 				{
-					excpt.Message.Split("ERROR CODE :", StringSplitOptions.RemoveEmptyEntries);
+					// excpt.Message.Split("ERROR CODE :", StringSplitOptions.RemoveEmptyEntries);
 				}
+
 				notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
 			}
+            finally
+            {
+                Invoke((MethodInvoker)delegate () { IOQueueForm.RemoveClientQueue(); });
+            }
 		}
 
 		private void SendingExpertDataFiles(Client client, string[] items)

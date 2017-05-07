@@ -36,6 +36,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 		public event ServerTransferEvent ReceivedErrorPacket = delegate { };
 		public event ServerTransferEvent ReceivedInvaildPacket = delegate { };
 		public event ServerTransferEvent ReceiveEnd = delegate { };
+        public event ServerTransferEvent ClientInvaliData = delegate { };
 
 		#endregion
 
@@ -106,7 +107,10 @@ namespace SimFTP.Net.Server.PacketHandlers
 			if(!eventArg.Cancel)
 				work(packetData);
 			else
-				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+            {
+                ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+                ClientInvaliData(new ServerEventArgs(ErrorType.Not_Accepted_Packet.ToString(), ShareNetUtil.GetRemotePointAddress(clientSocket)));
+            }
 		}
 
 		private void BasicMetatdataPacketHandling (BasicMetadataPacket packetData)
@@ -122,7 +126,10 @@ namespace SimFTP.Net.Server.PacketHandlers
 				clientSocket.Close(150);
 			}
 			else
-				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+            {
+                ClientInvaliData(new ServerEventArgs(ErrorType.Not_Accepted_Packet.ToString(), ShareNetUtil.GetRemotePointAddress(clientSocket)));
+                ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+            }
 		}
 
 		private void BasicSecurityMetadataPacketHandling (BasicMetadataPacket packetData)
@@ -142,7 +149,10 @@ namespace SimFTP.Net.Server.PacketHandlers
 						clientSocket.Close(150);
 					}
 					else
-						ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
+                    {
+                        ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
+                        ClientInvaliData(new ServerEventArgs(ErrorType.Not_Accepted_Anonymous.ToString(), ShareNetUtil.GetRemotePointAddress(clientSocket)));
+                    }
 				}
 				else if(Util.GetHashedString(accountConfig.GetConfigTable(childPacket.Username)) == Util.GetHashedString(childPacket.Password))
 				{
@@ -153,10 +163,16 @@ namespace SimFTP.Net.Server.PacketHandlers
 					clientSocket.Close(150);
 				}
 				else
-					ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Wrong_Certificate);
+                {
+                    ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Wrong_Certificate);
+                    ClientInvaliData(new ServerEventArgs(ErrorType.Wrong_Certificate.ToString(), ShareNetUtil.GetRemotePointAddress(clientSocket)));
+                }
 			}
 			else
-				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+            {
+                ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+                ClientInvaliData(new ServerEventArgs(ErrorType.Not_Accepted_Packet.ToString(), ShareNetUtil.GetRemotePointAddress(clientSocket)));
+            }
 		}
 
 		private void BasicSecurityDataPacektHandling(BasicSecurityMetadataPacket packetData)
@@ -183,7 +199,10 @@ namespace SimFTP.Net.Server.PacketHandlers
 						clientSocket.Close(150);
 					}
 					else
-						ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
+                    {
+                        ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Anonymous);
+                        ClientInvaliData(new ServerEventArgs(ErrorType.Not_Accepted_Anonymous.ToString(), ShareNetUtil.GetRemotePointAddress(clientSocket)));
+                    }
 				}
 				else if(Util.GetHashedString(accountConfig.GetConfigTable(childPacket.Username)) == Util.GetHashedString(childPacket.Password))
 				{
@@ -195,7 +214,10 @@ namespace SimFTP.Net.Server.PacketHandlers
 				}
 			}
 			else
-				ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+            {
+                ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Not_Accepted_Packet);
+                ClientInvaliData(new ServerEventArgs(ErrorType.Not_Accepted_Packet.ToString(), ShareNetUtil.GetRemotePointAddress(clientSocket)));
+            }
 		}
 
 		private void ExpertSecurityDataPacketHandling(BasicMetadataPacket packetData)
@@ -208,7 +230,10 @@ namespace SimFTP.Net.Server.PacketHandlers
 				InfoPacket clientShareInfo = ShareNetUtil.ReceiveInfoPacket(clientSocket);
 
 				if(clientShareInfo.ResponseData == null)
-					ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Security_Alert);
+                {
+                    ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Security_Alert);
+                    ClientInvaliData(new ServerEventArgs(ErrorType.Security_Alert.ToString(), ShareNetUtil.GetRemotePointAddress(clientSocket)));
+                }
 				else
 				{
 					for(int i = 0; i < packetData.DataCount; i++)
