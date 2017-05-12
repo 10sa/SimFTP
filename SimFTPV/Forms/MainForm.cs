@@ -275,11 +275,9 @@ namespace SimFTPV.Forms
 				}
 
 				notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
+				// Invalid Check Require //
+				Invoke((MethodInvoker)delegate () { IOQueueForm.RemoveClientQueue(); });
 			}
-            finally
-            {
-                Invoke((MethodInvoker)delegate () { IOQueueForm.RemoveClientQueue(); });
-            }
 		}
 
 		private void SendingExpertDataFiles(Client client, string[] items)

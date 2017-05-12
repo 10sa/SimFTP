@@ -74,7 +74,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 					ValidCheck(ReceivedBasicSecurityPacket, packetData, (a) => { BasicSecurityMetadataPacketHandling(a); });
 					break;
 				case PacketType.ExpertSecurity:
-					ValidCheck(ReceivedExpertSecurityPacket, packetData, (a) => { ExpertSecurityDataPacketHandling(a); });
+					ValidCheck(ReceivedExpertSecurityPacket, packetData, (a) => { ExpertSecurityMetadataPacketHandling(a); });
 					break;
 				case PacketType.Info:
 					ReceiveInfoPacketHandling(clientSocket);
@@ -193,7 +193,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				{
 					if(config.GetConfigTable("Accept_Anonymous_Login") == bool.TrueString)
 					{
-						ExpertSecurityDataPacketHandling(packetData);
+						ExpertSecurityDataPacketHandling(childPacket);
 
 						clientSocket.Send(new InfoPacket(InfoType.Close).GetBinaryData());
 						clientSocket.Close(150);
@@ -207,7 +207,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				else if(Util.GetHashedString(accountConfig.GetConfigTable(childPacket.Username)) == Util.GetHashedString(childPacket.Password))
 				{
 					ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept);
-					ExpertSecurityDataPacketHandling(packetData);
+					ExpertSecurityDataPacketHandling(childPacket);
 
 					clientSocket.Send(new InfoPacket(InfoType.Close).GetBinaryData());
 					clientSocket.Close(150);
@@ -220,16 +220,13 @@ namespace SimFTP.Net.Server.PacketHandlers
             }
 		}
 
-		private void ExpertSecurityDataPacketHandling(BasicMetadataPacket packetData)
+		private void ExpertSecurityDataPacketHandling(ExpertSecurityMetadataPacket packetData)
 		{
 			using(DH521Manager dh = new DH521Manager())
 			{
 				ShareNetUtil.SendInfoPacket(clientSocket, InfoType.Accept, dh.PublicKey);
 
-				// Receive Client Share Key
-				InfoPacket clientShareInfo = ShareNetUtil.ReceiveInfoPacket(clientSocket);
-
-				if(clientShareInfo.ResponseData == null)
+				if(packetData.PublicKey == null)
                 {
                     ServerNetUtil.SendErrorPacket(clientSocket, ErrorType.Security_Alert);
                     ClientInvaliData(new ServerEventArgs(ErrorType.Security_Alert.ToString(), ShareNetUtil.GetRemotePointAddress(clientSocket)));
@@ -238,7 +235,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 				{
 					for(int i = 0; i < packetData.DataCount; i++)
 					{
-						ExpertSecurityDataPacket data = dataHandler.ReceiveExpertSecurityDataPacket(dh.GetShareKey(clientShareInfo.ResponseData), "");
+						ExpertSecurityDataPacket data = dataHandler.ReceiveExpertSecurityDataPacket(dh.GetShareKey(packetData.PublicKey), "");
 					}
 				}
 			}

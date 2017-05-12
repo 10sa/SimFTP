@@ -181,7 +181,6 @@ namespace SimFTP.Net.Client
 					clientSocket.Send(new ExpertSecurityMetadataPacket(files.Length, dhManager.PublicKey).GetBinaryData());
 
 				InfoPacket infoPacket = InfoExchangeHandler();
-				ShareNetUtil.SendInfoPacket(clientSocket, InfoType.ShareKey, dhManager.PublicKey);
 				byte[] shareKey = dhManager.GetShareKey(infoPacket.ResponseData);
 
 				using(AES256Manager aesManager = new AES256Manager(shareKey))

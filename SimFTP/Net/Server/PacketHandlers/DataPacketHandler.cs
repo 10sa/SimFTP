@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 
 using SimFTP;
@@ -62,10 +63,11 @@ namespace SimFTP.Net.Server.PacketHandlers
 			using(AES256Manager aes = new AES256Manager(shareKey))
 			{
 				ExpertSecurityDataPacket data = new ExpertSecurityDataPacket(ReceiveBasicSecurityDataPacket(plusFolder));
+				string fileName = CreateFileName(data.FileName, true);
 
-				using(BinaryReader reader = new BinaryReader(File.Open(CreateFileName(data.FileName), FileMode.Open)))
+				using (BinaryReader reader = new BinaryReader(File.Open(fileName, FileMode.Open)))
 				{
-					CryptoStream writerStream = aes.GetDencryptStream(File.Open(CreateFileName(data.FileName) + ".DENCRYPT", FileMode.Create));
+					CryptoStream writerStream = aes.GetDencryptStream(File.Open(fileName + ".DENCRYPT", FileMode.Create));
 
 					byte[] buffer = new byte[int.MaxValue / 8];
 					int readedBytes;
@@ -76,8 +78,8 @@ namespace SimFTP.Net.Server.PacketHandlers
 					writerStream.Dispose();
 				}
 
-				File.Delete(data.FileName);
-				File.Move(data.FileName + ".DENCRYPT", data.FileName);
+				File.Delete(fileName);
+				File.Move(fileName + ".DENCRYPT", fileName);
 
 				return data;
 			}
@@ -112,7 +114,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 			GC.Collect();
 		}
 
-		private string CreateFileName(string fileName)
+		private string CreateFileName(string fileName, bool getExist = false)
 		{
 			StringBuilder builder = new StringBuilder();
 			if(saveFolder != string.Empty)
@@ -129,9 +131,9 @@ namespace SimFTP.Net.Server.PacketHandlers
 			if(!Directory.Exists(builder.ToString()))
 				Directory.CreateDirectory(builder.ToString());
 
-			if(!isOverwrite)
+			if (!isOverwrite)
 			{
-				if(!File.Exists(builder.ToString() + fileName))
+				if (!File.Exists(builder.ToString() + fileName) || getExist)
 				{
 					builder.Append(fileName);
 					return builder.ToString();
@@ -143,7 +145,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 
 				for(int i = 1; ; i++)
 				{
-					if(!File.Exists(string.Format(builder.ToString() + " ({0}).{1}", i, splitName.Last())))
+					if (!File.Exists(string.Format(builder.ToString() + " ({0}).{1}", i, splitName.Last())) || getExist)
 					{
 						builder.Append(string.Format(" ({0}).{1}", i, splitName.Last()));
 						break;
