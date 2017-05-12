@@ -269,12 +269,8 @@ namespace SimFTPV.Forms
 			}
 			catch(Exception excpt)
 			{
-				if(excpt.Message.Contains("ERROR CODE :"))
-				{
-					// excpt.Message.Split("ERROR CODE :", StringSplitOptions.RemoveEmptyEntries);
-				}
-
 				notifyIcon1.ShowBalloonTip(notifyShowTime, sendingFailure, excpt.Message, ToolTipIcon.Error);
+
 				// Invalid Check Require //
 				Invoke((MethodInvoker)delegate () { IOQueueForm.RemoveClientQueue(); });
 			}
