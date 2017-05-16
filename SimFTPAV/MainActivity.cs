@@ -12,7 +12,17 @@ namespace SimFTPAV
             base.OnCreate(bundle);
 
             // Set our view from the "main" layout resource
-            SetContentView (Resource.Layout.Main);
+            SetContentView (Resource.Layout.MainForm);
+
+			Button btnMain = FindViewById<Button>(Resource.Id.button1);
+			TextView lblText = FindViewById<TextView>(Resource.Id.textView1);
+			
+			btnMain.Click += delegate { 
+				btnMain.Text = "Clicked!";
+				lblText.Text = "Clicked!";
+			};
+
+			return;
         }
     }
 }

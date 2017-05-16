@@ -133,7 +133,7 @@
 			// 
 			// columnHeader1
 			// 
-			this.columnHeader1.Text = "파일";
+			this.columnHeader1.Text = "송신 파일 이름";
 			this.columnHeader1.Width = 596;
 			// 
 			// columnHeader2
