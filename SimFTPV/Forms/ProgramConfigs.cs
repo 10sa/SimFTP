@@ -42,11 +42,10 @@ namespace SimFTPV.Forms
 		{	
 			if(!_isLoadedConfigs_)
 			{
-				string key;
-				ConfigDesc.TryGetValue((string)checkedListBox1.Items[e.Index], out key);
+				var data = ConfigDesc.FirstOrDefault(x => x.Value == checkedListBox1.Items[e.Index].ToString());
 
-				if(!string.IsNullOrEmpty(key))
-					config.SetConfigTable(key, e.NewValue == CheckState.Checked ? bool.TrueString : bool.FalseString);
+				if (!string.IsNullOrEmpty(data.Key))
+					config.SetConfigTable(data.Key, e.NewValue == CheckState.Checked ? bool.TrueString : bool.FalseString);
 			}
 		}
 	}
