@@ -17,6 +17,8 @@ using System.Net;
 using System.Threading;
 using System.Net.Sockets;
 
+using SimFTP.Enums;
+
 namespace SimFTP.Net.Server.PacketHandlers
 {
 	internal class MetadataPacketHandler

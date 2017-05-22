@@ -12,6 +12,7 @@ namespace SimFTPV.Configs
 	{
 		public const string UsingProgramTray = "Using_Program_Tray";
 		public const string NotifyAcceptEvent = "Notify_Packet_Accept";
+		public const string UsingCacheBox = "Using_Cache_Box";
 
 		public ProgramConfig() : base("ProgramConfig.cfg") { }
 
@@ -19,6 +20,7 @@ namespace SimFTPV.Configs
 		{
 			ConfigTable.Add(UsingProgramTray, bool.TrueString);
 			ConfigTable.Add(NotifyAcceptEvent, bool.FalseString);
+			ConfigTable.Add(UsingCacheBox, bool.FalseString);
 		}
 	}
 }

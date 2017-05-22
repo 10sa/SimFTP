@@ -12,6 +12,8 @@ using SimFTP.Net.DataPackets;
 using SimFTP.Net.MetadataPackets;
 using SimFTP.Security;
 
+using SimFTP.Enums;
+
 using System.Net;
 using System.Threading;
 using System.Net.Sockets;

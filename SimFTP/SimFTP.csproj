@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\TransferConfig.cs" />
+    <Compile Include="Enums\PacketType.cs" />
     <Compile Include="Net\Client\Client.cs" />
     <Compile Include="Net\DataPackets\BasicSecurityDataPacket.cs" />
     <Compile Include="Net\DataPackets\BasicDataPacket.cs" />

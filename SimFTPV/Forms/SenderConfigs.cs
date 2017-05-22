@@ -10,6 +10,7 @@ using System.Windows.Forms;
 
 using SimFTP.Net.MetadataPackets;
 using SimFTPV.Configs;
+using SimFTP.Enums;
 
 namespace SimFTPV.Forms
 {

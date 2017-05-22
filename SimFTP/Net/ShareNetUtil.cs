@@ -15,6 +15,8 @@ using System.Net;
 using System.Threading;
 using System.Net.Sockets;
 
+using SimFTP.Enums;
+
 namespace SimFTP.Net
 {
 	public static class ShareNetUtil

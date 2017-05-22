@@ -12,12 +12,15 @@ using System.Threading;
 
 
 using SimFTP.Net.Server;
+using SimFTP.Net;
 using SimFTP.Net.Client;
 using SimFTP.Net.DataPackets;
 using SimFTP.Net.MetadataPackets;
 
 using SimFTPV.Forms;
 using SimFTPV.Configs;
+
+using SimFTP.Enums;
 
 namespace SimFTPV.Forms
 {
@@ -44,11 +47,6 @@ namespace SimFTPV.Forms
 		private const string noAddedFiles = "추가된 파일이 없습니다.";
 		private const string noFiles = "파일 없음";
 
-		#endregion
-
-		#region Private Const Config Values
-
-		private const int notifyShowTime = 1;
 		private const string SendingCompleted = "송신 완료";
 		private const string SuccessfulSending = "파일이 성공적으로 전송되었습니다.";
 		private const string IsReceiveClient = "{0} 으로 부터 데이터를 수신할까요?";
@@ -56,17 +54,23 @@ namespace SimFTPV.Forms
 		private const string CreditMessageBoxDesc = "이 프로그램은 MIT 라이센스 조건 하에 모든 사용이 허가됩니다.\n아이콘 출처 www.iconfinder.com/icons/103291/arrow_down_full_icon";
 		private const string CreditMessageBoxName = "프로그램 정보";
 
+		private const int notifyShowTime = 1;
+
 		#endregion
 
 		// ICON LINK : https://www.iconfinder.com/icons/103291/arrow_down_full_icon //
 
 		#region Private Field 
-		
+
 		private SendConfig sendConfig = new SendConfig();
 		private ProgramConfig programConfig = new ProgramConfig();
+		private CacheConfigs cacheConfig = new CacheConfigs();
+
 		private Server server = new Server();
         private IOQueue IOQueueForm = new IOQueue();
 		private ManualResetEvent LastClientEvent;
+
+		private ComboBox overrideTextBox;
 
 		#endregion
 
@@ -76,6 +80,25 @@ namespace SimFTPV.Forms
 			server.ReceivedBasicPacket += Server_ReceivedBasicPacket;
 			server.ConnectedClient += Server_ConnectedCallback;
 			server.ReceiveEnd += Server_ReceiveEndCallback;
+
+			if (programConfig.GetConfigTable(ProgramConfig.UsingCacheBox) == bool.TrueString)
+			{
+				textBox1.Visible = false;
+				overrideTextBox = new ComboBox();
+				overrideTextBox.Size = textBox1.Size;
+				overrideTextBox.Location = textBox1.Location;
+				overrideTextBox.Anchor = textBox1.Anchor;
+				overrideTextBox.TextChanged += (a, b) =>
+				{
+					// Override //
+					textBox1.Text = ((ComboBox)a).Text;
+				};
+
+				foreach(var item in cacheConfig.GetAllCacheValue())
+					overrideTextBox.Items.Add(item);
+
+				this.Controls.Add(overrideTextBox);
+			}
 		}
 
         private void Server_ClientInvalid(ServerEventArgs args)
@@ -260,12 +283,7 @@ namespace SimFTPV.Forms
 				if(client.WaitingEvent != null)
 					client.WaitingEvent.WaitOne();
 
-				if(client.SendType == PacketType.BasicFrame)
-					SendingBasicDataFiles(client, items);
-				else if(client.SendType == PacketType.BasicSecurity)
-					SendingBasicSecurityFiles(client, items);
-				else if(client.SendType == PacketType.ExpertSecurity)
-					SendingExpertDataFiles(client, items);
+				SendingDataFiles(client, items, client.SendType);
 			}
 			catch(Exception excpt)
 			{
@@ -276,45 +294,47 @@ namespace SimFTPV.Forms
 			}
 		}
 
-		private void SendingExpertDataFiles(Client client, string[] items)
+		private void SendingDataFiles(Client client, string[] files, PacketType packetType)
 		{
-			List<ExpertSecurityDataPacket> files = new List<ExpertSecurityDataPacket>();
+			List<BasicDataPacket> fileList = new List<BasicDataPacket>();
 
-			foreach(var value in items)
+			foreach (var value in files)
 			{
-				FileInfo fileInfo = new FileInfo(value);
-				files.Add(new ExpertSecurityDataPacket(new BasicDataPacket(fileInfo.Name, File.Open(fileInfo.FullName, FileMode.Open))));
+				if (File.Exists(value))
+				{
+					FileInfo fileInfo = new FileInfo(value);
+
+					switch (packetType)
+					{
+						case PacketType.BasicFrame:
+							fileList.Add(new BasicDataPacket(value, File.Open(fileInfo.Name, FileMode.Open)));
+							break;
+						case PacketType.BasicSecurity:
+							fileList.Add(new BasicSecurityDataPacket(value, File.Open(fileInfo.Name, FileMode.Open)));
+							break;
+						case PacketType.ExpertSecurity:
+							fileList.Add(new BasicSecurityDataPacket(fileInfo.Name, File.Open(fileInfo.Name, FileMode.Open)));
+							break;
+						default:
+							return;
+					}
+				}
 			}
 
-			client.SendFile(files.ToArray());
-		}
-
-		private void SendingBasicDataFiles(Client client, string[] items)
-		{
-			if(client.WaitingEvent != null)
-				client.WaitingEvent.WaitOne();
-
-			List<BasicDataPacket> files = new List<BasicDataPacket>();
-			foreach(var value in items)
+			switch(packetType)
 			{
-				FileInfo fileInfo = new FileInfo(value);
-				files.Add(new BasicDataPacket(fileInfo.Name, File.Open(fileInfo.FullName, FileMode.Open)));
+				case PacketType.BasicFrame:
+					client.SendFile(fileList.ToArray());
+					break;
+				case PacketType.BasicSecurity:
+					client.SendFile((BasicSecurityDataPacket[])fileList.ToArray());
+					break;
+				case PacketType.ExpertSecurity:
+					client.SendFile((ExpertSecurityDataPacket[])fileList.ToArray());
+					break;
+				default:
+					break;
 			}
-
-			client.SendFile(files.ToArray());
-		}
-
-		private void SendingBasicSecurityFiles(Client client, string[] items)
-		{
-			List<BasicSecurityDataPacket> files = new List<BasicSecurityDataPacket>();
-
-			foreach(var value in items)
-			{
-				FileInfo fileInfo = new FileInfo(value);
-				files.Add(new BasicSecurityDataPacket(fileInfo.Name, File.Open(fileInfo.FullName, FileMode.Open)));
-			}
-
-			client.SendFile(files.ToArray());
 		}
 
 		private void 송신설정ToolStripMenuItem_Click(object sender, EventArgs e)

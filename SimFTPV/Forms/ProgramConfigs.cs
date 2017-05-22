@@ -22,6 +22,7 @@ namespace SimFTPV.Forms
 		{
 			{ProgramConfig.UsingProgramTray, "트레이 모드 사용" },
 			{ProgramConfig.NotifyAcceptEvent, "수신 허가 여부 묻기" },
+			{ProgramConfig.UsingCacheBox, "주소 기록 사용" }
 		};
 
 		public ProgramConfigs(ref ProgramConfig config)

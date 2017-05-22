@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using SimFTP.Net.MetadataPackets;
+using SimFTP.Enums;
 
 namespace SimFTP.Net
 {

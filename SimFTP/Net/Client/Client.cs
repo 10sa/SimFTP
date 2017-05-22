@@ -17,6 +17,8 @@ using System.Net;
 using System.IO;
 using System.Net.Sockets;
 
+using SimFTP.Enums;
+
 
 namespace SimFTP.Net.Client
 {

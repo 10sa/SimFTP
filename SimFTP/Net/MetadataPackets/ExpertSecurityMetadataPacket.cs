@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 
+using SimFTP.Enums;
+
 namespace SimFTP.Net.MetadataPackets
 {
 	public sealed class ExpertSecurityMetadataPacket : BasicSecurityMetadataPacket

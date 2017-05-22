@@ -4,17 +4,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
+using SimFTP.Enums;
 
 namespace SimFTP.Net.MetadataPackets
 {
-	public enum PacketType
-	{
-		BasicFrame,
-		BasicSecurity,
-		ExpertSecurity,
-		Info
-	}
-
 	public class BasicMetadataPacket
 	{
 		public PacketType PacketType { get; protected set; }
