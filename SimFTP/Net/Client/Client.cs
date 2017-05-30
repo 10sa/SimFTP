@@ -90,22 +90,15 @@ namespace SimFTP.Net.Client
 
 		public void SendFile(params BasicDataPacket[] files)
 		{
-			HandlerCaller(PacketType.BasicFrame, () => { SendHandlingBasicPackets(files); });
+			if (files is ExpertSecurityDataPacket[])
+				HandlerCaller(PacketType.ExpertSecurity, () => { HandlingExpertSecurityExchange((ExpertSecurityDataPacket [])files); });
+			else
+				HandlerCaller(PacketType.BasicFrame, () => { SendHandlingDataPackets(files); });
 		}
 
 		public void SendFile(string username, string password, params BasicSecurityDataPacket[] files)
 		{
 			HandlerCaller(PacketType.BasicSecurity, () => { SendHandlingBasicSecurityPacket(username, password, files); });
-		}
-
-		public void SendFile(params BasicSecurityDataPacket[] files)
-		{
-			HandlerCaller(PacketType.BasicSecurity, () => { SendHandlingBasicSecurityPacket(files); });
-		}
-
-		public void SendFile(params ExpertSecurityDataPacket[] files)
-		{
-			HandlerCaller(PacketType.ExpertSecurity, () => { HandlingExpertSecurityExchange(files); });
 		}
 
 		public void SendFile(string username, string password, params ExpertSecurityDataPacket[] files)
@@ -147,20 +140,12 @@ namespace SimFTP.Net.Client
 
 		private void ThrowFormattedException(PacketType tryType)
 		{
-			throw new InvalidOperationException(string.Format("Wrong Packet Type. Tyring sending {0} type packet But, class sending type is {1}.", tryType, SendType));
+			throw new InvalidOperationException(string.Format("Wrong Packet Type. Tyring sending {0} type packet, but class sending type is {1}.", tryType, SendType));
 		}
 
-		private void SendHandlingBasicPackets(params BasicDataPacket[] files)
+		private void SendHandlingDataPackets(params BasicDataPacket[] files)
 		{
-			clientSocket.Send(new BasicMetadataPacket(files.Length).GetBinaryData());
-			InfoPacket infoPacket = InfoExchangeHandler();
-			FileSendHandler(files);
-		}
-
-		// Anonymous Send //
-		private void SendHandlingBasicSecurityPacket(params BasicSecurityDataPacket[] files)
-		{
-			clientSocket.Send(new BasicSecurityMetadataPacket(files.Length).GetBinaryData());
+			clientSocket.Send(files.First().CreateMetadata(files.Length).GetBinaryData());
 			InfoPacket infoPacket = InfoExchangeHandler();
 			FileSendHandler(files);
 		}
@@ -173,6 +158,7 @@ namespace SimFTP.Net.Client
 			FileSendHandler(files);
 		}
 
+		// TO DO : Refactoring !!! (Dirty Code) //
 		private void HandlingExpertSecurityExchange(ExpertSecurityDataPacket[] files, string username = null, string password = null)
 		{
 			using(DH521Manager dhManager = new DH521Manager())

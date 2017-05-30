@@ -4,13 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-
+using SimFTP.Net.MetadataPackets;
 
 namespace SimFTP.Net.DataPackets
 {
 	public class BasicSecurityDataPacket : BasicDataPacket
 	{
 		public byte[] Checksum { get; private set; }
+
+		public override BasicMetadataPacket CreateMetadata(int dataCount)
+		{
+			return new BasicSecurityMetadataPacket(dataCount);
+		}
 
 		public BasicSecurityDataPacket(string fileName, FileStream stream) : base(fileName, stream) 
 		{

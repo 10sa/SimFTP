@@ -98,7 +98,6 @@ namespace SimFTP.Net.Server
 
 			foreach(var thread in threadList)
 			{
-				// blocking?
 				thread.Interrupt();
 				threadList.Remove(thread);
 			}

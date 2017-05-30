@@ -11,7 +11,7 @@ namespace SimFTP.Net.MetadataPackets
 {
 	public sealed class ExpertSecurityMetadataPacket : BasicSecurityMetadataPacket
 	{
-		public byte[] PublicKey { get; private set; }
+		public byte[] PublicKey { get; set; }
 
 		public ExpertSecurityMetadataPacket(string username, string password, int dataCount, byte[] publicKey) : base(username, password, dataCount)
 		{

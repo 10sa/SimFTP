@@ -9,6 +9,7 @@ using System.Net.Sockets;
 
 using SimFTP;
 
+using SimFTP.Net.MetadataPackets;
 
 namespace SimFTP.Net.DataPackets
 {
@@ -22,6 +23,11 @@ namespace SimFTP.Net.DataPackets
 		public FileStream File { get; protected set; }
 
 		private bool _CalledOnlyBasicDataPacket = false;
+
+		public virtual BasicMetadataPacket CreateMetadata(int dataCount)
+		{
+			return new BasicMetadataPacket(dataCount);
+		}
 
 		private BasicDataPacket () { }
 

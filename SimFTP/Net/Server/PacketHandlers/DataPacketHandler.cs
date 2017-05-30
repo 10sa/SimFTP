@@ -2,21 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Security.Cryptography;
-using System.Text.RegularExpressions;
 
-
-using SimFTP;
-using SimFTP.Config;
-
-using SimFTP.Net;
 using SimFTP.Security;
 using SimFTP.Net.DataPackets;
-using SimFTP.Net.MetadataPackets;
 
-using System.Net;
-using System.Threading;
 using System.Net.Sockets;
 using System.IO;
 
@@ -63,7 +53,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 			using(AES256Manager aes = new AES256Manager(shareKey))
 			{
 				ExpertSecurityDataPacket data = new ExpertSecurityDataPacket(ReceiveBasicSecurityDataPacket(plusFolder));
-				string fileName = CreateFileName(data.FileName, true);
+				string fileName = GetLastFileName(data.FileName);
 
 				using (BinaryReader reader = new BinaryReader(File.Open(fileName, FileMode.Open)))
 				{
@@ -90,7 +80,7 @@ namespace SimFTP.Net.Server.PacketHandlers
 			const int FileBufferSize = int.MaxValue / 8;
 			long leftFileSize = fileSize;
 
-			using(BinaryWriter writer = new BinaryWriter(File.Create(CreateFileName(fileName), FileBufferSize)))
+			using(BinaryWriter writer = new BinaryWriter(File.Create(GetLastFileName(fileName, false), FileBufferSize)))
 			{
 				byte[] buffer = new byte[FileBufferSize];
 				while(leftFileSize > buffer.Length)
@@ -114,51 +104,58 @@ namespace SimFTP.Net.Server.PacketHandlers
 			GC.Collect();
 		}
 
-		private string CreateFileName(string fileName, bool getExist = false)
+		private string GetLastFileName(string fileName, bool getExistFile = true)
 		{
 			StringBuilder builder = new StringBuilder();
-			if(saveFolder != string.Empty)
+			string fileFormat = CreateBasicFilepath(builder, fileName);
+
+			if (!File.Exists(builder.ToString() + string.Format(" (1)." + fileFormat)))
+			{
+				if (getExistFile)
+					return builder.ToString() + "." + fileFormat;
+				else
+				{
+					if (!File.Exists(builder.ToString() + "." + fileFormat))
+						return builder.ToString() + "." + fileFormat;
+					else
+						return builder.ToString() + string.Format(" (1)." + fileFormat);
+				}
+			}
+
+			for(int ctl = 1; ; ctl++)
+			{
+				if (!File.Exists(builder.ToString() + string.Format(" ({0}).{1}", ctl + 1, fileFormat)))
+				{
+					if (getExistFile)
+						return builder.ToString() + string.Format(" ({0}).{1}", ctl, fileFormat);
+					else
+						return builder.ToString() + string.Format(" ({0}).{1}", ctl + 1, fileFormat);
+				}
+			}
+		}
+
+		private string CreateBasicFilepath(StringBuilder builder, string fileName)
+		{
+			if (saveFolder != string.Empty)
 				builder.Append(saveFolder + "/");
 			else
 				builder.Append(Environment.CurrentDirectory + "/");
 
-			if(isSaveInDateFolder)
+			if (isSaveInDateFolder)
 				builder.Append(DateTime.Now.ToString("yyyy_MM_dd") + "/");
 
-			if(isUseUserFolder)
+			if (isUseUserFolder)
 				builder.Append(usernameFolder + "/");
 
-			if(!Directory.Exists(builder.ToString()))
+			if (!Directory.Exists(builder.ToString()))
 				Directory.CreateDirectory(builder.ToString());
 
-			if (!isOverwrite)
-			{
-				if (!File.Exists(builder.ToString() + fileName) || getExist)
-				{
-					builder.Append(fileName);
-					return builder.ToString();
-				}
-					
-				string[] splitName = fileName.Split('.');
-				for(int i = 0; i < splitName.Length - 1; i++)
-					builder.Append(splitName[i]);
+			string[] splitName = fileName.Split('.');
 
-				for(int i = 1; ; i++)
-				{
-					if (!File.Exists(string.Format(builder.ToString() + " ({0}).{1}", i, splitName.Last())) || getExist)
-					{
-						builder.Append(string.Format(" ({0}).{1}", i, splitName.Last()));
-						break;
-					}
-				}
+			for (int i = 0; i < splitName.Length - 1; i++)
+				builder.Append(splitName[i]);
 
-				return builder.ToString();
-			}
-			else
-			{
-				builder.Append(fileName);
-				return builder.ToString();
-			}
+			return splitName.Last();
 		}
 	}
 }

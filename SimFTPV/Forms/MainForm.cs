@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -296,7 +297,7 @@ namespace SimFTPV.Forms
 
 		private void SendingDataFiles(Client client, string[] files, PacketType packetType)
 		{
-			List<BasicDataPacket> fileList = new List<BasicDataPacket>();
+			ArrayList fileList = new ArrayList();
 
 			foreach (var value in files)
 			{
@@ -307,13 +308,13 @@ namespace SimFTPV.Forms
 					switch (packetType)
 					{
 						case PacketType.BasicFrame:
-							fileList.Add(new BasicDataPacket(value, File.Open(fileInfo.Name, FileMode.Open)));
+							fileList.Add(new BasicDataPacket(fileInfo.Name, File.Open(value, FileMode.Open)));
 							break;
 						case PacketType.BasicSecurity:
-							fileList.Add(new BasicSecurityDataPacket(value, File.Open(fileInfo.Name, FileMode.Open)));
+							fileList.Add(new BasicSecurityDataPacket(fileInfo.Name, File.Open(value, FileMode.Open)));
 							break;
 						case PacketType.ExpertSecurity:
-							fileList.Add(new BasicSecurityDataPacket(fileInfo.Name, File.Open(fileInfo.Name, FileMode.Open)));
+							fileList.Add(new ExpertSecurityDataPacket(new BasicDataPacket(fileInfo.Name, File.Open(value, FileMode.Open))));
 							break;
 						default:
 							return;
@@ -324,13 +325,13 @@ namespace SimFTPV.Forms
 			switch(packetType)
 			{
 				case PacketType.BasicFrame:
-					client.SendFile(fileList.ToArray());
+					client.SendFile((BasicDataPacket[])fileList.ToArray(typeof(BasicDataPacket)));
 					break;
 				case PacketType.BasicSecurity:
-					client.SendFile((BasicSecurityDataPacket[])fileList.ToArray());
+					client.SendFile((BasicSecurityDataPacket[])fileList.ToArray(typeof(BasicSecurityDataPacket)));
 					break;
 				case PacketType.ExpertSecurity:
-					client.SendFile((ExpertSecurityDataPacket[])fileList.ToArray());
+					client.SendFile((ExpertSecurityDataPacket[])fileList.ToArray(typeof(ExpertSecurityDataPacket)));
 					break;
 				default:
 					break;
