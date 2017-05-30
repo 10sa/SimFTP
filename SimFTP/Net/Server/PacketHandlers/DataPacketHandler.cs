@@ -21,6 +21,9 @@ namespace SimFTP.Net.Server.PacketHandlers
 		private bool isUseUserFolder = false;
 		private string usernameFolder;
 
+		// Temp const (will change getter method.
+		private const int FileBufferSize = int.MaxValue / 8;
+
 		public DataPacketHandler(Socket clientSocket, string saveFolder, bool isSaveDateFolder, bool isOverwrite, bool isUseUserFolder)
 		{
 			this.clientSocket = clientSocket;
@@ -57,19 +60,21 @@ namespace SimFTP.Net.Server.PacketHandlers
 
 				using (BinaryReader reader = new BinaryReader(File.Open(fileName, FileMode.Open)))
 				{
-					CryptoStream writerStream = aes.GetDencryptStream(File.Open(fileName + ".DENCRYPT", FileMode.Create));
+					using (CryptoStream writerStream = aes.GetDencryptStream(File.Open(fileName + ".DENCRYPT", FileMode.Create)))
+					{
+						byte[] buffer = new byte[FileBufferSize];
+						int readedBytes;
 
-					byte[] buffer = new byte[int.MaxValue / 8];
-					int readedBytes;
+						while ((readedBytes = reader.Read(buffer, 0, buffer.Length)) > 0)
+							writerStream.Write(buffer, 0, readedBytes);
 
-					while((readedBytes = reader.Read(buffer, 0, buffer.Length)) > 0)
-						writerStream.Write(buffer, 0, readedBytes);
-
-					writerStream.Dispose();
+						buffer = null;
+					}
 				}
 
 				File.Delete(fileName);
 				File.Move(fileName + ".DENCRYPT", fileName);
+				GC.Collect();
 
 				return data;
 			}
@@ -77,28 +82,21 @@ namespace SimFTP.Net.Server.PacketHandlers
 
 		private void GetFileData (Socket clientSocket, long fileSize, string fileName)
 		{
-			const int FileBufferSize = int.MaxValue / 8;
 			long leftFileSize = fileSize;
 
 			using(BinaryWriter writer = new BinaryWriter(File.Create(GetLastFileName(fileName, false), FileBufferSize)))
 			{
 				byte[] buffer = new byte[FileBufferSize];
-				while(leftFileSize > buffer.Length)
-				{
-					int readedSize = ShareNetUtil.BufferedReceivePacket(clientSocket, buffer, buffer.Length);
-					writer.Write(buffer, 0, readedSize);
-					leftFileSize -= readedSize;
-				}
+				int readedSize;
 
-				while(leftFileSize > 0)
+				while (leftFileSize > 0)
 				{
-					int readedSize = ShareNetUtil.BufferedReceivePacket(clientSocket, buffer, (int)leftFileSize);
+					readedSize = ShareNetUtil.BufferedReceivePacket(clientSocket, buffer, leftFileSize > int.MaxValue ? buffer.Length : (int)leftFileSize);
 					writer.Write(buffer, 0, readedSize);
 					leftFileSize -= readedSize;
 				}
 
 				buffer = null;
-				writer.Close();
 			}
 
 			GC.Collect();
